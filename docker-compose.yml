@@ -1,5 +1,5 @@
 networks:
-  legal_check:
+  ice_breaker:
 
 volumes:
   postgres_data:
@@ -8,61 +8,61 @@ volumes:
 
 services:
 
-  nginx:
-    build:
-      context: .
-      dockerfile: docker/nginx.dockerfile
-      target: base
-      args:
-        - UID=${UID:-1001}
-        - GID=${GID:-1001}
-        - USER=${USER:-anton}
-    restart: unless-stopped
-    container_name: nginx
-    ports:
-      - "800:80"
-    volumes:
-      - ./docker/nginx-dev.conf:/etc/nginx/conf.d/default.conf
-      - ./dist/:/usr/share/nginx/html/
-    depends_on:
-      db:
-        condition: service_healthy
-      api:
-        condition: service_healthy
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    networks:
-      - legal_check
+#  nginx:
+#    build:
+#      context: .
+#      dockerfile: docker/nginx.dockerfile
+#      target: base
+#      args:
+#        - UID=${UID:-1001}
+#        - GID=${GID:-1001}
+#        - USER=${USER:-anton}
+#    restart: unless-stopped
+#    container_name: nginx
+#    ports:
+#      - "800:80"
+#    volumes:
+#      - ./docker/nginx-dev.conf:/etc/nginx/conf.d/default.conf
+#      - ./dist/:/usr/share/nginx/html/
+#    depends_on:
+#      db:
+#        condition: service_healthy
+#      api:
+#        condition: service_healthy
+#    extra_hosts:
+#      - "host.docker.internal:host-gateway"
+#    networks:
+#      - ice_breaker
 
-  api:
-    build:
-      context: .
-      dockerfile: docker/api.dockerfile
-      target: dev
-      args:
-        - UID=${UID:-1001}
-        - GID=${GID:-1001}
-        - USER=${USER:-anton}
-    container_name: lc-api
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./:/app/
-    networks:
-      - legal_check
-    depends_on:
-      - db
-    healthcheck:
-      test: [ "CMD-SHELL", "curl -f http://localhost:8000/api/v1/health || exit 1" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+#  api:
+#    build:
+#      context: .
+#      dockerfile: docker/api.dockerfile
+#      target: dev
+#      args:
+#        - UID=${UID:-1001}
+#        - GID=${GID:-1001}
+#        - USER=${USER:-anton}
+#    container_name: lc-api
+#    ports:
+#      - "8000:8000"
+#    volumes:
+#      - ./:/app/
+#    networks:
+#      - ice_breaker
+#    depends_on:
+#      - db
+#    healthcheck:
+#      test: [ "CMD-SHELL", "curl -f http://localhost:8000/api/v1/health || exit 1" ]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 3
+#      start_period: 40s
 
 
   db:
-    image: pgvector/pgvector:0.8.0-pg17
-    container_name: lc-db
+    image: postgres:17
+    container_name: ib-db
     environment:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
@@ -75,6 +75,6 @@ services:
       timeout: 30s
       retries: 6
     networks:
-      - legal_check
+      - ice_breaker
     volumes:
       - postgres_data:/var/lib/postgresql/data

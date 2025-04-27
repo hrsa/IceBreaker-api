@@ -1,9 +1,7 @@
-// src/auth/auth.controller.ts
 import {
   Controller,
   Post,
   UseGuards,
-  Request,
   Body,
   HttpCode,
   HttpStatus,
@@ -18,6 +16,8 @@ import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UsersService } from '../users/users.service';
 import { UserResponseDto } from '../users/dto/user-response.dto';
 import { TokenDto } from './dto/token.dto';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -44,7 +44,7 @@ export class AuthController {
   @ApiBody({ type: LoginDto })
   @ApiResponse({ status: 200, description: 'Login successful', type: TokenDto })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async login(@Request() req): Promise<TokenDto> {
-    return this.authService.login(req.user);
+  async login(@CurrentUser() user: User): Promise<TokenDto> {
+    return this.authService.login(user);
   }
 }
