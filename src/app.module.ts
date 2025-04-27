@@ -10,6 +10,7 @@ import { CardsModule } from './cards/cards.module';
 import { CardPreferencesModule } from './card-preferences/card-preferences.module';
 import { AuthModule } from './auth/auth.module';
 import { SuggestionsModule } from './suggestions/suggestions.module';
+import { OpenAiModule } from './openai/openai.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { SuggestionsModule } from './suggestions/suggestions.module';
     CardPreferencesModule,
     AuthModule,
     SuggestionsModule,
+    OpenAiModule,
   ],
   controllers: [AppController],
   providers: [AppService],

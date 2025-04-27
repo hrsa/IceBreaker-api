@@ -22,7 +22,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         throw new UnauthorizedException('User is not activated');
       }
 
-      return { userId: payload.sub, email: payload.email };
+      return { userId: payload.sub, email: payload.email, isAdmin: user.isAdmin };
     } catch (error) {
       throw new UnauthorizedException('Invalid token');
     }

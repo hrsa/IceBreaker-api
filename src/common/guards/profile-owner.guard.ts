@@ -24,7 +24,7 @@ export class ProfileOwnerGuard implements CanActivate {
     try {
       const profile = await this.profilesService.findOne(profileId);
 
-      if (profile.userId !== user.id) {
+      if (profile.userId !== user.userId) {
         throw new ForbiddenException('You can only access your own profiles');
       }
 
