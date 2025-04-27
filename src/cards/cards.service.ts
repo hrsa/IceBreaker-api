@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Card } from './entities/card.entity';
+import { Card, CardLanguage } from './entities/card.entity';
 import { Repository } from 'typeorm';
 import { CardPreference, CardStatus } from '../card-preferences/entitites/card-preference.entity';
 import { CreateCardDto } from './dto/create-card.dto';
@@ -17,10 +17,32 @@ export class CardsService {
     private categoriesService: CategoriesService,
   ) {}
 
+  private mapQuestionToLanguageField(card: Card, question: string, language: CardLanguage): Card {
+    switch (language) {
+      case CardLanguage.ENGLISH:
+        card.question_en = question;
+        break;
+      case CardLanguage.RUSSIAN:
+        card.question_ru = question;
+        break;
+      case CardLanguage.FRENCH:
+        card.question_fr = question;
+        break;
+      case CardLanguage.ITALIAN:
+        card.question_it = question;
+        break;
+      default:
+        card.question_en = question;
+    }
+    return card;
+  }
+
+
   async create(createCardDto: CreateCardDto): Promise<Card> {
     await this.categoriesService.findOne(createCardDto.categoryId);
 
     const card = this.cardsRepository.create(createCardDto);
+    this.mapQuestionToLanguageField(card, createCardDto.question, createCardDto.language);
     return this.cardsRepository.save(card);
   }
 
@@ -57,6 +79,13 @@ export class CardsService {
     const card = await this.findOne(id);
 
     updateCardDto.updatedAt = new Date();
+
+    if (updateCardDto.question && updateCardDto.language) {
+      this.mapQuestionToLanguageField(card, updateCardDto.question, updateCardDto.language);
+
+      delete updateCardDto.question;
+      delete updateCardDto.language;
+    }
 
     this.cardsRepository.merge(card, updateCardDto);
     return this.cardsRepository.save(card);

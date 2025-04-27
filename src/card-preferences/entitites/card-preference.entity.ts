@@ -5,6 +5,7 @@ import { Card } from '../../cards/entities/card.entity';
 export enum CardStatus {
   ACTIVE = 'active',
   ARCHIVED = 'archived',
+  LOVED = 'loved',
   BANNED = 'banned',
 }
 

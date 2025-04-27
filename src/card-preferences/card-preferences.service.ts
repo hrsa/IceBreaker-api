@@ -1,5 +1,4 @@
-// src/card-preferences/card-preferences.service.ts
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CardPreference, CardStatus } from './entitites/card-preference.entity';
@@ -85,6 +84,10 @@ export class CardPreferencesService {
     return this.findAll(profileId, CardStatus.BANNED);
   }
 
+  async getLovedCardsForProfile(profileId: string): Promise<CardPreference[]> {
+    return this.findAll(profileId, CardStatus.LOVED);
+  }
+
   async archiveCard(cardId: string, profileId: string): Promise<CardPreference> {
     return this.updatePreference(cardId, profileId, { status: CardStatus.ARCHIVED });
   }
@@ -95,5 +98,9 @@ export class CardPreferencesService {
 
   async banCard(cardId: string, profileId: string): Promise<CardPreference> {
     return this.updatePreference(cardId, profileId, { status: CardStatus.BANNED });
+  }
+
+  async loveCard(cardId: string, profileId: string): Promise<CardPreference> {
+    return this.updatePreference(cardId, profileId, { status: CardStatus.LOVED });
   }
 }

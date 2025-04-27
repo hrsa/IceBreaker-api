@@ -94,6 +94,21 @@ export class CardPreferencesController {
     return preferences.map(pref => new CardPreferenceResponseDto(pref));
   }
 
+  @Get('loved')
+  @ApiOperation({ summary: 'Get all banned cards for a profile' })
+  @ApiQuery({ name: 'profileId', required: true, type: String })
+  @ApiResponse({
+    status: 200,
+    description: 'Return banned cards for the profile',
+    type: [CardPreferenceResponseDto]
+  })
+  async getLovedCards(
+    @Query('profileId') profileId: string
+  ): Promise<CardPreferenceResponseDto[]> {
+    const preferences = await this.preferencesService.getLovedCardsForProfile(profileId);
+    return preferences.map(pref => new CardPreferenceResponseDto(pref));
+  }
+
   @Put(':cardId/profile/:profileId')
   @ApiOperation({ summary: 'Update a card preference for a profile' })
   @ApiResponse({
@@ -160,6 +175,22 @@ export class CardPreferencesController {
     @Param('profileId') profileId: string,
   ): Promise<CardPreferenceResponseDto> {
     const preference = await this.preferencesService.banCard(cardId, profileId);
+    return new CardPreferenceResponseDto(preference);
+  }
+
+  @Post(':cardId/profile/:profileId/love')
+  @ApiOperation({ summary: 'Love a card for a profile' })
+  @ApiResponse({
+    status: 200,
+    description: 'Card added to loved successfully',
+    type: CardPreferenceResponseDto
+  })
+  @ApiResponse({ status: 404, description: 'Card or profile not found' })
+  async loveCard(
+    @Param('cardId') cardId: string,
+    @Param('profileId') profileId: string,
+  ): Promise<CardPreferenceResponseDto> {
+    const preference = await this.preferencesService.loveCard(cardId, profileId);
     return new CardPreferenceResponseDto(preference);
   }
 }

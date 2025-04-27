@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose, Type } from 'class-transformer';
 import { Card } from '../entities/card.entity';
 import { CategoryResponseDto } from '../../categories/dto/category-response.dto';
+import { IsOptional } from 'class-validator';
 
 @Exclude()
 export class CardResponseDto {
@@ -13,7 +14,29 @@ export class CardResponseDto {
   @ApiProperty({
     example: 'If you could have dinner with any historical figure, who would it be and why?'
   })
-  question: string;
+  @IsOptional()
+  question_en: string;
+
+  @Expose()
+  @ApiProperty({
+    example: 'If you could have dinner with any historical figure, who would it be and why?'
+  })
+  @IsOptional()
+  question_ru: string;
+
+  @Expose()
+  @ApiProperty({
+    example: 'If you could have dinner with any historical figure, who would it be and why?'
+  })
+  @IsOptional()
+  question_fr: string;
+
+  @Expose()
+  @ApiProperty({
+    example: 'If you could have dinner with any historical figure, who would it be and why?'
+  })
+  @IsOptional()
+  question_it: string;
 
   @Expose()
   @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000' })

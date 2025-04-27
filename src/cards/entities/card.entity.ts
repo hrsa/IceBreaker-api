@@ -2,16 +2,29 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColum
 import { Category } from '../../categories/entities/category.entity';
 import { CardPreference } from '../../card-preferences/entitites/card-preference.entity';
 
+export enum CardLanguage {
+  ENGLISH = 'en',
+  RUSSIAN = 'ru',
+  FRENCH = 'fr',
+  ITALIAN = 'it',
+}
+
 @Entity()
 export class Card {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
-  question: string;
+  @Column({nullable: true})
+  question_en: string;
 
-  @Column()
-  language: string;  // 'en', 'es', 'fr', etc.
+  @Column({nullable: true})
+  question_ru: string;
+
+  @Column({nullable: true})
+  question_fr: string;
+
+  @Column({nullable: true})
+  question_it: string;
 
   @ManyToOne(() => Category, category => category.cards)
   @JoinColumn({ name: 'categoryId' })

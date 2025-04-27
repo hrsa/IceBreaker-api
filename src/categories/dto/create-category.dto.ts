@@ -8,7 +8,7 @@ export class CreateCategoryDto {
   })
   @IsString()
   @IsNotEmpty({ message: 'Category name is required' })
-  @MaxLength(140, { message: 'Category name cannot exceed 100 characters' })
+  @MaxLength(140, { message: 'Category name cannot exceed 140 characters' })
   name: string;
 
   @ApiProperty({

@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Card } from '../../cards/entities/card.entity';
+import { Suggestion } from '../../suggestions/entities/suggestion.entity';
 
 @Entity()
 export class Category {
@@ -17,4 +18,7 @@ export class Category {
 
   @OneToMany(() => Card, card => card.category)
   cards: Card[];
+
+  @OneToMany(() => Suggestion, suggestion => suggestion.category)
+  suggestions: Suggestion[];
 }

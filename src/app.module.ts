@@ -9,6 +9,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { CardsModule } from './cards/cards.module';
 import { CardPreferencesModule } from './card-preferences/card-preferences.module';
 import { AuthModule } from './auth/auth.module';
+import { SuggestionsModule } from './suggestions/suggestions.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { AuthModule } from './auth/auth.module';
     CardsModule,
     CardPreferencesModule,
     AuthModule,
+    SuggestionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

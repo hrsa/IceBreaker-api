@@ -1,5 +1,6 @@
-import { IsNotEmpty, IsString, IsUUID, MaxLength } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsString, IsUUID, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { CardLanguage } from '../entities/card.entity';
 
 export class CreateCardDto {
   @ApiProperty({
@@ -10,6 +11,14 @@ export class CreateCardDto {
   @IsNotEmpty({ message: 'Card content is required' })
   @MaxLength(1000, { message: 'Content cannot exceed 1000 characters' })
   question: string;
+
+  @ApiProperty({
+    example: 'en',
+    description: 'The language of the question',
+  })
+  @IsEnum(CardLanguage)
+  @IsNotEmpty({ message: 'Language is required' })
+  language: CardLanguage;
 
   @ApiProperty({
     example: '123e4567-e89b-12d3-a456-426614174000',
