@@ -1,0 +1,139 @@
+networks:
+  legal_check:
+
+volumes:
+  postgres_data:
+    driver: local
+  certbot_letsencrypt_data:
+    driver: local
+  certbot_www_data:
+    driver: local
+  logs:
+    driver: local
+  app_storage:
+    driver: local
+
+
+services:
+
+  certbot:
+    image: certbot/certbot:latest
+    restart: no
+    container_name: certbot
+    volumes:
+      - certbot_letsencrypt_data:/etc/letsencrypt
+      - certbot_www_data:/tmp/letsencrypt
+    command:
+      - "certonly"
+      - "--webroot"
+      - "--agree-tos"
+      - "--renew-by-default"
+      - "--preferred-challenges"
+      - "http-01"
+      - "--server"
+      - "https://acme-v02.api.letsencrypt.org/directory"
+      - "--text"
+      - "--email=${ADMIN_EMAIL}"
+      - "-w"
+      - "/tmp/letsencrypt"
+      - "-d"
+      - "${HOST},www.${HOST}"
+    depends_on:
+      nginx-no-ssl:
+        condition: service_started
+
+  nginx-no-ssl:
+    image: hrsa/legalcheck-nginx-no-ssl:production
+    build:
+      context: .
+      dockerfile: ./docker/nginx.dockerfile
+      target: no-ssl
+      args:
+        - UID=${UID:-1001}
+        - GID=${GID:-1001}
+        - USER=${USER:-anton}
+    container_name: lc-nginx-no-ssl
+    volumes:
+      - certbot_letsencrypt_data:/etc/letsencrypt
+      - certbot_www_data:/var/www/certbot
+      - logs:/var/www/storage/logs
+    ports:
+      - "80:80"
+    networks:
+      - legal_check
+
+  nginx:
+    image: hrsa/legalcheck-nginx:production
+    build:
+      context: .
+      dockerfile: ./docker/nginx.dockerfile
+      target: prod
+      args:
+        - UID=${UID:-1001}
+        - GID=${GID:-1001}
+        - USER=${USER:-anton}
+    restart: unless-stopped
+    container_name: nginx
+    volumes:
+      - certbot_letsencrypt_data:/etc/letsencrypt
+      - certbot_www_data:/var/www/certbot
+      - logs:/var/www/storage/logs
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      db:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - legal_check
+
+  api:
+    image: hrsa/legalcheck-api:production
+    build:
+      context: .
+      dockerfile: docker/api.dockerfile
+      target: prod
+      args:
+        - UID=${UID:-1001}
+        - GID=${GID:-1001}
+        - USER=${USER:-anton}
+    container_name: lc-api
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - app_storage:/app/storage
+      - logs:/app/logs
+    networks:
+      - legal_check
+    depends_on:
+      - db
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8000/api/v1/health || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+
+  db:
+    image: pgvector/pgvector:0.8.0-pg17
+    container_name: lc-db
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}" ]
+      interval: 5s
+      timeout: 30s
+      retries: 6
+    networks:
+      - legal_check
+    volumes:
+      - postgres_data:/var/lib/postgresql/data

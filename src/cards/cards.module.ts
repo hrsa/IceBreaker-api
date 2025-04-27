@@ -1,0 +1,15 @@
+import { Module } from '@nestjs/common';
+import { CardsController } from './cards.controller';
+import { CardsService } from './cards.service';
+import { Card } from './entities/card.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { CardPreference } from '../card-preferences/entitites/card-preference.entity';
+import { CategoriesModule } from '../categories/categories.module';
+
+@Module({
+  imports: [TypeOrmModule.forFeature([Card, CardPreference]), CategoriesModule],
+  controllers: [CardsController],
+  providers: [CardsService],
+  exports: [CardsService],
+})
+export class CardsModule {}
