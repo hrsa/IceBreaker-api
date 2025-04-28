@@ -13,10 +13,8 @@ async function bootstrap() {
     }),
   );
 
-  // CORS
   app.enableCors();
 
-  // Swagger documentation
   const config = new DocumentBuilder()
     .setTitle('Icebreaker API')
     .setDescription('API for the Icebreaker Card App')
