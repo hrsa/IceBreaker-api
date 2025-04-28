@@ -1,11 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Card, CardLanguage } from './entities/card.entity';
+import { Card } from './entities/card.entity';
 import { Repository } from 'typeorm';
 import { CardPreference, CardStatus } from '../card-preferences/entitites/card-preference.entity';
 import { CreateCardDto } from './dto/create-card.dto';
 import { CategoriesService } from '../categories/categories.service';
 import { UpdateCardDto } from './dto/update-card.dto';
+import { LanguageUtilsService } from '../common/utils/language-utils.service';
 
 @Injectable()
 export class CardsService {
@@ -15,34 +16,14 @@ export class CardsService {
     @InjectRepository(CardPreference)
     private cardPreferencesRepository: Repository<CardPreference>,
     private categoriesService: CategoriesService,
+    private languageUtilsService: LanguageUtilsService,
   ) {}
-
-  private mapQuestionToLanguageField(card: Card, question: string, language: CardLanguage): Card {
-    switch (language) {
-      case CardLanguage.ENGLISH:
-        card.question_en = question;
-        break;
-      case CardLanguage.RUSSIAN:
-        card.question_ru = question;
-        break;
-      case CardLanguage.FRENCH:
-        card.question_fr = question;
-        break;
-      case CardLanguage.ITALIAN:
-        card.question_it = question;
-        break;
-      default:
-        card.question_en = question;
-    }
-    return card;
-  }
-
 
   async create(createCardDto: CreateCardDto): Promise<Card> {
     await this.categoriesService.findOne(createCardDto.categoryId);
 
     const card = this.cardsRepository.create(createCardDto);
-    this.mapQuestionToLanguageField(card, createCardDto.question, createCardDto.language);
+    this.languageUtilsService.mapPropertyToField(card, 'question', createCardDto.question, createCardDto.language);
     return this.cardsRepository.save(card);
   }
 
@@ -81,7 +62,7 @@ export class CardsService {
     updateCardDto.updatedAt = new Date();
 
     if (updateCardDto.question && updateCardDto.language) {
-      this.mapQuestionToLanguageField(card, updateCardDto.question, updateCardDto.language);
+      this.languageUtilsService.mapPropertyToField(card, 'question', updateCardDto.question, updateCardDto.language);
 
       delete updateCardDto.question;
       delete updateCardDto.language;
@@ -131,4 +112,5 @@ export class CardsService {
 
     return card;
   }
+
 }

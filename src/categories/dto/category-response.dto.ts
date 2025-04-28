@@ -10,14 +10,47 @@ export class CategoryResponseDto {
 
   @Expose()
   @ApiProperty({ example: 'Ice Breakers' })
-  name: string;
+  name_en?: string;
+
+  @Expose()
+  @ApiProperty({ example: 'Ice Breakers' })
+  name_ru?: string;
+
+  @Expose()
+  @ApiProperty({ example: 'Ice Breakers' })
+  name_fr?: string;
+
+  @Expose()
+  @ApiProperty({ example: 'Ice Breakers' })
+  name_it?: string;
 
   @Expose()
   @ApiProperty({
     example: 'Questions to break the ice in social gatherings',
     required: false
   })
-  description?: string;
+  description_en?: string;
+
+  @Expose()
+  @ApiProperty({
+    example: 'Questions to break the ice in social gatherings',
+    required: false
+  })
+  description_eu?: string;
+
+  @Expose()
+  @ApiProperty({
+    example: 'Questions to break the ice in social gatherings',
+    required: false
+  })
+  description_fr?: string;
+
+  @Expose()
+  @ApiProperty({
+    example: 'Questions to break the ice in social gatherings',
+    required: false
+  })
+  description_it?: string;
 
   @Expose()
   @ApiProperty({ example: '2023-01-01T00:00:00.000Z' })

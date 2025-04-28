@@ -1,6 +1,6 @@
 import { IsEnum, IsNotEmpty, IsString, IsUUID, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { CardLanguage } from '../entities/card.entity';
+import { AppLanguage } from '../../common/constants/app-language.enum';
 
 export class CreateCardDto {
   @ApiProperty({
@@ -16,9 +16,9 @@ export class CreateCardDto {
     example: 'en',
     description: 'The language of the question',
   })
-  @IsEnum(CardLanguage)
+  @IsEnum(AppLanguage)
   @IsNotEmpty({ message: 'Language is required' })
-  language: CardLanguage;
+  language: AppLanguage;
 
   @ApiProperty({
     example: '123e4567-e89b-12d3-a456-426614174000',

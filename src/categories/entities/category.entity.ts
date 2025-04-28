@@ -7,11 +7,29 @@ export class Category {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
-  name: string;
+  @Column({ nullable: true })
+  name_en: string;
 
   @Column({ nullable: true })
-  description: string;
+  name_ru: string;
+
+  @Column({ nullable: true })
+  name_fr: string;
+
+  @Column({ nullable: true })
+  name_it: string;
+
+  @Column({ nullable: true })
+  description_en: string;
+
+  @Column({ nullable: true })
+  description_ru: string;
+
+  @Column({ nullable: true })
+  description_fr: string;
+
+  @Column({ nullable: true })
+  description_it: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;

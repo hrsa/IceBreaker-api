@@ -1,7 +1,16 @@
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsString, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { AppLanguage } from '../../common/constants/app-language.enum';
 
 export class CreateCategoryDto {
+  @ApiProperty({
+    example: 'en',
+    description: 'The language of the category',
+  })
+  @IsEnum(AppLanguage)
+  @IsNotEmpty({ message: 'Language is required' })
+  language: AppLanguage;
+
   @ApiProperty({
     example: 'Ice Breakers',
     description: 'The name of the category',
@@ -17,6 +26,7 @@ export class CreateCategoryDto {
     required: false,
   })
   @IsString()
+  @IsNotEmpty({ message: 'Description is required' })
   @MaxLength(500, { message: 'Description cannot exceed 500 characters' })
-  description?: string;
+  description: string;
 }
