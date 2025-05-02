@@ -1,14 +1,11 @@
 import {
   IsArray, IsBoolean,
-  IsEnum,
   IsNotEmpty,
   IsNumber, IsOptional,
-  IsString,
   IsUUID,
-  MaxLength,
+
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { AppLanguage } from '../../common/constants/app-language.enum';
 
 export class GetRandomCardDto {
   @ApiProperty({
@@ -26,7 +23,6 @@ export class GetRandomCardDto {
     type: [String],
     isArray: true,
   })
-  //validate is as an array that contains UUID strings
   @IsArray()
   @IsUUID('all', { each: true, message: 'Category UUIDs are invalid' })
   categoryIds: string[];

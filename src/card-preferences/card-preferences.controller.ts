@@ -9,7 +9,7 @@ import {
   Post,
   UseInterceptors,
   ClassSerializerInterceptor,
-  HttpStatus, Res, HttpException,
+  HttpStatus, HttpException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -22,7 +22,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CardPreferencesService } from './card-preferences.service';
 import { UpdateCardPreferenceDto } from './dto/update-card-preference.dto';
 import { CardPreferenceResponseDto } from './dto/card-preference-response.dto';
-import { CardPreference, CardStatus } from './entitites/card-preference.entity';
+import { CardStatus } from './entitites/card-preference.entity';
 import { ProfileOwnerGuard } from '../common/guards/profile-owner.guard';
 import { Response } from 'express';
 
