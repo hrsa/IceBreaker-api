@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateProfileDto {
@@ -15,6 +15,6 @@ export class CreateProfileDto {
     description: 'The ID of the user who owns this profile',
   })
   @IsUUID()
-  @IsNotEmpty({ message: 'User ID is required' })
-  userId: string;
+  @IsOptional()
+  userId?: string;
 }

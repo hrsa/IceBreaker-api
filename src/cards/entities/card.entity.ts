@@ -34,4 +34,17 @@ export class Card {
 
   @OneToMany(() => CardPreference, preference => preference.card)
   profilePreferences: CardPreference[];
+
+  cardPreference?: CardPreference;
+
+  getPreferenceForProfile(profileId: string): CardPreference | undefined {
+    if (!this.profilePreferences) {
+      return undefined;
+    }
+
+    return this.profilePreferences.find(
+      preference => preference.profileId === profileId
+    );
+  }
+
 }

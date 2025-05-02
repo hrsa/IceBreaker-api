@@ -10,7 +10,7 @@ import {
   HttpCode,
   HttpStatus,
   ClassSerializerInterceptor,
-  UseInterceptors,
+  UseInterceptors, NotFoundException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
@@ -18,6 +18,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UserResponseDto } from './dto/user-response.dto';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 
 @ApiTags('users')
 @Controller('users')
@@ -42,6 +43,16 @@ export class UsersController {
   async findAll(): Promise<UserResponseDto[]> {
     const users = await this.usersService.findAll();
     return users.map(user => new UserResponseDto(user));
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({summary: 'Get the current user'})
+  async getMe(@CurrentUser('userId') userId: string): Promise<UserResponseDto> {
+    const user = await this.usersService.findOne(userId);
+    return new UserResponseDto(user);
   }
 
   @Get(':id')

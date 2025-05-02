@@ -1,4 +1,3 @@
-// src/card-preferences/card-preferences.controller.ts
 import {
   Controller,
   Get,
@@ -10,14 +9,22 @@ import {
   Post,
   UseInterceptors,
   ClassSerializerInterceptor,
+  HttpStatus, Res, HttpException,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CardPreferencesService } from './card-preferences.service';
 import { UpdateCardPreferenceDto } from './dto/update-card-preference.dto';
 import { CardPreferenceResponseDto } from './dto/card-preference-response.dto';
-import { CardStatus } from './entitites/card-preference.entity';
+import { CardPreference, CardStatus } from './entitites/card-preference.entity';
 import { ProfileOwnerGuard } from '../common/guards/profile-owner.guard';
+import { Response } from 'express';
 
 @ApiTags('card-preferences')
 @Controller('card-preferences')
@@ -34,19 +41,22 @@ export class CardPreferencesController {
     name: 'status',
     required: false,
     enum: CardStatus,
-    description: 'Filter by card status'
+    description: 'Filter by card status',
   })
   @ApiResponse({
     status: 200,
     description: 'Return all preferences for the profile',
-    type: [CardPreferenceResponseDto]
+    type: [CardPreferenceResponseDto],
   })
   async findAll(
     @Query('profileId') profileId: string,
-    @Query('status') status?: CardStatus
+    @Query('status') status?: CardStatus,
   ): Promise<CardPreferenceResponseDto[]> {
-    const preferences = await this.preferencesService.findAll(profileId, status);
-    return preferences.map(pref => new CardPreferenceResponseDto(pref));
+    const preferences = await this.preferencesService.findAll(
+      profileId,
+      status,
+    );
+    return preferences.map((pref) => new CardPreferenceResponseDto(pref));
   }
 
   @Get('active')
@@ -55,13 +65,14 @@ export class CardPreferencesController {
   @ApiResponse({
     status: 200,
     description: 'Return active cards for the profile',
-    type: [CardPreferenceResponseDto]
+    type: [CardPreferenceResponseDto],
   })
   async getActiveCards(
-    @Query('profileId') profileId: string
+    @Query('profileId') profileId: string,
   ): Promise<CardPreferenceResponseDto[]> {
-    const preferences = await this.preferencesService.getActiveCardsForProfile(profileId);
-    return preferences.map(pref => new CardPreferenceResponseDto(pref));
+    const preferences =
+      await this.preferencesService.getActiveCardsForProfile(profileId);
+    return preferences.map((pref) => new CardPreferenceResponseDto(pref));
   }
 
   @Get('archived')
@@ -70,13 +81,14 @@ export class CardPreferencesController {
   @ApiResponse({
     status: 200,
     description: 'Return archived cards for the profile',
-    type: [CardPreferenceResponseDto]
+    type: [CardPreferenceResponseDto],
   })
   async getArchivedCards(
-    @Query('profileId') profileId: string
+    @Query('profileId') profileId: string,
   ): Promise<CardPreferenceResponseDto[]> {
-    const preferences = await this.preferencesService.getArchivedCardsForProfile(profileId);
-    return preferences.map(pref => new CardPreferenceResponseDto(pref));
+    const preferences =
+      await this.preferencesService.getArchivedCardsForProfile(profileId);
+    return preferences.map((pref) => new CardPreferenceResponseDto(pref));
   }
 
   @Get('banned')
@@ -85,13 +97,14 @@ export class CardPreferencesController {
   @ApiResponse({
     status: 200,
     description: 'Return banned cards for the profile',
-    type: [CardPreferenceResponseDto]
+    type: [CardPreferenceResponseDto],
   })
   async getBannedCards(
-    @Query('profileId') profileId: string
+    @Query('profileId') profileId: string,
   ): Promise<CardPreferenceResponseDto[]> {
-    const preferences = await this.preferencesService.getBannedCardsForProfile(profileId);
-    return preferences.map(pref => new CardPreferenceResponseDto(pref));
+    const preferences =
+      await this.preferencesService.getBannedCardsForProfile(profileId);
+    return preferences.map((pref) => new CardPreferenceResponseDto(pref));
   }
 
   @Get('loved')
@@ -100,13 +113,14 @@ export class CardPreferencesController {
   @ApiResponse({
     status: 200,
     description: 'Return banned cards for the profile',
-    type: [CardPreferenceResponseDto]
+    type: [CardPreferenceResponseDto],
   })
   async getLovedCards(
-    @Query('profileId') profileId: string
+    @Query('profileId') profileId: string,
   ): Promise<CardPreferenceResponseDto[]> {
-    const preferences = await this.preferencesService.getLovedCardsForProfile(profileId);
-    return preferences.map(pref => new CardPreferenceResponseDto(pref));
+    const preferences =
+      await this.preferencesService.getLovedCardsForProfile(profileId);
+    return preferences.map((pref) => new CardPreferenceResponseDto(pref));
   }
 
   @Put(':cardId/profile/:profileId')
@@ -114,20 +128,24 @@ export class CardPreferencesController {
   @ApiResponse({
     status: 200,
     description: 'Preference updated successfully',
-    type: CardPreferenceResponseDto
+    type: CardPreferenceResponseDto,
   })
+  @ApiResponse({ status: 204, description: 'Preference deleted successfully' })
   @ApiResponse({ status: 404, description: 'Card or profile not found' })
   async updatePreference(
     @Param('cardId') cardId: string,
     @Param('profileId') profileId: string,
-    @Body() updateDto: UpdateCardPreferenceDto
-  ): Promise<CardPreferenceResponseDto> {
+    @Body() updateDto: UpdateCardPreferenceDto,
+  ): Promise<CardPreferenceResponseDto | Response> {
     const preference = await this.preferencesService.updatePreference(
       cardId,
       profileId,
-      updateDto
+      updateDto,
     );
-    return new CardPreferenceResponseDto(preference);
+    if (preference) {
+      return new CardPreferenceResponseDto(preference);
+    }
+    throw new HttpException("Card reactivated successfully.", HttpStatus.NO_CONTENT);
   }
 
   @Post(':cardId/profile/:profileId/archive')
@@ -135,15 +153,20 @@ export class CardPreferencesController {
   @ApiResponse({
     status: 200,
     description: 'Card archived successfully',
-    type: CardPreferenceResponseDto
+    type: CardPreferenceResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Card or profile not found' })
   async archiveCard(
     @Param('cardId') cardId: string,
     @Param('profileId') profileId: string,
   ): Promise<CardPreferenceResponseDto> {
-    const preference = await this.preferencesService.archiveCard(cardId, profileId);
-    return new CardPreferenceResponseDto(preference);
+    const preference = await this.preferencesService.archiveCard(
+      cardId,
+      profileId,
+    );
+    if (preference) {
+      return new CardPreferenceResponseDto(preference);
+    } else throw new HttpException("Can't archive the card.", HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   @Post(':cardId/profile/:profileId/reactivate')
@@ -151,15 +174,18 @@ export class CardPreferencesController {
   @ApiResponse({
     status: 200,
     description: 'Card reactivated successfully',
-    type: CardPreferenceResponseDto
+    type: CardPreferenceResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Card or profile not found' })
   async reactivateCard(
     @Param('cardId') cardId: string,
     @Param('profileId') profileId: string,
-  ): Promise<CardPreferenceResponseDto> {
-    const preference = await this.preferencesService.reactivateCard(cardId, profileId);
-    return new CardPreferenceResponseDto(preference);
+  ): Promise<Response> {
+    await this.preferencesService.reactivateCard(
+      cardId,
+      profileId,
+    );
+    throw new HttpException("Card reactivated successfully.", HttpStatus.NO_CONTENT);
   }
 
   @Post(':cardId/profile/:profileId/ban')
@@ -167,7 +193,7 @@ export class CardPreferencesController {
   @ApiResponse({
     status: 200,
     description: 'Card banned successfully',
-    type: CardPreferenceResponseDto
+    type: CardPreferenceResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Card or profile not found' })
   async banCard(
@@ -175,7 +201,9 @@ export class CardPreferencesController {
     @Param('profileId') profileId: string,
   ): Promise<CardPreferenceResponseDto> {
     const preference = await this.preferencesService.banCard(cardId, profileId);
-    return new CardPreferenceResponseDto(preference);
+    if (preference) {
+      return new CardPreferenceResponseDto(preference);
+    } else throw new HttpException("Can't ban the card.", HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   @Post(':cardId/profile/:profileId/love')
@@ -183,14 +211,19 @@ export class CardPreferencesController {
   @ApiResponse({
     status: 200,
     description: 'Card added to loved successfully',
-    type: CardPreferenceResponseDto
+    type: CardPreferenceResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Card or profile not found' })
   async loveCard(
     @Param('cardId') cardId: string,
     @Param('profileId') profileId: string,
   ): Promise<CardPreferenceResponseDto> {
-    const preference = await this.preferencesService.loveCard(cardId, profileId);
-    return new CardPreferenceResponseDto(preference);
+    const preference = await this.preferencesService.loveCard(
+      cardId,
+      profileId,
+    );
+    if (preference) {
+      return new CardPreferenceResponseDto(preference);
+    } else throw new HttpException("Can't love the card.", HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }

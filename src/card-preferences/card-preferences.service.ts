@@ -12,19 +12,20 @@ export class CardPreferencesService {
     @InjectRepository(CardPreference)
     private preferencesRepository: Repository<CardPreference>,
     private profilesService: ProfilesService,
-    private cardsService: CardsService,
+    private cardsService: CardsService
   ) {}
 
   async findAll(profileId: string, status?: string): Promise<CardPreference[]> {
     await this.profilesService.findOne(profileId);
 
-    const queryBuilder = this.preferencesRepository.createQueryBuilder('preference')
-      .leftJoinAndSelect('preference.card', 'card')
-      .leftJoinAndSelect('card.category', 'category')
-      .where('preference.profileId = :profileId', { profileId });
+    const queryBuilder = this.preferencesRepository
+      .createQueryBuilder("preference")
+      .leftJoinAndSelect("preference.card", "card")
+      .leftJoinAndSelect("card.category", "category")
+      .where("preference.profileId = :profileId", { profileId });
 
     if (status) {
-      queryBuilder.andWhere('preference.status = :status', { status });
+      queryBuilder.andWhere("preference.status = :status", { status });
     }
 
     return queryBuilder.getMany();
@@ -33,7 +34,7 @@ export class CardPreferencesService {
   async findOne(cardId: string, profileId: string): Promise<CardPreference> {
     const preference = await this.preferencesRepository.findOne({
       where: { cardId, profileId },
-      relations: ['card', 'card.category'],
+      relations: ["card", "card.category"],
     });
 
     if (!preference) {
@@ -43,11 +44,7 @@ export class CardPreferencesService {
     return preference;
   }
 
-  async updatePreference(
-    cardId: string,
-    profileId: string,
-    updateDto: UpdateCardPreferenceDto
-  ): Promise<CardPreference> {
+  async updatePreference(cardId: string, profileId: string, updateDto: UpdateCardPreferenceDto): Promise<CardPreference | null> {
     await this.cardsService.findOne(cardId);
     await this.profilesService.findOne(profileId);
 
@@ -56,19 +53,20 @@ export class CardPreferencesService {
     });
 
     if (!preference) {
+      if (updateDto.status === CardStatus.ACTIVE) return null;
       preference = this.preferencesRepository.create({
         cardId,
         profileId,
-        status: CardStatus.ACTIVE,
+        status: updateDto.status,
       });
     }
 
-    if (updateDto.status) {
-      preference.status = updateDto.status;
+    if (updateDto.status === CardStatus.ACTIVE) {
+      await this.preferencesRepository.delete(preference);
+      return null;
     }
 
     preference.lastInteractionAt = new Date();
-
     return this.preferencesRepository.save(preference);
   }
 
@@ -88,19 +86,19 @@ export class CardPreferencesService {
     return this.findAll(profileId, CardStatus.LOVED);
   }
 
-  async archiveCard(cardId: string, profileId: string): Promise<CardPreference> {
+  async archiveCard(cardId: string, profileId: string) {
     return this.updatePreference(cardId, profileId, { status: CardStatus.ARCHIVED });
   }
 
-  async reactivateCard(cardId: string, profileId: string): Promise<CardPreference> {
+  async reactivateCard(cardId: string, profileId: string) {
     return this.updatePreference(cardId, profileId, { status: CardStatus.ACTIVE });
   }
 
-  async banCard(cardId: string, profileId: string): Promise<CardPreference> {
+  async banCard(cardId: string, profileId: string) {
     return this.updatePreference(cardId, profileId, { status: CardStatus.BANNED });
   }
 
-  async loveCard(cardId: string, profileId: string): Promise<CardPreference> {
+  async loveCard(cardId: string, profileId: string) {
     return this.updatePreference(cardId, profileId, { status: CardStatus.LOVED });
   }
 }

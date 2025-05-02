@@ -36,7 +36,7 @@ export class CategoryResponseDto {
     example: 'Questions to break the ice in social gatherings',
     required: false
   })
-  description_eu?: string;
+  description_ru?: string;
 
   @Expose()
   @ApiProperty({

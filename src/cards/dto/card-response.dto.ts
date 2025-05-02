@@ -3,6 +3,7 @@ import { Exclude, Expose, Type } from 'class-transformer';
 import { Card } from '../entities/card.entity';
 import { CategoryResponseDto } from '../../categories/dto/category-response.dto';
 import { IsOptional } from 'class-validator';
+import { CardPreferenceResponseDto } from '../../card-preferences/dto/card-preference-response.dto';
 
 @Exclude()
 export class CardResponseDto {
@@ -46,6 +47,11 @@ export class CardResponseDto {
   @Type(() => CategoryResponseDto)
   @ApiProperty({ type: CategoryResponseDto })
   category?: CategoryResponseDto;
+
+  @Expose()
+  @Type(() => CardPreferenceResponseDto)
+  @ApiProperty({ type: () => CardPreferenceResponseDto, required: false })
+  cardPreference?: CardPreferenceResponseDto;
 
   @Expose()
   @ApiProperty({ example: '2023-01-01T00:00:00.000Z' })
