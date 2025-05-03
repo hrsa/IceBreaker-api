@@ -1,16 +1,20 @@
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsersModule } from './users/users.module';
-import { ProfilesModule } from './profiles/profiles.module';
-import { CategoriesModule } from './categories/categories.module';
-import { CardsModule } from './cards/cards.module';
-import { CardPreferencesModule } from './card-preferences/card-preferences.module';
-import { AuthModule } from './auth/auth.module';
-import { SuggestionsModule } from './suggestions/suggestions.module';
-import { TranslationsModule } from './translations/translations.module';
+import { Module } from "@nestjs/common";
+import { AppController } from "./app.controller";
+import { AppService } from "./app.service";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { UsersModule } from "./users/users.module";
+import { ProfilesModule } from "./profiles/profiles.module";
+import { CategoriesModule } from "./categories/categories.module";
+import { CardsModule } from "./cards/cards.module";
+import { CardPreferencesModule } from "./card-preferences/card-preferences.module";
+import { AuthModule } from "./auth/auth.module";
+import { SuggestionsModule } from "./suggestions/suggestions.module";
+import { TranslationsModule } from "./translations/translations.module";
+import { TelegramModule } from "./telegram/telegram.module";
+import { AcceptLanguageResolver, HeaderResolver, I18nModule, QueryResolver } from "nestjs-i18n";
+import { join } from "path";
+import { RedisSessionModule } from './redis/redis-session.module';
 
 @Module({
   imports: [
@@ -21,15 +25,25 @@ import { TranslationsModule } from './translations/translations.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get('DB_HOST', 'localhost'),
-        port: configService.get<number>('DB_PORT', 5432),
-        username: configService.get('DB_USER', 'postgres'),
-        password: configService.get('DB_PASSWORD', 'postgres'),
-        database: configService.get('DB_NAME', 'icebreaker'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: configService.get<boolean>('DB_SYNC', false),
+        type: "postgres",
+        host: configService.get("DB_HOST", "localhost"),
+        port: configService.get<number>("DB_PORT", 5432),
+        username: configService.get("DB_USER", "postgres"),
+        password: configService.get("DB_PASSWORD", "postgres"),
+        database: configService.get("DB_NAME", "icebreaker"),
+        entities: [__dirname + "/**/*.entity{.ts,.js}"],
+        synchronize: configService.get<boolean>("DB_SYNC", false),
       }),
+    }),
+    I18nModule.forRootAsync({
+      useFactory: () => ({
+        fallbackLanguage: "en",
+        loaderOptions: {
+          path: join(__dirname, "/i18n/"),
+        },
+      }),
+      resolvers: [{ use: QueryResolver, options: ["lang"] }, AcceptLanguageResolver, new HeaderResolver(["x-lang"])],
+      inject: [ConfigService],
     }),
     UsersModule,
     ProfilesModule,
@@ -39,6 +53,8 @@ import { TranslationsModule } from './translations/translations.module';
     AuthModule,
     SuggestionsModule,
     TranslationsModule,
+    TelegramModule,
+    RedisSessionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

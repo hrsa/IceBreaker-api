@@ -1,0 +1,71 @@
+{
+  "commands": {
+    "start": {
+      "description": "Démarrer le jeu"
+    },
+    "help": {
+      "description": "Afficher l'aide"
+    },
+    "language": {
+      "description": "Sélectionner la langue"
+    }
+  },
+  "help": {
+    "message": "Aide du Icebreaker Bot :\n\n/start - Démarrer ou redémarrer le bot\n/help - Afficher ce message d'aide\n\nSuivez les instructions pour vous authentifier, sélectionner un profil, choisir des catégories et obtenir des cartes aléatoires."
+  },
+  "language": {
+    "select_prompt": "Veuillez sélectionner votre langue préférée :",
+    "selected": "Langue sélectionnée : {language}",
+    "options": {
+      "english": "Anglais",
+      "russian": "Russe",
+      "french": "Français",
+      "italian": "Italien"
+    }
+  },
+  "authentication": {
+    "welcome": "Bienvenue dans le Icebreaker Bot ! 👋\n\nVeuillez entrer votre email pour vous authentifier.",
+    "email_not_found": "Email non trouvé. Veuillez entrer une adresse email valide.",
+    "success": "Authentification réussie ! Bonjour, {name}.\n\nVeuillez sélectionner un profil :"
+  },
+  "profile": {
+    "selection": {
+      "prompt": "Veuillez sélectionner un profil :",
+      "invalid": "Sélection de profil invalide. Veuillez réessayer.",
+      "create_new": "Créer un nouveau profil"
+    },
+    "creation": {
+      "prompt": "Veuillez entrer un nom pour votre nouveau profil :",
+      "invalid": "Veuillez entrer un nom de profil valide.",
+      "length_error": "Le nom du profil doit comporter entre 1 et 50 caractères. Veuillez réessayer :",
+      "success": "Le profil \"{profileName}\" a été créé avec succès !\n\nMaintenant, veuillez sélectionner des catégories (vous pouvez en sélectionner plusieurs) :",
+      "error": "Erreur lors de la création du profil : {message}. Veuillez réessayer."
+    }
+  },
+  "category": {
+    "selection": {
+      "prompt": "Super ! Maintenant, veuillez sélectionner des catégories (vous pouvez en sélectionner plusieurs) :",
+      "selected_count": "Catégories sélectionnées : {count}",
+      "invalid": "Sélection de catégorie invalide. Veuillez réessayer.",
+      "start_game": "Commencer le jeu !",
+      "select_at_least_one": "Veuillez sélectionner au moins une catégorie avant de continuer."
+    }
+  },
+  "card": {
+    "category_info": "Catégorie : {categoryName}",
+    "all_viewed": "⚠️ Vous avez vu toutes les cartes de ces catégories.",
+    "no_cards": "Aucune carte trouvée pour les catégories sélectionnées. Essayez de choisir d'autres catégories.",
+    "error": "Erreur lors de la récupération de la carte : {message}. Veuillez réessayer.",
+    "actions": {
+      "another": "Obtenir une autre carte",
+      "change_categories": "Changer de catégories",
+      "change_profile": "Changer de profil",
+      "start_over": "Recommencer",
+      "change_language": "Changer de langue"
+    }
+  },
+  "errors": {
+    "message_not_found": "Aucun message trouvé dans le contexte",
+    "update_error": "Erreur lors de la mise à jour du message :"
+  }
+}

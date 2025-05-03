@@ -1,0 +1,71 @@
+{
+  "commands": {
+    "start": {
+      "description": "Avvia il gioco"
+    },
+    "help": {
+      "description": "Mostra aiuto"
+    },
+    "language": {
+      "description": "Seleziona la lingua"
+    }
+  },
+  "help": {
+    "message": "Aiuto del Icebreaker Bot:\n\n/start - Avvia o riavvia il bot\n/help - Mostra questo messaggio di aiuto\n\nSegui le istruzioni per autenticarti, selezionare un profilo, scegliere categorie e ottenere carte casuali."
+  },
+  "language": {
+    "select_prompt": "Seleziona la tua lingua preferita:",
+    "selected": "Lingua selezionata: {language}",
+    "options": {
+      "english": "Inglese",
+      "russian": "Russo",
+      "french": "Francese",
+      "italian": "Italiano"
+    }
+  },
+  "authentication": {
+    "welcome": "Benvenuto in Icebreaker Bot! 👋\n\nInserisci la tua email per autenticarti.",
+    "email_not_found": "Email non trovata. Inserisci un indirizzo email valido.",
+    "success": "Autenticazione riuscita! Ciao, {name}.\n\nSeleziona un profilo:"
+  },
+  "profile": {
+    "selection": {
+      "prompt": "Seleziona un profilo:",
+      "invalid": "Selezione del profilo non valida. Riprova.",
+      "create_new": "Crea un nuovo profilo"
+    },
+    "creation": {
+      "prompt": "Inserisci un nome per il tuo nuovo profilo:",
+      "invalid": "Inserisci un nome valido per il profilo.",
+      "length_error": "Il nome del profilo deve avere tra 1 e 50 caratteri. Riprova:",
+      "success": "Profilo \"{profileName}\" creato con successo!\n\nOra seleziona le categorie (puoi selezionarne più di una):",
+      "error": "Errore nella creazione del profilo: {message}. Riprova."
+    }
+  },
+  "category": {
+    "selection": {
+      "prompt": "Perfetto! Ora seleziona le categorie (puoi selezionarne più di una):",
+      "selected_count": "Categorie selezionate: {count}",
+      "invalid": "Selezione della categoria non valida. Riprova.",
+      "start_game": "Inizia il gioco!",
+      "select_at_least_one": "Seleziona almeno una categoria prima di procedere."
+    }
+  },
+  "card": {
+    "category_info": "Categoria: {categoryName}",
+    "all_viewed": "⚠️ Hai visualizzato tutte le carte di queste categorie.",
+    "no_cards": "Nessuna carta trovata per le categorie selezionate. Prova a scegliere altre categorie.",
+    "error": "Errore durante il recupero della carta: {message}. Riprova.",
+    "actions": {
+      "another": "Ottieni un'altra carta",
+      "change_categories": "Cambia categorie",
+      "change_profile": "Cambia profilo",
+      "start_over": "Ricomincia",
+      "change_language": "Cambia lingua"
+    }
+  },
+  "errors": {
+    "message_not_found": "Nessun messaggio trovato nel contesto",
+    "update_error": "Errore durante l'aggiornamento del messaggio:"
+  }
+}

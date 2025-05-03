@@ -1,0 +1,71 @@
+{
+  "commands": {
+    "start": {
+      "description": "Start the game"
+    },
+    "help": {
+      "description": "Show help"
+    },
+    "language": {
+      "description": "Select language"
+    }
+  },
+  "help": {
+    "message": "Icebreaker Bot Help:\n\n/start - Start or restart the bot\n/help - Show this help message\n\nFollow the prompts to authenticate, select a profile, choose categories, and get random cards."
+  },
+  "language": {
+    "select_prompt": "Please select your preferred language:",
+    "selected": "Language selected: {language}",
+    "options": {
+      "english": "English",
+      "russian": "Russian",
+      "french": "French",
+      "italian": "Italian"
+    }
+  },
+  "authentication": {
+    "welcome": "Welcome to the Icebreaker Bot! 👋\n\nPlease enter your email to authenticate.",
+    "email_not_found": "Email not found. Please enter a valid email address.",
+    "success": "Authentication successful!\n\nHello, {name}.\n\nPlease select a profile:"
+  },
+  "profile": {
+    "selection": {
+      "prompt": "Please select a profile:",
+      "invalid": "Invalid profile selection. Please try again.",
+      "create_new": "Create new profile"
+    },
+    "creation": {
+      "prompt": "Please enter a name for your new profile:",
+      "invalid": "Please enter a valid profile name.",
+      "length_error": "Profile name must be between 1 and 50 characters. Please try again:",
+      "success": "Profile \"{profileName}\" created successfully!\n\nNow, please select categories (you can select multiple):",
+      "error": "Error creating profile: {message}. Please try again."
+    }
+  },
+  "category": {
+    "selection": {
+      "prompt": "Great! Now, please select categories (you can select multiple):",
+      "selected_count": "Selected categories: {count}",
+      "invalid": "Invalid category selection. Please try again.",
+      "start_game": "Start game!",
+      "select_at_least_one": "Please select at least one category before proceeding."
+    }
+  },
+  "card": {
+    "category_info": "Category: {categoryName}",
+    "all_viewed": "⚠️ You have viewed all cards in these categories.",
+    "no_cards": "No cards found for the selected categories. Try selecting different categories.",
+    "error": "Error retrieving card: {message}. Please try again.",
+    "actions": {
+      "another": "Get another card",
+      "change_categories": "Change categories",
+      "change_profile": "Change profile",
+      "start_over": "Start over",
+      "change_language": "Change language"
+    }
+  },
+  "errors": {
+    "message_not_found": "No message found in context",
+    "update_error": "Error updating message:"
+  }
+}
