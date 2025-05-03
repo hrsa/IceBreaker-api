@@ -19,8 +19,10 @@ export class TelegramUpdate {
 
   @Start()
   async start(@Ctx() ctx: Context) {
-    ctx.session.botMessageId = undefined;
-    ctx.session.lastMessageText = undefined;
+    await this.telegramService.deleteUserMessage(ctx);
+    await this.telegramService.deleteOldMessages(ctx);
+    await this.telegramService.deleteBotMessage(ctx);
+    ctx.session.botMessageIds = [];
 
     if (!ctx.session.language) {
       ctx.session = { language: AppLanguage.ENGLISH };
@@ -31,6 +33,7 @@ export class TelegramUpdate {
 
   @Help()
   async help(@Ctx() ctx: Context) {
+    await this.telegramService.deleteUserMessage(ctx);
     await this.telegramService.updateOrSendMessage(
       ctx,
       this.translate.t("telegram.help.message", { lang: ctx.session.language })
@@ -65,6 +68,7 @@ export class TelegramUpdate {
 
   @Command("language")
   async showLanguageSelection(@Ctx() ctx: Context) {
+    await this.telegramService.deleteUserMessage(ctx);
     const keyboard = this.telegramService.createLanguageSelectionKeyboard(ctx.session.language);
     const msg = await ctx.reply(this.translate.t("telegram.language.select_prompt", { lang: ctx.session.language }), keyboard);
     if ("message_id" in msg) {
@@ -144,6 +148,13 @@ export class TelegramUpdate {
   @Action("card:start_over")
   async handleStartOver(@Ctx() ctx: Context) {
     await this.start(ctx);
+  }
+
+  @Command("suggest")
+  async handleSuggestionCreation(@Ctx() ctx: Context) {
+    ctx.session.step = "suggestion-creation";
+    const state = this.stateFactory.getStateByName("suggestion-creation");
+    await state.handle(ctx);
   }
 
   @On("text")

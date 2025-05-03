@@ -6,10 +6,13 @@ export interface TelegramSession {
   languageSelectionMessageId?: number;
   lastMessageText?: string;
   botMessageId?: number;
+  botMessageIds?: number[];
+  chatId?: number;
   userId?: string;
+  suggestionText?: string;
   card?: Card;
   selectedProfileId?: string;
   selectedCategoryIds?: string[];
-  step?: "authentication" | "profile-selection" | "profile-creation" | "category-selection" | "card-retrieval";
+  step?: "authentication" | "profile-selection" | "profile-creation" | "category-selection" | "card-retrieval" | "suggestion-creation";
   email?: string;
 }

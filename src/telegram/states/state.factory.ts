@@ -6,6 +6,7 @@ import { CategorySelectionState } from "./category-selection.state";
 import { CardRetrievalState } from "./card-retrieval.state";
 import { BotState } from "./base.state";
 import { ProfileCreationState } from "./profile-creation.state";
+import { SuggestionCreationState } from './suggestion-creation.state';
 
 @Injectable()
 export class StateFactory {
@@ -14,7 +15,8 @@ export class StateFactory {
     private readonly profileSelectionState: ProfileSelectionState,
     private readonly profileCreationState: ProfileCreationState,
     private readonly categorySelectionState: CategorySelectionState,
-    private readonly cardRetrievalState: CardRetrievalState
+    private readonly cardRetrievalState: CardRetrievalState,
+    private readonly suggestionCreationState: SuggestionCreationState
   ) {}
 
   getState(ctx: Context): BotState {
@@ -24,6 +26,10 @@ export class StateFactory {
 
     if (ctx.session.step === "profile-creation") {
       return this.profileCreationState;
+    }
+
+    if (ctx.session.step === "suggestion-creation") {
+      return this.suggestionCreationState;
     }
 
     if (!ctx.session.selectedProfileId) {
@@ -49,6 +55,8 @@ export class StateFactory {
         return this.categorySelectionState;
       case "card-retrieval":
         return this.cardRetrievalState;
+      case "suggestion-creation":
+        return this.suggestionCreationState;
       default:
         return this.authenticationState;
     }

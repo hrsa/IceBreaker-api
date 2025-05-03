@@ -8,6 +8,9 @@
     },
     "language": {
       "description": "Sélectionner la langue"
+    },
+    "suggest": {
+      "description": "Proposer une question"
     }
   },
   "help": {
@@ -63,6 +66,11 @@
       "start_over": "Recommencer",
       "change_language": "Changer de langue"
     }
+  },
+  "suggestion": {
+    "prompt": "Merci pour la proposition d'une nouvelle question ! Veuillez l'écrire dans un message.",
+    "unauthorized": "Vous devez vous connecter avant de pouvoir proposer une question !",
+    "success": "Merci pour votre suggestion ! Je vous informerai lorsque la question sera ajoutée."
   },
   "errors": {
     "message_not_found": "Aucun message trouvé dans le contexte",

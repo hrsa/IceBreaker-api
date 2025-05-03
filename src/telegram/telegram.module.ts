@@ -16,6 +16,8 @@ import { CardRetrievalState } from "./states/card-retrieval.state";
 import { ProfileCreationState } from './states/profile-creation.state';
 import { RedisSessionService } from '../redis/redis-session.middleware';
 import { RedisSessionModule } from '../redis/redis-session.module';
+import { SuggestionsModule } from '../suggestions/suggestions.module';
+import { SuggestionCreationState } from './states/suggestion-creation.state';
 
 @Module({
   imports: [
@@ -33,6 +35,7 @@ import { RedisSessionModule } from '../redis/redis-session.module';
     CategoriesModule,
     CardsModule,
     LanguageUtilsModule,
+    SuggestionsModule
   ],
   providers: [
     TelegramService,
@@ -43,6 +46,7 @@ import { RedisSessionModule } from '../redis/redis-session.module';
     ProfileCreationState,
     CategorySelectionState,
     CardRetrievalState,
+    SuggestionCreationState,
     RedisSessionService,
   ],
   exports: [TelegramService],

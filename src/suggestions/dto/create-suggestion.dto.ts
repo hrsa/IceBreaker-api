@@ -1,5 +1,6 @@
 import { IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Suggestion } from '../entities/suggestion.entity';
 
 export class CreateSuggestionDto {
   @ApiProperty({
@@ -27,4 +28,8 @@ export class CreateSuggestionDto {
   @IsUUID()
   @IsNotEmpty({ message: 'User ID is required' })
   userId: string;
+
+  constructor(partial: Partial<Suggestion>) {
+    Object.assign(this, partial);
+  }
 }

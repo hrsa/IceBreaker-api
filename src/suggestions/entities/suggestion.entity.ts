@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Category } from '../../categories/entities/category.entity';
 
@@ -23,7 +23,9 @@ export class Suggestion {
   createdAt: Date;
 
   @ManyToOne(() => User, (user) => user.suggestions)
+  @JoinColumn({ name: 'userId' })
   user: User;
 
+  @Column()
   userId: string;
 }

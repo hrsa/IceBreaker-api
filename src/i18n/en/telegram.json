@@ -8,6 +8,9 @@
     },
     "language": {
       "description": "Select language"
+    },
+    "suggest": {
+      "description": "Suggest a question"
     }
   },
   "help": {
@@ -63,6 +66,11 @@
       "start_over": "Start over",
       "change_language": "Change language"
     }
+  },
+  "suggestion": {
+    "prompt": "Thank you for suggesting a new question! Please write it in a message.",
+    "unauthorized": "You need to log in before you can suggest a question!",
+    "success": "Thank you for your suggestion! I'll let you know when the question is added."
   },
   "errors": {
     "message_not_found": "No message found in context",
