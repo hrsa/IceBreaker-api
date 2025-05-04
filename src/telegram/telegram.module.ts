@@ -18,6 +18,9 @@ import { RedisSessionService } from '../redis/redis-session.middleware';
 import { RedisSessionModule } from '../redis/redis-session.module';
 import { SuggestionsModule } from '../suggestions/suggestions.module';
 import { SuggestionCreationState } from './states/suggestion-creation.state';
+import { SignupEmailState } from './states/signup-email.state';
+import { SignupNameState } from './states/signup-name.state';
+import { CardPreferencesModule } from '../card-preferences/card-preferences.module';
 
 @Module({
   imports: [
@@ -35,7 +38,8 @@ import { SuggestionCreationState } from './states/suggestion-creation.state';
     CategoriesModule,
     CardsModule,
     LanguageUtilsModule,
-    SuggestionsModule
+    SuggestionsModule,
+    CardPreferencesModule
   ],
   providers: [
     TelegramService,
@@ -47,6 +51,8 @@ import { SuggestionCreationState } from './states/suggestion-creation.state';
     CategorySelectionState,
     CardRetrievalState,
     SuggestionCreationState,
+    SignupEmailState,
+    SignupNameState,
     RedisSessionService,
   ],
   exports: [TelegramService],

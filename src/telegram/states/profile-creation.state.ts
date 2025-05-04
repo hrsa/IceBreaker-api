@@ -40,7 +40,7 @@ export class ProfileCreationState implements BotState {
 
     try {
       if (ctx.chat) {
-        await ctx.telegram.deleteMessage(ctx.chat.id, ctx.message.message_id);
+        await this.telegramService.safeDeleteMessage(ctx.chat.id, ctx.message.message_id);
       }
 
       const profile = await this.telegramService.createProfile(ctx.session.userId!, profileName);

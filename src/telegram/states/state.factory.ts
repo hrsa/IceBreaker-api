@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { Context } from "telegraf";
 import { AuthenticationState } from "./authentication.state";
 import { ProfileSelectionState } from "./profile-selection.state";
@@ -6,7 +6,9 @@ import { CategorySelectionState } from "./category-selection.state";
 import { CardRetrievalState } from "./card-retrieval.state";
 import { BotState } from "./base.state";
 import { ProfileCreationState } from "./profile-creation.state";
-import { SuggestionCreationState } from './suggestion-creation.state';
+import { SuggestionCreationState } from "./suggestion-creation.state";
+import { SignupEmailState } from "./signup-email.state";
+import { SignupNameState } from "./signup-name.state";
 
 @Injectable()
 export class StateFactory {
@@ -16,10 +18,24 @@ export class StateFactory {
     private readonly profileCreationState: ProfileCreationState,
     private readonly categorySelectionState: CategorySelectionState,
     private readonly cardRetrievalState: CardRetrievalState,
-    private readonly suggestionCreationState: SuggestionCreationState
+    private readonly suggestionCreationState: SuggestionCreationState,
+    @Inject(forwardRef(() => SignupEmailState))
+    private readonly signupEmailState: SignupEmailState,
+    private readonly signupNameState: SignupNameState
   ) {}
 
   getState(ctx: Context): BotState {
+    if (ctx.session.step === "signup-email") {
+      return this.signupEmailState;
+    }
+
+    if (ctx.session.step === "signup-name") {
+      if (!ctx.session.email) {
+        return this.signupEmailState;
+      }
+      return this.signupNameState;
+    }
+
     if (!ctx.session.userId) {
       return this.authenticationState;
     }
@@ -57,6 +73,8 @@ export class StateFactory {
         return this.cardRetrievalState;
       case "suggestion-creation":
         return this.suggestionCreationState;
+      case "signup-email":
+        return this.signupEmailState;
       default:
         return this.authenticationState;
     }

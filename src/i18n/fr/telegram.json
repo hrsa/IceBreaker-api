@@ -14,10 +14,11 @@
     }
   },
   "buttons": {
-    "back_to_the_game": "Continuer le jeu"
+    "back_to_the_game": "Continuer le jeu",
+    "sign_up": "Créer un compte"
   },
   "help": {
-    "message": "Aide du Icebreaker Bot :\n\n/start - Démarrer ou redémarrer le bot\n/help - Afficher ce message d'aide\n\nSuivez les instructions pour vous authentifier, sélectionner un profil, choisir des catégories et obtenir des cartes aléatoires."
+    "message": "Aide du Icebreaker Bot :\n\n/start - Démarrer ou redémarrer le bot\n/help - Afficher ce message d'aide\n/suggest - Suggérer une question\n\nSuivez les instructions pour vous authentifier, sélectionner un profil, choisir des catégories et commencer le jeu IceBreaker."
   },
   "language": {
     "select_prompt": "Veuillez sélectionner votre langue préférée :",
@@ -30,9 +31,17 @@
     }
   },
   "authentication": {
-    "welcome": "Bienvenue dans le Icebreaker Bot ! 👋\n\nVeuillez entrer votre email pour vous authentifier.",
-    "email_not_found": "Email non trouvé. Veuillez entrer une adresse email valide.",
-    "success": "Authentification réussie ! Bonjour, {name}.\n\nVeuillez sélectionner un profil :"
+    "welcome": "Bienvenue chez \uD83E\uDDCAIce Breaker\uD83E\uDDCA! \uD83D\uDC4B\n\nVeuillez entrer votre phrase secrète pour vous authentifier, ou cliquez sur le bouton ci-dessous pour créer un compte.",
+    "invalid_secret_phrase": "Votre phrase secrète est invalide. Veuillez la vérifier et réessayer.",
+    "success": "Authentification réussie ! Bonjour, {name}.\n\nOn commence le jeu ?"
+  },
+  "signup": {
+    "enter_email": "Veuillez entrer votre adresse e-mail",
+    "invalid_email": "L'adresse e-mail {email} est invalide.\nVeuillez réessayer !",
+    "user_exists": "Il semble que vous ayez déjà un compte. Veuillez cliquer sur /start et utiliser votre phrase secrète pour vous connecter.",
+    "enter_name": "Veuillez entrer votre nom",
+    "name_empty": "Veuillez ne pas laisser votre nom vide !",
+    "email_empty": "Veuillez ne pas laisser votre adresse e-mail vide !"
   },
   "profile": {
     "selection": {
@@ -59,15 +68,23 @@
   },
   "card": {
     "category_info": "Catégorie : {categoryName}",
-    "all_viewed": "⚠️ Vous avez vu toutes les cartes de ces catégories.",
+    "all_viewed": "⚠️ Vous avez vu toutes les cartes de ces catégories.⚠\uFE0F\n\nVeuillez choisir une autre catégorie ou modifier vos filtres !",
     "no_cards": "Aucune carte trouvée pour les catégories sélectionnées. Essayez de choisir d'autres catégories.",
     "error": "Erreur lors de la récupération de la carte : {message}. Veuillez réessayer.",
+    "status": {
+      "loved": "<code>❤️ Question favorite ❤️</code>",
+      "archived": "<code>🗄️ Question archivée 🗄️</code>"
+    },
     "actions": {
       "another": "Obtenir une autre carte",
       "change_categories": "Changer de catégories",
       "change_profile": "Changer de profil",
       "start_over": "Recommencer",
-      "change_language": "Changer de langue"
+      "change_language": "Changer de langue",
+      "include_archived": "Inclure  🗄️",
+      "exclude_archived": "Exclure  🗄️",
+      "include_loved": "Inclure  ❤️",
+      "exclude_loved": "Exclure  ❤️"
     }
   },
   "suggestion": {
@@ -77,6 +94,9 @@
   },
   "errors": {
     "message_not_found": "Aucun message trouvé dans le contexte",
-    "update_error": "Erreur lors de la mise à jour du message :"
+    "update_error": "Erreur lors de la mise à jour du message :",
+    "no_telegram_id": "L'identifiant Telegram n'est pas défini !",
+    "no_card": "Aucune carte sélectionnée.",
+    "no_profile": "Aucun profil sélectionné."
   }
 }

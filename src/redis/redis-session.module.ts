@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { RedisSessionService } from './redis-session.middleware';
+import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [ConfigModule],
+  imports: [ConfigModule, UsersModule],
   providers: [RedisSessionService],
   exports: [RedisSessionService],
 })

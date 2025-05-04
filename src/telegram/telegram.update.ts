@@ -1,11 +1,13 @@
 import { Action, Command, Ctx, Help, On, Start, Update } from "nestjs-telegraf";
-import { Context } from "telegraf";
+import { Context, Markup } from 'telegraf';
 import { TelegramService } from "./telegram.service";
 import { AppLanguage } from "../common/constants/app-language.enum";
 import { StateFactory } from "./states/state.factory";
 import { CardRetrievalState } from "./states/card-retrieval.state";
 import { CategorySelectionState } from "./states/category-selection.state";
 import { I18nService } from "nestjs-i18n";
+import { ProfileSelectionState } from './states/profile-selection.state';
+import { CardStatus } from '../card-preferences/entitites/card-preference.entity';
 
 @Update()
 export class TelegramUpdate {
@@ -14,6 +16,7 @@ export class TelegramUpdate {
     private readonly stateFactory: StateFactory,
     private readonly cardRetrievalState: CardRetrievalState,
     private readonly categorySelectionState: CategorySelectionState,
+    private readonly profileSelectionState: ProfileSelectionState,
     private readonly translate: I18nService
   ) {}
 
@@ -22,11 +25,12 @@ export class TelegramUpdate {
     await this.telegramService.deleteUserMessage(ctx);
     await this.telegramService.deleteOldMessages(ctx);
     await this.telegramService.deleteBotMessage(ctx);
-    ctx.session.botMessageIds = [];
+    this.telegramService.resetMessageTracking(ctx);
 
-    if (!ctx.session.language) {
-      ctx.session = { language: AppLanguage.ENGLISH };
+    if (!ctx.session.userId) {
+      ctx.session.step = "authentication";
     }
+
     const state = this.stateFactory.getState(ctx);
     await state.handle(ctx);
   }
@@ -36,7 +40,11 @@ export class TelegramUpdate {
     await this.telegramService.deleteUserMessage(ctx);
     await this.telegramService.updateOrSendMessage(
       ctx,
-      this.translate.t("telegram.help.message", { lang: ctx.session.language })
+      this.translate.t("telegram.help.message", { lang: ctx.session.language }),
+      Markup.inlineKeyboard([Markup.button.callback(
+        this.translate.t("telegram.card.actions.change_language", { lang: ctx.session.language }),
+        "card:change_language"
+      )])
     );
   }
 
@@ -116,8 +124,20 @@ export class TelegramUpdate {
     await this.cardRetrievalState.handle(ctx);
   }
 
+  @Action("signup:email")
+  async handleSignupEmail(@Ctx() ctx: Context) {
+    ctx.session.step = "signup-email";
+    const state = this.stateFactory.getState(ctx);
+    console.log(ctx);
+    await state.handle(ctx);
+  }
+
   @Action("card:another")
   async handleGetAnotherCard(@Ctx() ctx: Context) {
+    if (!ctx.session.selectedProfileId) {
+      await this.profileSelectionState.handle(ctx);
+      return;
+    }
     await this.cardRetrievalState.getRandomCard(ctx);
   }
 
@@ -149,8 +169,78 @@ export class TelegramUpdate {
     await this.start(ctx);
   }
 
+  @Action("card:love")
+  async handleLove(@Ctx() ctx: Context) {
+    if (!ctx.session.selectedProfileId) {
+      await this.profileSelectionState.handle(ctx);
+      return;
+    }
+    await this.telegramService.updateCardPreference(ctx, CardStatus.LOVED);
+    await this.cardRetrievalState.getRandomCard(ctx);
+  }
+
+  @Action("card:ban")
+  async handleBan(@Ctx() ctx: Context) {
+    if (!ctx.session.selectedProfileId) {
+      await this.profileSelectionState.handle(ctx);
+      return;
+    }
+    await this.telegramService.updateCardPreference(ctx, CardStatus.BANNED);
+    await this.cardRetrievalState.getRandomCard(ctx);
+  }
+
+  @Action("card:archive")
+  async handleArchive(@Ctx() ctx: Context) {
+    if (!ctx.session.selectedProfileId) {
+      await this.profileSelectionState.handle(ctx);
+      return;
+    }
+    await this.telegramService.updateCardPreference(ctx, CardStatus.ARCHIVED);
+    await this.cardRetrievalState.getRandomCard(ctx);
+  }
+
+  @Action("card:reactivate")
+  async handleActivate(@Ctx() ctx: Context) {
+    if (!ctx.session.selectedProfileId) {
+      await this.profileSelectionState.handle(ctx);
+      return;
+    }
+    await this.telegramService.updateCardPreference(ctx, CardStatus.ACTIVE);
+    await this.cardRetrievalState.getRandomCard(ctx);
+  }
+
+  @Action("card:toggle_archived")
+  async toggleArchived(@Ctx() ctx: Context) {
+    if (!ctx.session.selectedProfileId) {
+      await this.profileSelectionState.handle(ctx);
+      return;
+    }
+    ctx.session.includeArchived = !ctx.session.includeArchived;
+    await this.cardRetrievalState.getRandomCard(ctx, true);
+  }
+
+  @Action("card:toggle_loved")
+  async toggleLoved(@Ctx() ctx: Context) {
+    if (!ctx.session.selectedProfileId) {
+      await this.profileSelectionState.handle(ctx);
+      return;
+    }
+    ctx.session.includeLoved = !ctx.session.includeLoved;
+    await this.cardRetrievalState.getRandomCard(ctx, true);
+  }
+
   @Action("card:back_to_the_game")
   async handleBackToTheGame(@Ctx() ctx: Context) {
+    if (!ctx.session.selectedProfileId) {
+      ctx.session.step = "profile-selection";
+      await this.profileSelectionState.handle(ctx);
+      return;
+    }
+    if (!ctx.session.selectedCategoryIds) {
+      ctx.session.step = "category-selection";
+      await this.categorySelectionState.handle(ctx);
+      return;
+    }
     ctx.session.step = "card-retrieval";
     await this.cardRetrievalState.handle(ctx, true);
   }

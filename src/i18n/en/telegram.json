@@ -14,10 +14,11 @@
     }
   },
   "buttons": {
-    "back_to_the_game": "Back to the game"
+    "back_to_the_game": "Back to the game",
+    "sign_up": "Create a new account"
   },
   "help": {
-    "message": "Icebreaker Bot Help:\n\n/start - Start or restart the bot\n/help - Show this help message\n\nFollow the prompts to authenticate, select a profile, choose categories, and get random cards."
+    "message": "IceBreaker Bot Help:\n\n/start - Start or restart the bot\n/help - Show this help message\n/suggest - Suggest a question to add\n\nFollow the prompts to authenticate, select a profile, choose categories, and start the IceBreaker game."
   },
   "language": {
     "select_prompt": "Please select your preferred language:",
@@ -30,9 +31,17 @@
     }
   },
   "authentication": {
-    "welcome": "Welcome to the Icebreaker Bot! 👋\n\nPlease enter your email to authenticate.",
-    "email_not_found": "Email not found. Please enter a valid email address.",
-    "success": "Authentication successful!\n\nHello, {name}.\n\nPlease select a profile:"
+    "welcome": "Welcome to the \uD83E\uDDCAIce Breaker\uD83E\uDDCA! \uD83D\uDC4B\n\nPlease enter your secret phrase to authenticate, or click to button below to create an account.",
+    "invalid_secret_phrase": "Your secret phrase is invalid. Please re-check it and try again.",
+    "success": "Authentication successful!\n\nHello, {name}.\n\nReady to start the game?"
+  },
+  "signup": {
+    "enter_email": "Please enter your email",
+    "invalid_email": "Email {email} is invalid.\nPlease try again!",
+    "user_exists": "It seems that you already have an account. Please click /start and use your secret phrase to login.",
+    "enter_name": "Please enter your name",
+    "name_empty": "Please don't leave your name empty!",
+    "email_empty": "Please don't leave your email empty!"
   },
   "profile": {
     "selection": {
@@ -59,15 +68,23 @@
   },
   "card": {
     "category_info": "Category: {categoryName}",
-    "all_viewed": "⚠️ You have viewed all cards in these categories.",
+    "all_viewed": "⚠️ You have viewed all cards in these categories. ⚠️\n\nPlease choose another category or change your filters!",
     "no_cards": "No cards found for the selected categories. Try selecting different categories.",
     "error": "Error retrieving card: {message}. Please try again.",
+    "status": {
+      "loved": "<code>❤️ Favorite question ❤️</code>",
+      "archived": "<code>🗄️ Archived question 🗄️</code>"
+    },
     "actions": {
       "another": "Get another card",
       "change_categories": "Change categories",
       "change_profile": "Change profile",
       "start_over": "Start over",
-      "change_language": "Change language"
+      "change_language": "Change language",
+      "include_archived": "Include  🗄️",
+      "exclude_archived": "Exclude  🗄️",
+      "include_loved": "Include  ❤️",
+      "exclude_loved": "Exclude  ❤️"
     }
   },
   "suggestion": {
@@ -77,6 +94,9 @@
   },
   "errors": {
     "message_not_found": "No message found in context",
-    "update_error": "Error updating message:"
+    "update_error": "Error updating message:",
+    "no_telegram_id": "Telegram ID is not set!",
+    "no_card": "No card selected.",
+    "no_profile": "No profile selected."
   }
 }

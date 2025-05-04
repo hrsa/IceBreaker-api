@@ -5,6 +5,9 @@ import { BotState } from "./base.state";
 import { GetRandomCardDto } from "../../cards/dto/get-random-card.dto";
 import { LanguageUtilsService } from "../../common/utils/language-utils.service";
 import { I18nService } from "nestjs-i18n";
+import { Card } from '../../cards/entities/card.entity';
+import { AppLanguage } from '../../common/constants/app-language.enum';
+import { CardStatus } from '../../card-preferences/entitites/card-preference.entity';
 
 @Injectable()
 export class CardRetrievalState implements BotState {
@@ -15,6 +18,12 @@ export class CardRetrievalState implements BotState {
   ) {}
 
   async handle(ctx: Context, useExistingCard: boolean = false): Promise<void> {
+    if (ctx.session.includeArchived === undefined) {
+      ctx.session.includeArchived = false;
+    }
+    if (ctx.session.includeLoved === undefined) {
+      ctx.session.includeLoved = true;
+    }
     await this.getRandomCard(ctx, useExistingCard);
   }
 
@@ -35,10 +44,10 @@ export class CardRetrievalState implements BotState {
       } else {
         const dto: GetRandomCardDto = {
           profileId: ctx.session.selectedProfileId,
-          categoryIds: ctx.session.selectedCategoryIds,
+          categoryIds: ctx.session.selectedCategoryIds ?? [],
           limit: 1,
-          includeArchived: false,
-          includeLoved: false,
+          includeArchived: ctx.session.includeArchived ?? false,
+          includeLoved: ctx.session.includeLoved ?? true,
         };
 
         const { cards, hasViewedAllCards: allViewed } = await this.telegramService.getRandomCard(dto);
@@ -47,7 +56,7 @@ export class CardRetrievalState implements BotState {
           await this.telegramService.updateOrSendMessage(
             ctx,
             this.translate.t("telegram.card.no_cards", { lang: ctx.session.language }),
-            this.telegramService.createCardActionsKeyboard()
+            this.telegramService.createCardActionsKeyboard(ctx)
           );
           return;
         }
@@ -55,22 +64,32 @@ export class CardRetrievalState implements BotState {
         card = cards[0];
         hasViewedAllCards = allViewed;
 
+        ctx.session.previousCard = ctx.session.card;
         ctx.session.card = card;
+
+        if (card.id === ctx.session.previousCard?.id) {
+          hasViewedAllCards = true;
+        }
       }
 
       const language = ctx.session.language;
+      const cardStatusText = this.generateCardStatusText(card, language);
 
       let question = this.languageUtilsService.getPropertyByLanguage(card, "question", language);
-      let cardMessage = `<blockquote><b>${question}</b></blockquote>\n\n`;
+      let cardMessage = `<pre>\n</pre>${cardStatusText}\n<blockquote><b>\n${question}\n\n\n</b></blockquote>`;
 
       if (card.category) {
         const categoryName = this.languageUtilsService.getPropertyByLanguage(card.category, "name", language);
         if (categoryName) {
-          cardMessage += `<code>${this.translate.t("telegram.card.category_info", {
+          cardMessage += `\n\n<code>${this.translate.t("telegram.card.category_info", {
             args: { categoryName: categoryName },
             lang: language,
           })}</code>`;
         }
+      }
+
+      if (useExistingCard) {
+        cardMessage += `  `;
       }
 
       if (hasViewedAllCards) {
@@ -78,14 +97,36 @@ export class CardRetrievalState implements BotState {
       }
 
       await this.telegramService.updateOrSendMessage(ctx, cardMessage, {
-        ...this.telegramService.createCardActionsKeyboard(language),
+        ...this.telegramService.createCardActionsKeyboard(ctx),
         parse_mode: "HTML",
       });
     } catch (error) {
+      if (error instanceof Error && error.message.includes("No cards found matching the criteria")) {
+        await this.telegramService.updateOrSendMessage(
+          ctx,
+          this.translate.t("telegram.card.all_viewed", { lang: ctx.session.language }),
+          this.telegramService.createCardActionsKeyboard(ctx)
+        );
+        return;
+      }
       await this.telegramService.updateOrSendMessage(
         ctx,
-        this.translate.t("card.error", { args: { message: error.message }, lang: ctx.session.language })
+        this.translate.t("telegram.card.error", { args: { message: error.message }, lang: ctx.session.language }),
+        this.telegramService.createCardActionsKeyboard(ctx)
       );
+    }
+  }
+
+  generateCardStatusText(card: Card, language: AppLanguage): string {
+    const status = card.cardPreference?.status
+
+    switch (status) {
+      case CardStatus.LOVED:
+        return this.translate.t("telegram.card.status.loved", { lang: language });
+      case CardStatus.ARCHIVED:
+        return this.translate.t("telegram.card.status.archived", { lang: language });
+      default:
+        return "";
     }
   }
 }

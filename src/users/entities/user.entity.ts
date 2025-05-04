@@ -25,6 +25,12 @@ export class User {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
+  @Column({ nullable: true })
+  telegramId: number;
+
+  @Column({ nullable: true, unique: true })
+  secretPhrase: string;
+
   @OneToMany(() => Profile, profile => profile.user)
   profiles: Profile[];
 

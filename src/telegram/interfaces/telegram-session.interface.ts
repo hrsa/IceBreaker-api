@@ -11,8 +11,11 @@ export interface TelegramSession {
   userId?: string;
   suggestionText?: string;
   card?: Card;
+  previousCard?: Card;
+  includeArchived?: boolean;
+  includeLoved?: boolean;
   selectedProfileId?: string;
   selectedCategoryIds?: string[];
-  step?: "authentication" | "profile-selection" | "profile-creation" | "category-selection" | "card-retrieval" | "suggestion-creation";
+  step?: "authentication" | "profile-selection" | "profile-creation" | "category-selection" | "card-retrieval" | "suggestion-creation" | "signup-email" | "signup-name";
   email?: string;
 }

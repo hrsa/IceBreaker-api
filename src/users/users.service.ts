@@ -1,21 +1,17 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { User } from './entities/user.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { CreateUserDto } from './dto/create-user.dto';
-import * as bcrypt from 'bcrypt';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import { User } from "./entities/user.entity";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { CreateUserDto } from "./dto/create-user.dto";
+import * as bcrypt from "bcrypt";
+import { UpdateUserDto } from "./dto/update-user.dto";
+import { generate } from 'random-words';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    private usersRepository: Repository<User>
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -24,7 +20,7 @@ export class UsersService {
     });
 
     if (existingUser) {
-      throw new BadRequestException('User already exists');
+      throw new BadRequestException("User already exists");
     }
 
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
@@ -33,6 +29,10 @@ export class UsersService {
       ...createUserDto,
       password: hashedPassword,
     });
+
+    if (!user.telegramId) {
+      user.secretPhrase = generate({exactly: 1, wordsPerString: 4, minLength: 9})[0];
+    }
 
     return this.usersRepository.save(user);
   }
@@ -44,7 +44,7 @@ export class UsersService {
   async findOne(id: string): Promise<User> {
     const user = await this.usersRepository.findOne({
       where: { id },
-      relations: ['profiles'],
+      relations: ["profiles"],
     });
 
     if (!user) {
@@ -64,6 +64,38 @@ export class UsersService {
     }
 
     return user;
+  }
+
+  async findByTelegramId(telegramId: number): Promise<User> {
+    const user = await this.usersRepository.findOne({
+      where: { telegramId },
+    });
+    if (!user) {
+      throw new NotFoundException(`User with telegramId "${telegramId}" not found`);
+    }
+    return user;
+  }
+
+  async findBySecretPhrase(secretPhrase: string): Promise<User> {
+    if (!secretPhrase || secretPhrase.length < 1) {
+      throw new BadRequestException("Secret phrase is required");
+    }
+
+    const user = await this.usersRepository.findOne({
+      where: { secretPhrase },
+    });
+    if (!user) {
+      throw new NotFoundException(`User with secret phrase "${secretPhrase}" not found`);
+    }
+    return user;
+  }
+
+  async connectTelegram(telegramId: number, secretPhrase: string): Promise<User> {
+    const user = await this.findBySecretPhrase(secretPhrase);
+    user.telegramId = telegramId;
+    //remove secret phrase
+    user.secretPhrase = "";
+    return this.usersRepository.save(user);
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
@@ -90,17 +122,17 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException("Invalid credentials");
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException("Invalid credentials");
     }
 
     if (!user.isActivated) {
-      throw new UnauthorizedException('User account is not activated');
+      throw new UnauthorizedException("User account is not activated");
     }
 
     return user;

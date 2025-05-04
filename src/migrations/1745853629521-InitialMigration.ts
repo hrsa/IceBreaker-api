@@ -58,15 +58,17 @@ export class InitialMigration1745853629521 implements MigrationInterface {
                              )`);
     await queryRunner.query(`CREATE TABLE "user"
                              (
-                               "id"          uuid              NOT NULL DEFAULT uuid_generate_v4(),
-                               "email"       character varying NOT NULL,
-                               "password"    character varying NOT NULL,
-                               "name"        character varying NOT NULL,
-                               "isActivated" boolean           NOT NULL DEFAULT true,
-                               "isAdmin"     boolean           NOT NULL DEFAULT false,
-                               "createdAt"   TIMESTAMP         NOT NULL DEFAULT now(),
-                               CONSTRAINT "UQ_e12875dfb3b1d92d7d7c5377e22" UNIQUE ("email"),
-                               CONSTRAINT "PK_cace4a159ff9f2512dd42373760" PRIMARY KEY ("id")
+                                 "id"           uuid              NOT NULL DEFAULT uuid_generate_v4(),
+                                 "telegramId"   integer,
+                                 "secretPhrase" character varying,
+                                 "email"        character varying NOT NULL,
+                                 "password"     character varying NOT NULL,
+                                 "name"         character varying NOT NULL,
+                                 "isActivated"  boolean           NOT NULL DEFAULT true,
+                                 "isAdmin"      boolean           NOT NULL DEFAULT false,
+                                 "createdAt"    TIMESTAMP         NOT NULL DEFAULT now(),
+                                 CONSTRAINT "UQ_e12875dfb3b1d92d7d7c5377e22" UNIQUE ("email"),
+                                 CONSTRAINT "PK_cace4a159ff9f2512dd42373760" PRIMARY KEY ("id")
                              )`);
     await queryRunner.query(`ALTER TABLE "suggestion"
       ADD CONSTRAINT "FK_7536b25ecdb34050f9d4b841fd0" FOREIGN KEY ("categoryId") REFERENCES "category" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);

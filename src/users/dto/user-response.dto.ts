@@ -28,6 +28,15 @@ export class UserResponseDto {
   @ApiProperty({ example: '2023-01-01T00:00:00.000Z' })
   createdAt: Date;
 
+
+  @Expose()
+  @ApiProperty({ example: 123456789 })
+  telegramId: number;
+
+  @Expose()
+  @ApiProperty({ example: 'something secret' })
+  secretPhrase: string;
+
   constructor(partial: Partial<User>) {
     Object.assign(this, partial);
   }
