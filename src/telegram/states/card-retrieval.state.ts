@@ -45,7 +45,7 @@ export class CardRetrievalState implements BotState {
         const dto: GetRandomCardDto = {
           profileId: ctx.session.selectedProfileId,
           categoryIds: ctx.session.selectedCategoryIds ?? [],
-          limit: 1,
+          limit: 2,
           includeArchived: ctx.session.includeArchived ?? false,
           includeLoved: ctx.session.includeLoved ?? true,
         };
@@ -67,7 +67,14 @@ export class CardRetrievalState implements BotState {
         ctx.session.previousCard = ctx.session.card;
         ctx.session.card = card;
 
-        if (card.id === ctx.session.previousCard?.id) {
+        const currentCardInNewCards = cards.some(c => c.id === ctx.session.previousCard?.id);
+        const cardIsSameAsPrevious = card.id === ctx.session.previousCard?.id;
+
+        if (cardIsSameAsPrevious && cards.length >= 2) {
+          card = cards[1];
+        }
+
+        if (currentCardInNewCards && cards.length < 2) {
           hasViewedAllCards = true;
         }
       }
