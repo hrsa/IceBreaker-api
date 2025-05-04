@@ -13,6 +13,9 @@
       "description": "Suggest a question"
     }
   },
+  "buttons": {
+    "back_to_the_game": "Back to the game"
+  },
   "help": {
     "message": "Icebreaker Bot Help:\n\n/start - Start or restart the bot\n/help - Show this help message\n\nFollow the prompts to authenticate, select a profile, choose categories, and get random cards."
   },

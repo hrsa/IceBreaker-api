@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { Context } from "telegraf";
+import { Context, Markup } from 'telegraf';
 import { TelegramService } from "../telegram.service";
 import { BotState } from "./base.state";
 import { I18nService } from "nestjs-i18n";
@@ -44,7 +44,11 @@ export class SuggestionCreationState implements BotState {
 
     await ctx.telegram.deleteMessage(ctx.message.chat.id, ctx.message.message_id);
 
-    await this.telegramService.updateOrSendMessage(ctx, this.translate.t("telegram.suggestion.success", { lang: ctx.session.language }));
+    const backToTheGameButton = Markup.inlineKeyboard([
+      Markup.button.callback(this.translate.t("telegram.buttons.back_to_the_game", { lang: ctx.session.language }), "card:back_to_the_game")
+    ])
+
+    await this.telegramService.updateOrSendMessage(ctx, this.translate.t("telegram.suggestion.success", { lang: ctx.session.language }), backToTheGameButton);
 
     ctx.session.step = "card-retrieval";
   }

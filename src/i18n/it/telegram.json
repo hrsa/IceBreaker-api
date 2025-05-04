@@ -13,6 +13,9 @@
       "description": "Suggerire una domanda"
     }
   },
+  "buttons": {
+    "back_to_the_game": "Continuare il gioco"
+  },
   "help": {
     "message": "Aiuto del Icebreaker Bot:\n\n/start - Avvia o riavvia il bot\n/help - Mostra questo messaggio di aiuto\n\nSegui le istruzioni per autenticarti, selezionare un profilo, scegliere categorie e ottenere carte casuali."
   },

@@ -57,7 +57,7 @@ export class TelegramUpdate {
     if (ctx.session.step) {
       const state = this.stateFactory.getState(ctx);
       if (state === this.stateFactory.getStateByName("card-retrieval") && ctx.session.card && ctx.session.card.id) {
-        await state.handle(ctx, true);
+        await this.handleBackToTheGame(ctx)
       } else {
         await state.handle(ctx)
       }
@@ -98,7 +98,6 @@ export class TelegramUpdate {
     await state.next(ctx);
   }
 
-  // Handle category selection
   @Action(/category:(.+)/)
   async handleCategorySelection(@Ctx() ctx: Context) {
     if (!ctx.session.selectedProfileId) {
@@ -148,6 +147,12 @@ export class TelegramUpdate {
   @Action("card:start_over")
   async handleStartOver(@Ctx() ctx: Context) {
     await this.start(ctx);
+  }
+
+  @Action("card:back_to_the_game")
+  async handleBackToTheGame(@Ctx() ctx: Context) {
+    ctx.session.step = "card-retrieval";
+    await this.cardRetrievalState.handle(ctx, true);
   }
 
   @Command("suggest")

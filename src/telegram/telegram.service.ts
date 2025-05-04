@@ -38,98 +38,130 @@ export class TelegramService {
     ]);
   }
 
-  async sendMessage(chatId: number | string, message: string): Promise<void> {
-    await this.bot.telegram.sendMessage(chatId, message);
+  private initMessageIds(ctx: Context): void {
+    if (!ctx.session.botMessageIds) {
+      ctx.session.botMessageIds = [];
+    }
+  }
+
+  private trackMessage(ctx: Context, messageId: number, text: string): void {
+    this.initMessageIds(ctx);
+    ctx.session.botMessageIds!.push(messageId);
+    ctx.session.botMessageId = messageId;
+    ctx.session.lastMessageText = text;
+  }
+
+  private resetMessageTracking(ctx: Context): void {
+    ctx.session.botMessageIds = [];
+    ctx.session.botMessageId = undefined;
+    ctx.session.lastMessageText = undefined;
+  }
+
+  private async safeDeleteMessage(chatId: number | string, messageId: number): Promise<boolean> {
+    try {
+      await this.bot.telegram.deleteMessage(chatId, messageId);
+      return true;
+    } catch (error) {
+      this.logger.error(`Error deleting message ${messageId}:`, error);
+      return false;
+    }
   }
 
   async replyAndSave(ctx: Context, text: string, extra?: any) {
     const sentMsg = await ctx.reply(text, extra);
     if ("message_id" in sentMsg) {
-      if (!ctx.session.botMessageIds) {
-        ctx.session.botMessageIds = [];
-      }
-      ctx.session.botMessageIds.push(sentMsg.message_id);
-      ctx.session.botMessageId = sentMsg.message_id;
-      ctx.session.lastMessageText = text;
+      this.trackMessage(ctx, sentMsg.message_id, text);
     }
   }
 
   async deleteUserMessage(ctx: Context) {
     if (ctx.message) {
-      try {
-        await ctx.telegram.deleteMessage(ctx.message.chat.id, ctx.message.message_id);
-      } catch (e) {
-        this.logger.error("Error deleting user message:", e);
-      }
+      await this.safeDeleteMessage(ctx.message.chat.id, ctx.message.message_id);
     }
   }
 
   async deleteBotMessage(ctx: Context) {
     if (ctx.chat && ctx.session.botMessageId) {
-      try {
-        await ctx.telegram.deleteMessage(ctx.chat.id, ctx.session.botMessageId);
-      } catch (e) {
-        this.logger.error("Error deleting bot message:", e);
-      }
+      await this.safeDeleteMessage(ctx.chat.id, ctx.session.botMessageId);
       ctx.session.botMessageId = undefined;
       ctx.session.lastMessageText = undefined;
     }
   }
 
   async updateOrSendMessage(ctx: Context, text: string, extra?: any) {
+    this.initMessageIds(ctx);
     try {
-      if (!ctx.session.botMessageIds) {
-        ctx.session.botMessageIds = [];
+      if (await this.tryUpdateExistingMessage(ctx, text, extra)) {
+        return;
       }
 
-      if (ctx.session.botMessageIds.length > 0) {
-        const latestMessageId = ctx.session.botMessageIds[ctx.session.botMessageIds.length - 1];
-
-        if (!ctx.session.lastMessageText || ctx.session.lastMessageText !== text) {
-          try {
-            await ctx.telegram.editMessageText(ctx.chat!.id, latestMessageId, undefined, text, extra);
-            ctx.session.lastMessageText = text;
-            if (ctx.session.botMessageIds.length > 1) {
-              await this.deleteOldMessages(ctx);
-            }
-            return;
-          } catch (editError) {
-            console.error("Error editing message:", editError);
-          }
-        } else {
-          console.log("Skipping update - message content is the same");
-          return;
-        }
-      } else {
-        const sentMsg = await ctx.reply(text, extra);
-        if ("message_id" in sentMsg) {
-          ctx.session.botMessageIds.push(sentMsg.message_id);
-          ctx.session.botMessageId = sentMsg.message_id;
-          ctx.session.lastMessageText = text;
-
-          if (ctx.session.botMessageIds.length > 1) {
-            await this.deleteOldMessages(ctx);
-          }
-        }
-        return sentMsg;
-      }
+      return await this.sendNewMessage(ctx, text, extra);
     } catch (error) {
-      console.error("Error sending/updating message:", error);
-      // Reset message tracking and try one more time
-      ctx.session.botMessageId = undefined;
-      ctx.session.lastMessageText = undefined;
+      this.logger.error("Error sending/updating message:", error);
+      return await this.recoverAndSendMessage(ctx, text, extra);
+    }
+  }
 
-      try {
-        const sentMsg = await ctx.reply(text, extra);
-        if ("message_id" in sentMsg) {
-          ctx.session.botMessageIds = [sentMsg.message_id];
-          ctx.session.botMessageId = sentMsg.message_id;
-          ctx.session.lastMessageText = text;
-        }
-        return sentMsg;
-      } catch (finalError) {
-        console.error("Fatal error sending message:", finalError);
+  private async tryUpdateExistingMessage(ctx: Context, text: string, extra?: any): Promise<boolean> {
+    if (!ctx.session.botMessageIds) {
+      this.logger.debug("Skipping update - no message ids");
+      return false;
+    }
+
+    if (ctx.session.botMessageIds && ctx.session.botMessageIds.length === 0) {
+      return false;
+    }
+
+    if (ctx.session.lastMessageText === text) {
+      this.logger.debug("Skipping update - message content is the same");
+      return true;
+    }
+
+    const latestMessageId = ctx.session.botMessageIds[ctx.session.botMessageIds.length - 1];
+
+    try {
+      await ctx.telegram.editMessageText(ctx.chat!.id, latestMessageId, undefined, text, extra);
+      ctx.session.lastMessageText = text;
+
+      if (ctx.session.botMessageIds.length > 1) {
+        await this.deleteOldMessages(ctx);
       }
+
+      return true;
+    } catch (error) {
+      this.logger.error("Error editing message:", error);
+      return false;
+    }
+  }
+
+  private async sendNewMessage(ctx: Context, text: string, extra?: any): Promise<any> {
+    const sentMsg = await ctx.reply(text, extra);
+
+    if ("message_id" in sentMsg) {
+      this.trackMessage(ctx, sentMsg.message_id, text);
+
+      if (ctx.session.botMessageIds && ctx.session.botMessageIds.length > 1) {
+        await this.deleteOldMessages(ctx);
+      }
+    }
+
+    return sentMsg;
+  }
+
+  private async recoverAndSendMessage(ctx: Context, text: string, extra?: any): Promise<any> {
+    this.resetMessageTracking(ctx);
+
+    try {
+      const sentMsg = await ctx.reply(text, extra);
+
+      if ("message_id" in sentMsg) {
+        this.trackMessage(ctx, sentMsg.message_id, text);
+      }
+
+      return sentMsg;
+    } catch (finalError) {
+      this.logger.error("Fatal error sending message:", finalError);
+      return null;
     }
   }
 
@@ -149,7 +181,6 @@ export class TelegramService {
     }
     ctx.session.botMessageIds = ctx.session.botMessageIds.slice(-1);
   }
-
 
   async validateEmail(email: string): Promise<boolean> {
     try {

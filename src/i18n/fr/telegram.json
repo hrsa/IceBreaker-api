@@ -13,6 +13,9 @@
       "description": "Proposer une question"
     }
   },
+  "buttons": {
+    "back_to_the_game": "Continuer le jeu"
+  },
   "help": {
     "message": "Aide du Icebreaker Bot :\n\n/start - Démarrer ou redémarrer le bot\n/help - Afficher ce message d'aide\n\nSuivez les instructions pour vous authentifier, sélectionner un profil, choisir des catégories et obtenir des cartes aléatoires."
   },
