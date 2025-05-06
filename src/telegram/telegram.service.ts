@@ -13,7 +13,7 @@ import { LanguageUtilsService } from "../common/utils/language-utils.service";
 import { I18nService } from "nestjs-i18n";
 import { CreateSuggestionDto } from "../suggestions/dto/create-suggestion.dto";
 import { SuggestionsService } from "../suggestions/suggestions.service";
-import { CreateUserDto } from "src/users/dto/create-user.dto";
+import { CreateUserDto } from "../users/dto/create-user.dto"
 import { generate } from "random-words";
 import { validateOrReject } from "class-validator";
 import { CardPreferencesService } from "../card-preferences/card-preferences.service";
@@ -41,6 +41,7 @@ export class TelegramService {
       { command: "help", description: this.translate.t("telegram.commands.help.description") },
       { command: "language", description: this.translate.t("telegram.commands.language.description") },
       { command: "suggest", description: this.translate.t("telegram.commands.suggest.description") },
+      { command: "delete_profile", description: this.translate.t("telegram.commands.delete_profile.description") },
     ]);
   }
 
@@ -192,7 +193,7 @@ export class TelegramService {
       const createUserDto = new CreateUserDto();
       createUserDto.name = name;
       createUserDto.email = ctx.session.email;
-      createUserDto.telegramId = telegramId;
+      createUserDto.telegramId = telegramId.toString();
       createUserDto.password = generate({ exactly: 1, minLength: 10 })[0];
       await validateOrReject(createUserDto);
       const user = await this.usersService.create(createUserDto);
@@ -232,10 +233,6 @@ export class TelegramService {
     return telegramUser?.id;
   }
 
-  async getProfilesForUser(userId: string) {
-    return this.profilesService.findAll(userId);
-  }
-
   async welcomeUser(ctx: Context, name: string) {
     await this.updateOrSendMessage(
       ctx,
@@ -250,6 +247,19 @@ export class TelegramService {
 
   async createProfile(userId: string, name: string) {
     return this.profilesService.create({ userId, name });
+  }
+
+  async deleteProfile(userId: string, profileId: string) {
+    return this.profilesService.remove(profileId, userId);
+  }
+
+  async getProfilesForUser(userId: string) {
+    return this.profilesService.findAll(userId);
+  }
+
+  async getProfileName(profileId: string) {
+    const profile = await this.profilesService.findOne(profileId);
+    return profile?.name;
   }
 
   async getRandomCard(dto: GetRandomCardDto) {
@@ -300,9 +310,11 @@ export class TelegramService {
     ]);
   }
 
-  createProfileKeyboard(profiles: Profile[], language?: AppLanguage) {
+  createProfileKeyboard(profiles: Profile[], language?: AppLanguage, deleteProfile = false) {
     const buttons = profiles.map(profile => [Markup.button.callback(profile.name, `profile:${profile.id}`)]);
-    buttons.push([Markup.button.callback(this.translate.t("telegram.profile.selection.create_new", { lang: language }), "profile:new")]);
+    if (!deleteProfile) {
+      buttons.push([Markup.button.callback(this.translate.t('telegram.profile.selection.create_new', { lang: language }), 'profile:new')]);
+    }
     return Markup.inlineKeyboard(buttons);
   }
 
@@ -327,23 +339,17 @@ export class TelegramService {
   createCardActionsKeyboard(ctx: Context) {
     const language = ctx.session.language;
     const cardStatus = ctx.session.card?.cardPreference?.status;
+    const hasPreviousCard = ctx.session.previousCard !== undefined;
 
-    const includeArchivedText = ctx.session.includeArchived
-      ? this.translate.t("telegram.card.actions.exclude_archived", { lang: language })
-      : this.translate.t("telegram.card.actions.include_archived", { lang: language });
-    const includeArchived = Markup.button.callback(includeArchivedText, "card:toggle_archived");
+    const { cardActions, reactionButton } = this.buildCardActions(hasPreviousCard, cardStatus);
 
     const includeLovedText = ctx.session.includeLoved
       ? this.translate.t("telegram.card.actions.exclude_loved", { lang: language })
       : this.translate.t("telegram.card.actions.include_loved", { lang: language });
     const includeLoved = Markup.button.callback(includeLovedText, "card:toggle_loved");
 
-    const changeCategories = Markup.button.callback(
-      this.translate.t("telegram.card.actions.change_categories", { lang: language }),
-      "card:change_categories"
-    );
-    const changeProfile = Markup.button.callback(
-      this.translate.t("telegram.card.actions.change_profile", { lang: language }),
+    const homeButton = Markup.button.callback(
+      this.translate.t("🏠", { lang: language }),
       "card:change_profile"
     );
     const changeLanguage = Markup.button.callback(
@@ -351,28 +357,32 @@ export class TelegramService {
       "card:change_language"
     );
     return Markup.inlineKeyboard([
-      this.buildCardActions(cardStatus),
-      [includeArchived, includeLoved],
-      [changeCategories, changeProfile],
-      [changeLanguage]]);
+      cardActions,
+      [reactionButton],
+      [homeButton, includeLoved],
+      [changeLanguage],
+    ]);
   }
 
-  buildCardActions(cardStatus?: string) {
-    const anotherCard = Markup.button.callback("🃏", "card:another");
+  buildCardActions(hasPreviousCard: boolean, cardStatus?: string) {
+    const nextCardAction = cardStatus === CardStatus.LOVED ? "card:love" : "card:archive";
+    const nextCard = Markup.button.callback("⏩", nextCardAction);
     const loveCard = Markup.button.callback("❤️", "card:love");
     const unLoveCard = Markup.button.callback("💔", "card:reactivate");
-    const archiveCard = Markup.button.callback("🗄️", "card:archive");
-    const unArchiveCard = Markup.button.callback("🗃️", "card:reactivate");
-    const banCard = Markup.button.callback("🚫", "card:ban");
+    const getPreviousCard = Markup.button.callback("⏪", "card:undo");
+    let cardActions: any[] = [];
 
-    switch (cardStatus) {
-      case CardStatus.LOVED:
-        return [anotherCard, unLoveCard, archiveCard, banCard];
-      case CardStatus.ARCHIVED:
-        return [anotherCard, unArchiveCard, loveCard, banCard];
-      default:
-        return [anotherCard, loveCard, archiveCard, banCard];
+    if (hasPreviousCard) {
+      cardActions.push(getPreviousCard);
     }
+
+    cardActions.push(nextCard);
+
+    if (cardStatus === CardStatus.LOVED) {
+      return { cardActions, reactionButton: unLoveCard };
+    }
+
+    return { cardActions, reactionButton: loveCard };
   }
 
   createLanguageSelectionKeyboard(language?: AppLanguage) {

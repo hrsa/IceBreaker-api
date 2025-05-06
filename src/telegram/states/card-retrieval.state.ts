@@ -83,7 +83,7 @@ export class CardRetrievalState implements BotState {
       const cardStatusText = this.generateCardStatusText(card, language);
 
       let question = this.languageUtilsService.getPropertyByLanguage(card, "question", language);
-      let cardMessage = `<pre>\n</pre>${cardStatusText}\n<blockquote><b>\n${question}\n\n\n</b></blockquote>`;
+      let cardMessage = `${cardStatusText}\n<blockquote><b>\n${question}\n\n\n</b></blockquote>`;
 
       if (card.category) {
         const categoryName = this.languageUtilsService.getPropertyByLanguage(card.category, "name", language);

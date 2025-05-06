@@ -31,11 +31,11 @@ export class UserResponseDto {
 
   @Expose()
   @ApiProperty({ example: 123456789 })
-  telegramId: number;
+  telegramId?: string;
 
   @Expose()
   @ApiProperty({ example: 'something secret' })
-  secretPhrase: string;
+  secretPhrase?: string;
 
   constructor(partial: Partial<User>) {
     Object.assign(this, partial);

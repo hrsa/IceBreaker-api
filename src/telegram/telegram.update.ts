@@ -1,13 +1,13 @@
 import { Action, Command, Ctx, Help, On, Start, Update } from "nestjs-telegraf";
-import { Context, Markup } from 'telegraf';
+import { Context, Markup } from "telegraf";
 import { TelegramService } from "./telegram.service";
 import { AppLanguage } from "../common/constants/app-language.enum";
 import { StateFactory } from "./states/state.factory";
 import { CardRetrievalState } from "./states/card-retrieval.state";
 import { CategorySelectionState } from "./states/category-selection.state";
 import { I18nService } from "nestjs-i18n";
-import { ProfileSelectionState } from './states/profile-selection.state';
-import { CardStatus } from '../card-preferences/entitites/card-preference.entity';
+import { ProfileSelectionState } from "./states/profile-selection.state";
+import { CardStatus } from "../card-preferences/entitites/card-preference.entity";
 
 @Update()
 export class TelegramUpdate {
@@ -41,10 +41,12 @@ export class TelegramUpdate {
     await this.telegramService.updateOrSendMessage(
       ctx,
       this.translate.t("telegram.help.message", { lang: ctx.session.language }),
-      Markup.inlineKeyboard([Markup.button.callback(
-        this.translate.t("telegram.card.actions.change_language", { lang: ctx.session.language }),
-        "card:change_language"
-      )])
+      Markup.inlineKeyboard([
+        Markup.button.callback(
+          this.translate.t("telegram.card.actions.change_language", { lang: ctx.session.language }),
+          "card:change_language"
+        ),
+      ])
     );
   }
 
@@ -65,9 +67,9 @@ export class TelegramUpdate {
     if (ctx.session.step) {
       const state = this.stateFactory.getState(ctx);
       if (state === this.stateFactory.getStateByName("card-retrieval") && ctx.session.card && ctx.session.card.id) {
-        await this.handleBackToTheGame(ctx)
+        await this.handleBackToTheGame(ctx);
       } else {
-        await state.handle(ctx)
+        await state.handle(ctx);
       }
     } else {
       await this.start(ctx);
@@ -84,6 +86,17 @@ export class TelegramUpdate {
     }
   }
 
+  @Command("delete_profile")
+  async handleDeleteProfile(@Ctx() ctx: Context) {
+    await this.telegramService.deleteUserMessage(ctx);
+    if (!ctx.session.step || !ctx.session.userId) {
+      await this.start(ctx);
+      return;
+    }
+    ctx.session.step = "profile-deletion";
+    await this.stateFactory.getStateByName("profile-deletion").handle(ctx);
+  }
+
   @Action(/profile:new/)
   async handleProfileCreation(@Ctx() ctx: Context) {
     if (!ctx.session.step || !ctx.session.userId) {
@@ -93,6 +106,35 @@ export class TelegramUpdate {
 
     const state = this.stateFactory.getStateByName("profile-creation");
     await state.handle(ctx);
+  }
+
+  @Action(/profile:delete:cancel/)
+  async handleProfileDelectionCancel(@Ctx() ctx: Context) {
+    ctx.session.selectedProfileId = undefined;
+    ctx.session.step = "profile-selection";
+    await this.start(ctx);
+    return;
+  }
+
+  @Action(/profile:delete:(.+)/)
+  async handleProfileDelection(@Ctx() ctx: Context) {
+    if (!ctx.session.userId) {
+      await this.start(ctx);
+      return;
+    }
+    if (ctx.match && ctx.match.length > 1) {
+      const profileId = ctx.match[1];
+      await this.telegramService.deleteProfile(ctx.session.userId, profileId);
+      ctx.session.step = "profile-selection";
+      ctx.session.selectedProfileId = undefined;
+
+      return this.telegramService.updateOrSendMessage(
+        ctx,
+        this.translate.t("telegram.profile.deletion.success", {
+          lang: ctx.session.language,
+        })
+      );
+    }
   }
 
   @Action(/profile:(.+)/)
@@ -139,6 +181,15 @@ export class TelegramUpdate {
       return;
     }
     await this.cardRetrievalState.getRandomCard(ctx);
+  }
+
+  @Action("card:undo")
+  async handleGetPreviousCard(@Ctx() ctx: Context) {
+    if (ctx.session.previousCard) {
+      ctx.session.card = ctx.session.previousCard;
+      ctx.session.previousCard = undefined;
+    }
+    await this.cardRetrievalState.getRandomCard(ctx, true);
   }
 
   @Action("card:change_categories")

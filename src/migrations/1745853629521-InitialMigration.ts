@@ -59,7 +59,7 @@ export class InitialMigration1745853629521 implements MigrationInterface {
     await queryRunner.query(`CREATE TABLE "user"
                              (
                                  "id"           uuid              NOT NULL DEFAULT uuid_generate_v4(),
-                                 "telegramId"   integer,
+                                 "telegramId"   character varying,
                                  "secretPhrase" character varying,
                                  "email"        character varying NOT NULL,
                                  "password"     character varying NOT NULL,

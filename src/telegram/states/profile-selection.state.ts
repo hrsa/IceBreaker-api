@@ -19,7 +19,7 @@ export class ProfileSelectionState implements BotState {
     await this.telegramService.updateOrSendMessage(
       ctx,
       this.translate.t("telegram.profile.selection.prompt", { lang: ctx.session.language }),
-      this.telegramService.createProfileKeyboard(profiles, ctx.session.language)
+      this.telegramService.createProfileKeyboard(profiles, ctx.session.language, false)
     );
   }
 

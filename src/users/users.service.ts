@@ -66,7 +66,7 @@ export class UsersService {
     return user;
   }
 
-  async findByTelegramId(telegramId: number): Promise<User> {
+  async findByTelegramId(telegramId: string): Promise<User> {
     const user = await this.usersRepository.findOne({
       where: { telegramId },
     });
@@ -92,7 +92,7 @@ export class UsersService {
 
   async connectTelegram(telegramId: number, secretPhrase: string): Promise<User> {
     const user = await this.findBySecretPhrase(secretPhrase);
-    user.telegramId = telegramId;
+    user.telegramId = telegramId.toString();
     //remove secret phrase
     user.secretPhrase = "";
     return this.usersRepository.save(user);

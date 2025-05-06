@@ -11,6 +11,9 @@
     },
     "suggest": {
       "description": "Suggerire una domanda"
+    },
+    "delete_profile": {
+      "description": "Eliminare un profilio"
     }
   },
   "buttons": {
@@ -55,6 +58,12 @@
       "length_error": "Il nome del profilo deve avere tra 1 e 50 caratteri. Riprova:",
       "success": "Profilo \"{profileName}\" creato con successo!\n\nOra seleziona le categorie (puoi selezionarne più di una):",
       "error": "Errore nella creazione del profilo: {message}. Riprova."
+    },
+    "deletion": {
+      "prompt": "Sei sicuro di voler eliminare {profileName}?",
+      "success": "Il profilio e eliminato.",
+      "yes": "❗Si, eliminare {profileName}❗",
+      "no": "Non, lasciare {profileName}"
     }
   },
   "category": {
@@ -83,8 +92,8 @@
       "change_language": "Cambia lingua",
       "include_archived": "Includere  🗄️",
       "exclude_archived": "Escludere  🗄️",
-      "include_loved": "Includere  ❤️",
-      "exclude_loved": "Escludere  ❤️"
+      "include_loved": "Nuovo",
+      "exclude_loved": "Nuovo + ❤️"
     }
   },
   "suggestion": {

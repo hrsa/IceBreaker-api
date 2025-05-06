@@ -22,7 +22,9 @@ export class Suggestion {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
-  @ManyToOne(() => User, (user) => user.suggestions)
+  @ManyToOne(() => User, (user) => user.suggestions, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'userId' })
   user: User;
 

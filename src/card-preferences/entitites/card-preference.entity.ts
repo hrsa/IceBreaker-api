@@ -14,7 +14,9 @@ export class CardPreference {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Profile, profile => profile.cardPreferences)
+  @ManyToOne(() => Profile, profile => profile.cardPreferences, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'profileId' })
   profile: Profile;
 

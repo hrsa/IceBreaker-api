@@ -21,13 +21,13 @@ export class RedisSessionService {
       db: this.configService.get('REDIS_DB', 0),
     });
 
-    this.ttl = this.configService.get('SESSION_TTL', 86400);
+    this.ttl = this.configService.get('SESSION_TTL', 86400*30);
   }
 
   middleware(): MiddlewareFn<Context> {
     return async (ctx, next) => {
       const telegramUser = ctx.callbackQuery?.from || ctx.message?.from;
-      const telegramId = telegramUser?.id;
+      const telegramId = telegramUser?.id.toString();
 
       const key = `session:${ctx.chat?.id}`;
       const sessionData = await this.redisClient.get(key);

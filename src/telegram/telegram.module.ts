@@ -21,6 +21,7 @@ import { SuggestionCreationState } from './states/suggestion-creation.state';
 import { SignupEmailState } from './states/signup-email.state';
 import { SignupNameState } from './states/signup-name.state';
 import { CardPreferencesModule } from '../card-preferences/card-preferences.module';
+import { ProfileDeletionState } from './states/profile-deletion.state';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { CardPreferencesModule } from '../card-preferences/card-preferences.modu
     AuthenticationState,
     ProfileSelectionState,
     ProfileCreationState,
+    ProfileDeletionState,
     CategorySelectionState,
     CardRetrievalState,
     SuggestionCreationState,

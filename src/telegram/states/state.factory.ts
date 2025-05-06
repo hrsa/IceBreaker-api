@@ -9,6 +9,7 @@ import { ProfileCreationState } from "./profile-creation.state";
 import { SuggestionCreationState } from "./suggestion-creation.state";
 import { SignupEmailState } from "./signup-email.state";
 import { SignupNameState } from "./signup-name.state";
+import { ProfileDeletionState } from "./profile-deletion.state";
 
 @Injectable()
 export class StateFactory {
@@ -19,6 +20,7 @@ export class StateFactory {
     private readonly categorySelectionState: CategorySelectionState,
     private readonly cardRetrievalState: CardRetrievalState,
     private readonly suggestionCreationState: SuggestionCreationState,
+    private readonly profileDeletionState: ProfileDeletionState,
     @Inject(forwardRef(() => SignupEmailState))
     private readonly signupEmailState: SignupEmailState,
     private readonly signupNameState: SignupNameState
@@ -44,6 +46,10 @@ export class StateFactory {
       return this.profileCreationState;
     }
 
+    if (ctx.session.step === "profile-deletion") {
+      return this.profileDeletionState;
+    }
+
     if (ctx.session.step === "suggestion-creation") {
       return this.suggestionCreationState;
     }
@@ -67,6 +73,8 @@ export class StateFactory {
         return this.profileSelectionState;
       case "profile-creation":
         return this.profileCreationState;
+      case "profile-deletion":
+        return this.profileDeletionState;
       case "category-selection":
         return this.categorySelectionState;
       case "card-retrieval":

@@ -3,7 +3,7 @@ import { Context } from 'telegraf';
 import { TelegramService } from "../telegram.service";
 import { BotState } from "./base.state";
 import { I18nService } from "nestjs-i18n";
-import { CreateSuggestionDto } from "src/suggestions/dto/create-suggestion.dto";
+import { CreateSuggestionDto } from "../../suggestions/dto/create-suggestion.dto";
 
 @Injectable()
 export class SuggestionCreationState implements BotState {

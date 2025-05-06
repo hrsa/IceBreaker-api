@@ -11,6 +11,9 @@
     },
     "suggest": {
       "description": "Proposer une question"
+    },
+    "delete_profile": {
+      "description": "Supprimer un profil"
     }
   },
   "buttons": {
@@ -55,6 +58,12 @@
       "length_error": "Le nom du profil doit comporter entre 1 et 50 caractères. Veuillez réessayer :",
       "success": "Le profil \"{profileName}\" a été créé avec succès !\n\nMaintenant, veuillez sélectionner des catégories (vous pouvez en sélectionner plusieurs) :",
       "error": "Erreur lors de la création du profil : {message}. Veuillez réessayer."
+    },
+    "deletion": {
+      "prompt": "Est-ce que tu veux supprimer {profileName}?",
+      "success": "Le profile a été supprimé.",
+      "yes": "❗Oui, supprimer {profileName}❗",
+      "no": "Non, garder {profileName}"
     }
   },
   "category": {
@@ -83,8 +92,8 @@
       "change_language": "Changer de langue",
       "include_archived": "Inclure  🗄️",
       "exclude_archived": "Exclure  🗄️",
-      "include_loved": "Inclure  ❤️",
-      "exclude_loved": "Exclure  ❤️"
+      "include_loved": "Neuf",
+      "exclude_loved": "Neuf + ❤️"
     }
   },
   "suggestion": {

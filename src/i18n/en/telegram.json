@@ -11,6 +11,9 @@
     },
     "suggest": {
       "description": "Suggest a question"
+    },
+    "delete_profile": {
+      "description": "Delete a profile"
     }
   },
   "buttons": {
@@ -55,6 +58,12 @@
       "length_error": "Profile name must be between 1 and 50 characters. Please try again:",
       "success": "Profile \"{profileName}\" created successfully!\n\nNow, please select categories (you can select multiple):",
       "error": "Error creating profile: {message}. Please try again."
+    },
+    "deletion": {
+      "prompt": "Are you sure that you want to delete {profileName}?",
+      "success": "Profile deleted successfully",
+      "yes": "❗Yes, delete {profileName}❗",
+      "no": "No, keep {profileName}"
     }
   },
   "category": {
@@ -83,8 +92,8 @@
       "change_language": "Change language",
       "include_archived": "Include  🗄️",
       "exclude_archived": "Exclude  🗄️",
-      "include_loved": "Include  ❤️",
-      "exclude_loved": "Exclude  ❤️"
+      "include_loved": "New only",
+      "exclude_loved": "New + ❤️"
     }
   },
   "suggestion": {

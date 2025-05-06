@@ -17,13 +17,18 @@ export class Profile {
   @Column()
   name: string;
 
-  @ManyToOne(() => User, (user) => user.profiles)
+  @ManyToOne(() => User, (user) => user.profiles, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'userId' })
   user: User;
 
   @Column()
   userId: string;
 
-  @OneToMany(() => CardPreference, (preference) => preference.profile)
+  @OneToMany(() => CardPreference, (preference) => preference.profile, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   cardPreferences: CardPreference[];
 }

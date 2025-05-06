@@ -5,5 +5,9 @@
   "testRegex": ".e2e-spec.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
-  }
+  },
+  "transformIgnorePatterns": ["node_modules/(?!random-words)"],
+  "setupFilesAfterEnv": ["./config/jest-e2e-setup.ts"],
+  "detectOpenHandles": true,
+  "forceExit": true
 }
