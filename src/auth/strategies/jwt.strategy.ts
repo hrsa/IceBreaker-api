@@ -14,7 +14,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: any) {
+  async validate(payload: any): Promise<CurrentUserData> {
     try {
       const user = await this.usersService.findOne(payload.sub);
 
@@ -22,9 +22,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         throw new UnauthorizedException('User is not activated');
       }
 
-      return { userId: payload.sub, email: payload.email, isAdmin: user.isAdmin };
+      return { id: payload.sub, email: payload.email, isAdmin: user.isAdmin };
     } catch (error) {
       throw new UnauthorizedException('Invalid token');
     }
   }
+}
+
+export interface CurrentUserData {
+  id: string;
+  email: string;
+  isAdmin: boolean;
 }

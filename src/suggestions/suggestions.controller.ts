@@ -23,6 +23,7 @@ import {
 import { SuggestionResponseDto } from './dto/suggestion-response.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { AdminGuard } from '../common/guards/admin.guard';
+import { CurrentUserData } from '../auth/strategies/jwt.strategy';
 
 @ApiTags('suggestions')
 @Controller('suggestions')
@@ -41,7 +42,7 @@ export class SuggestionsController {
   })
   async create(
     @Body() createSuggestionDto: CreateSuggestionDto,
-    @CurrentUser('userId') userId: string,
+    @CurrentUser('id') userId: string,
   ) {
     createSuggestionDto.userId = userId;
     const suggestion =
@@ -56,7 +57,7 @@ export class SuggestionsController {
     description: 'Return all suggestions for the user',
     type: [SuggestionResponseDto],
   })
-  async findAll(@CurrentUser('userId') userId: string) {
+  async findAll(@CurrentUser('id') userId: string) {
     const suggestions = await this.suggestionsService.findAll(userId);
     return suggestions.map(
       (suggestion) => new SuggestionResponseDto(suggestion),
@@ -74,10 +75,9 @@ export class SuggestionsController {
   @ApiResponse({ status: 403, description: 'Forbidden - Admin access required'})
   async findOne(
     @Param('id') id: string,
-    @CurrentUser('userId') userId: string,
-    @CurrentUser('isAdmin') isAdmin: boolean,
+    @CurrentUser() user: CurrentUserData,
   ) {
-    return this.suggestionsService.findOne(id, userId, isAdmin);
+    return this.suggestionsService.findOne(id, user.id, user.isAdmin);
   }
 
   @Patch(':id')

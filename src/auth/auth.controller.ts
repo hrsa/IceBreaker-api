@@ -18,6 +18,7 @@ import { UserResponseDto } from '../users/dto/user-response.dto';
 import { TokenDto } from './dto/token.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity';
+import { CurrentUserData } from './strategies/jwt.strategy';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -44,7 +45,7 @@ export class AuthController {
   @ApiBody({ type: LoginDto })
   @ApiResponse({ status: 200, description: 'Login successful', type: TokenDto })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async login(@CurrentUser() user: User): Promise<TokenDto> {
+  async login(@CurrentUser() user: CurrentUserData): Promise<TokenDto> {
     return this.authService.login(user);
   }
 }

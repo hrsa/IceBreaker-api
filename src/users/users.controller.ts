@@ -11,8 +11,8 @@ import {
   HttpStatus,
   ClassSerializerInterceptor,
   UseInterceptors,
-  HttpException,
-} from "@nestjs/common";
+  HttpException, ForbiddenException,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from "@nestjs/swagger";
 import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -22,6 +22,7 @@ import { UserResponseDto } from "./dto/user-response.dto";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { AdminGuard } from "../common/guards/admin.guard";
 import { User } from './entities/user.entity';
+import { CurrentUserData } from '../auth/strategies/jwt.strategy';
 
 @ApiTags("users")
 @Controller("users")
@@ -53,7 +54,7 @@ export class UsersController {
   @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Get the current user" })
-  async getMe(@CurrentUser("userId") userId: string): Promise<UserResponseDto> {
+  async getMe(@CurrentUser("id") userId: string): Promise<UserResponseDto> {
     const user = await this.usersService.findOne(userId);
     return new UserResponseDto(user);
   }
@@ -78,10 +79,10 @@ export class UsersController {
   async update(
     @Param("id") id: string,
     @Body() updateUserDto: UpdateUserDto,
-    @CurrentUser() currentUser: User,
+    @CurrentUser() currentUser: CurrentUserData,
   ): Promise<UserResponseDto> {
     if (id !== currentUser.id && !currentUser.isAdmin) {
-      throw new HttpException("You can't update other user's data", HttpStatus.FORBIDDEN);
+      throw new ForbiddenException("You can't update other user's data");
     }
     const user = await this.usersService.update(id, updateUserDto);
     return new UserResponseDto(user);
@@ -95,9 +96,9 @@ export class UsersController {
   @ApiResponse({ status: 204, description: "User deleted successfully" })
   @ApiResponse({ status: 404, description: "User not found" })
   async remove(@Param("id") id: string,
-               @CurrentUser() currentUser: User,): Promise<void> {
+               @CurrentUser() currentUser: CurrentUserData): Promise<void> {
     if (id !== currentUser.id && !currentUser.isAdmin) {
-      throw new HttpException("You can't delete other user's data", HttpStatus.FORBIDDEN);
+      throw new ForbiddenException("You can't delete other user's data");
     }
     return this.usersService.remove(id);
   }

@@ -21,6 +21,7 @@ import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { ProfileResponseDto } from "./dto/profile-response.dto";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { User } from "../users/entities/user.entity";
+import { CurrentUserData } from '../auth/strategies/jwt.strategy';
 
 @ApiTags("profiles")
 @Controller("profiles")
@@ -37,7 +38,7 @@ export class ProfilesController {
     description: "Profile created successfully",
     type: ProfileResponseDto,
   })
-  async create(@Body() createProfileDto: CreateProfileDto, @CurrentUser() currentUser: User): Promise<ProfileResponseDto> {
+  async create(@Body() createProfileDto: CreateProfileDto, @CurrentUser() currentUser: CurrentUserData): Promise<ProfileResponseDto> {
     if (!createProfileDto.userId || !currentUser.isAdmin) {
       createProfileDto.userId = currentUser.id;
     }
@@ -53,7 +54,7 @@ export class ProfilesController {
     description: "Return all profiles for the user",
     type: [ProfileResponseDto],
   })
-  async findAll(@CurrentUser("userId") userId: string): Promise<ProfileResponseDto[]> {
+  async findAll(@CurrentUser("id") userId: string): Promise<ProfileResponseDto[]> {
     const profiles = await this.profilesService.findAll(userId);
     return profiles.map(profile => new ProfileResponseDto(profile));
   }
@@ -66,7 +67,7 @@ export class ProfilesController {
     type: ProfileResponseDto,
   })
   @ApiResponse({ status: 404, description: "Profile not found" })
-  async findOne(@Param("id") id: string, @CurrentUser() currentUser: User): Promise<ProfileResponseDto> {
+  async findOne(@Param("id") id: string, @CurrentUser() currentUser: CurrentUserData): Promise<ProfileResponseDto> {
     const profile = await this.profilesService.findOne(id, currentUser.id, currentUser.isAdmin);
     return new ProfileResponseDto(profile);
   }
@@ -82,7 +83,7 @@ export class ProfilesController {
   async update(
     @Param("id") id: string,
     @Body() updateProfileDto: UpdateProfileDto,
-    @CurrentUser() currentUser: User
+    @CurrentUser() currentUser: CurrentUserData
   ): Promise<ProfileResponseDto> {
     if (updateProfileDto.userId) {
       delete updateProfileDto.userId;
@@ -97,7 +98,7 @@ export class ProfilesController {
   @ApiOperation({ summary: "Delete a profile" })
   @ApiResponse({ status: 204, description: "Profile deleted successfully" })
   @ApiResponse({ status: 404, description: "Profile not found" })
-  async remove(@Param("id") id: string, @CurrentUser() currentUser: User): Promise<void> {
+  async remove(@Param("id") id: string, @CurrentUser() currentUser: CurrentUserData): Promise<void> {
     return this.profilesService.remove(id, currentUser.id, currentUser.isAdmin);
   }
 
@@ -109,7 +110,7 @@ export class ProfilesController {
   })
   async getCardPreferences(
     @Param("id") profileId: string,
-    @CurrentUser("userId") userId: string,
+    @CurrentUser("id") userId: string,
     @Query("status") status?: string
   ) {
     return this.profilesService.getCardPreferences(profileId, status, userId);
