@@ -17,7 +17,6 @@ import { UsersService } from '../users/users.service';
 import { UserResponseDto } from '../users/dto/user-response.dto';
 import { TokenDto } from './dto/token.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
-import { User } from '../users/entities/user.entity';
 import { CurrentUserData } from './strategies/jwt.strategy';
 
 @ApiTags('auth')

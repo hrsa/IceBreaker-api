@@ -4,7 +4,6 @@ import { testDatabaseConfig } from './test-database.config';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { DataSource } from 'typeorm';
-import { TestDataSeeder } from '../seeders/test-data.seeder';
 import { INestApplication } from '@nestjs/common';
 import { setupTestApp } from './app-test.module';
 
@@ -40,9 +39,6 @@ export class TestSetup {
 
       if (result.length === 0) {
         await tmpDataSource.query(`CREATE DATABASE ${database}`);
-        console.log(`Created database ${database}`);
-      } else {
-        console.log(`Database ${database} already exists`);
       }
 
       await tmpDataSource.destroy();
@@ -54,12 +50,9 @@ export class TestSetup {
 
   static async runMigrations(): Promise<void> {
     try {
-      console.log('Running migrations on test database');
-      // Run migrations using TypeORM CLI
-      const result = await execPromise(
+      await execPromise(
         `npx typeorm-ts-node-commonjs migration:run -d src/dataSource.ts`
       );
-      console.log('Migration output:', result.stdout);
     } catch (error) {
       console.error('Error running migrations:', error.stderr || error);
       throw error;
@@ -94,7 +87,6 @@ export class TestSetup {
 
 
       await tmpDataSource.query(`DROP DATABASE IF EXISTS ${database}`);
-      console.log(`Dropped database ${database}`);
 
       await tmpDataSource.destroy();
     } catch (error) {
@@ -107,28 +99,13 @@ export class TestSetup {
 
   static async resetDatabase(dataSource: DataSource): Promise<void> {
     try {
-      console.log('Resetting test database to initial state');
-
-      // Truncate all tables (maintaining the schema)
       const entities = dataSource.entityMetadatas;
-
-      // Disable foreign key checks
       await dataSource.query('SET session_replication_role = \'replica\';');
 
-
-      // Clear tables in the correct order
       for (const entity of entities) {
         await dataSource.query(`TRUNCATE TABLE "${entity.tableName}" CASCADE;`);
       }
-
-      // Re-enable foreign key checks
       await dataSource.query('SET session_replication_role = \'origin\';');
-
-      // Seed with initial test data
-      const seeder = new TestDataSeeder(dataSource);
-      await seeder.seed();
-
-      console.log('Database reset complete');
     } catch (error) {
       console.error('Error resetting database:', error);
       throw error;

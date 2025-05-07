@@ -20,7 +20,6 @@ import { UpdateProfileDto } from "./dto/update-profile.dto";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { ProfileResponseDto } from "./dto/profile-response.dto";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
-import { User } from "../users/entities/user.entity";
 import { CurrentUserData } from '../auth/strategies/jwt.strategy';
 
 @ApiTags("profiles")

@@ -11,7 +11,7 @@ import {
   HttpStatus,
   ClassSerializerInterceptor,
   UseInterceptors,
-  HttpException, ForbiddenException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from "@nestjs/swagger";
 import { UsersService } from "./users.service";
@@ -21,7 +21,6 @@ import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { UserResponseDto } from "./dto/user-response.dto";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { AdminGuard } from "../common/guards/admin.guard";
-import { User } from './entities/user.entity';
 import { CurrentUserData } from '../auth/strategies/jwt.strategy';
 
 @ApiTags("users")

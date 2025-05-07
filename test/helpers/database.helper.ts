@@ -6,6 +6,7 @@ import { TestDataSeeder } from '../seeders/test-data.seeder';
 export async function resetDatabase(app: INestApplication): Promise<void> {
   const dataSource = app.get(DataSource);
   await TestSetup.resetDatabase(dataSource);
+  await seedTestData(app);
 }
 
 export async function seedTestData(app: INestApplication): Promise<void> {
