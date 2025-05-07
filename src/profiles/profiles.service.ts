@@ -34,7 +34,7 @@ export class ProfilesService {
     });
   }
 
-  async findOne(id: string, userId?: string): Promise<Profile> {
+  async findOne(id: string, userId?: string, isAdmin = false): Promise<Profile> {
     const profile = await this.profilesRepository.findOne({
       where: { id },
       relations: ['cardPreferences', 'cardPreferences.card'],
@@ -43,7 +43,7 @@ export class ProfilesService {
     if (!profile) {
       throw new NotFoundException(`Profile with ID "${id}" not found`);
     }
-    if (userId && profile.userId !== userId) {
+    if (userId && profile.userId !== userId && !isAdmin) {
       throw new ForbiddenException(
         'You do not have permission to access this profile',
       );
@@ -56,14 +56,15 @@ export class ProfilesService {
     id: string,
     userId: string,
     updateProfileDto: UpdateProfileDto,
+    isAdmin = false,
   ): Promise<Profile> {
-    const profile = await this.findOne(id, userId);
+    const profile = await this.findOne(id, userId, isAdmin);
     this.profilesRepository.merge(profile, updateProfileDto);
     return this.profilesRepository.save(profile);
   }
 
-  async remove(id: string, userId: string): Promise<void> {
-    const result = await this.findOne(id, userId);
+  async remove(id: string, userId: string, isAdmin = false): Promise<void> {
+    const result = await this.findOne(id, userId, isAdmin);
     if (!result) {
       throw new NotFoundException(`Profile with ID "${id}" not found`);
     }

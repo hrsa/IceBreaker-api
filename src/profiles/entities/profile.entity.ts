@@ -1,34 +1,32 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  OneToMany,
-  JoinColumn,
-} from 'typeorm';
-import { User } from '../../users/entities/user.entity';
-import { CardPreference } from '../../card-preferences/entitites/card-preference.entity';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from "typeorm";
+import { User } from "../../users/entities/user.entity";
+import { CardPreference } from "../../card-preferences/entitites/card-preference.entity";
+import { getSchemaPath } from '@nestjs/swagger';
 
 @Entity()
 export class Profile {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column()
   name: string;
 
-  @ManyToOne(() => User, (user) => user.profiles, {
-    onDelete: 'CASCADE',
+  @ManyToOne(() => User, user => user.profiles, {
+    onDelete: "CASCADE",
   })
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn({ name: "userId" })
   user: User;
 
   @Column()
   userId: string;
 
-  @OneToMany(() => CardPreference, (preference) => preference.profile, {
+  @OneToMany(() => CardPreference, preference => preference.profile, {
     cascade: true,
-    onDelete: 'CASCADE',
+    onDelete: "CASCADE",
   })
   cardPreferences: CardPreference[];
+
+  getSchema() {
+    return getSchemaPath(Profile);
+  }
 }

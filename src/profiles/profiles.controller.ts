@@ -12,17 +12,18 @@ import {
   HttpStatus,
   UseInterceptors,
   ClassSerializerInterceptor,
-} from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { ProfilesService } from './profiles.service';
-import { CreateProfileDto } from './dto/create-profile.dto';
-import { UpdateProfileDto } from './dto/update-profile.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ProfileResponseDto } from './dto/profile-response.dto';
-import { CurrentUser } from '../common/decorators/current-user.decorator';
+} from "@nestjs/common";
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from "@nestjs/swagger";
+import { ProfilesService } from "./profiles.service";
+import { CreateProfileDto } from "./dto/create-profile.dto";
+import { UpdateProfileDto } from "./dto/update-profile.dto";
+import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+import { ProfileResponseDto } from "./dto/profile-response.dto";
+import { CurrentUser } from "../common/decorators/current-user.decorator";
+import { User } from "../users/entities/user.entity";
 
-@ApiTags('profiles')
-@Controller('profiles')
+@ApiTags("profiles")
+@Controller("profiles")
 @UseGuards(JwtAuthGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 @ApiBearerAuth()
@@ -30,92 +31,86 @@ export class ProfilesController {
   constructor(private readonly profilesService: ProfilesService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a new profile' })
+  @ApiOperation({ summary: "Create a new profile" })
   @ApiResponse({
     status: 201,
-    description: 'Profile created successfully',
-    type: ProfileResponseDto
+    description: "Profile created successfully",
+    type: ProfileResponseDto,
   })
-  async create(
-    @Body() createProfileDto: CreateProfileDto,
-    @CurrentUser('userId') userId: string,
-  ): Promise<ProfileResponseDto> {
-    createProfileDto.userId = userId;
+  async create(@Body() createProfileDto: CreateProfileDto, @CurrentUser() currentUser: User): Promise<ProfileResponseDto> {
+    if (!createProfileDto.userId || !currentUser.isAdmin) {
+      createProfileDto.userId = currentUser.id;
+    }
+
     const profile = await this.profilesService.create(createProfileDto);
     return new ProfileResponseDto(profile);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all profiles for the current user' })
+  @ApiOperation({ summary: "Get all profiles for the current user" })
   @ApiResponse({
     status: 200,
-    description: 'Return all profiles for the user',
-    type: [ProfileResponseDto]
+    description: "Return all profiles for the user",
+    type: [ProfileResponseDto],
   })
-  async findAll(@CurrentUser('userId') userId: string): Promise<ProfileResponseDto[]> {
+  async findAll(@CurrentUser("userId") userId: string): Promise<ProfileResponseDto[]> {
     const profiles = await this.profilesService.findAll(userId);
     return profiles.map(profile => new ProfileResponseDto(profile));
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Get a profile by ID' })
+  @Get(":id")
+  @ApiOperation({ summary: "Get a profile by ID" })
   @ApiResponse({
     status: 200,
-    description: 'Return the profile',
-    type: ProfileResponseDto
+    description: "Return the profile",
+    type: ProfileResponseDto,
   })
-  @ApiResponse({ status: 404, description: 'Profile not found' })
-  async findOne(
-    @Param('id') id: string,
-    @CurrentUser('userId') userId: string,
-  ): Promise<ProfileResponseDto> {
-    const profile = await this.profilesService.findOne(id, userId);
+  @ApiResponse({ status: 404, description: "Profile not found" })
+  async findOne(@Param("id") id: string, @CurrentUser() currentUser: User): Promise<ProfileResponseDto> {
+    const profile = await this.profilesService.findOne(id, currentUser.id, currentUser.isAdmin);
     return new ProfileResponseDto(profile);
   }
 
-  @Patch(':id')
-  @ApiOperation({ summary: 'Update a profile' })
+  @Patch(":id")
+  @ApiOperation({ summary: "Update a profile" })
   @ApiResponse({
     status: 200,
-    description: 'Profile updated successfully',
-    type: ProfileResponseDto
+    description: "Profile updated successfully",
+    type: ProfileResponseDto,
   })
-  @ApiResponse({ status: 404, description: 'Profile not found' })
+  @ApiResponse({ status: 404, description: "Profile not found" })
   async update(
-    @Param('id') id: string,
+    @Param("id") id: string,
     @Body() updateProfileDto: UpdateProfileDto,
-    @CurrentUser('userId') userId: string,
+    @CurrentUser() currentUser: User
   ): Promise<ProfileResponseDto> {
     if (updateProfileDto.userId) {
       delete updateProfileDto.userId;
     }
 
-    const profile = await this.profilesService.update(id, userId, updateProfileDto);
+    const profile = await this.profilesService.update(id, currentUser.id, updateProfileDto, currentUser.isAdmin);
     return new ProfileResponseDto(profile);
   }
 
-  @Delete(':id')
+  @Delete(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Delete a profile' })
-  @ApiResponse({ status: 204, description: 'Profile deleted successfully' })
-  @ApiResponse({ status: 404, description: 'Profile not found' })
-  async remove(
-    @Param('id') id: string,
-    @CurrentUser('userId') userId: string,
-  ): Promise<void> {
-    return this.profilesService.remove(id, userId);
+  @ApiOperation({ summary: "Delete a profile" })
+  @ApiResponse({ status: 204, description: "Profile deleted successfully" })
+  @ApiResponse({ status: 404, description: "Profile not found" })
+  async remove(@Param("id") id: string, @CurrentUser() currentUser: User): Promise<void> {
+    return this.profilesService.remove(id, currentUser.id, currentUser.isAdmin);
   }
 
-  @Get(':id/card-preferences')
-  @ApiOperation({ summary: 'Get all card preferences for a profile' })
+  @Get(":id/card-preferences")
+  @ApiOperation({ summary: "Get all card preferences for a profile" })
   @ApiResponse({
     status: 200,
-    description: 'Return all card preferences for the profile',
+    description: "Return all card preferences for the profile",
   })
   async getCardPreferences(
-    @Param('id') profileId: string,
-    @CurrentUser('userId') userId: string,
-    @Query('status') status?: string,
+    @Param("id") profileId: string,
+    @CurrentUser("userId") userId: string,
+    @Query("status") status?: string
   ) {
     return this.profilesService.getCardPreferences(profileId, status, userId);
   }
