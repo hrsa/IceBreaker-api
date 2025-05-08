@@ -5,6 +5,7 @@ import { getTestApp } from "./config/setup";
 import { UserResponseDto } from "../src/users/dto/user-response.dto";
 import { TestClientHelper } from "./helpers/test-client.helper";
 import { plainToInstance } from "class-transformer";
+import { testUsers } from './seeders/test-data.seeder';
 
 describe("Users API (e2e)", () => {
   let app: INestApplication<App>;
@@ -15,11 +16,7 @@ describe("Users API (e2e)", () => {
     password: "testingpassword",
     name: "Tester",
   };
-  let admin = {
-    email: "admin@example.com",
-    password: "adminpassword",
-    name: "Admin",
-  };
+  let admin = testUsers.admin;
   let userId = "";
   let adminId = "";
 
