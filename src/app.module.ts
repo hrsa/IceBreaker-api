@@ -15,6 +15,7 @@ import { TelegramModule } from "./telegram/telegram.module";
 import { AcceptLanguageResolver, HeaderResolver, I18nModule, QueryResolver } from "nestjs-i18n";
 import { join } from "path";
 import { RedisSessionModule } from './redis/redis-session.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { RedisSessionModule } from './redis/redis-session.module';
       resolvers: [{ use: QueryResolver, options: ["lang"] }, AcceptLanguageResolver, new HeaderResolver(["x-lang"])],
       inject: [ConfigService],
     }),
+    EventEmitterModule.forRoot(),
     UsersModule,
     ProfilesModule,
     CategoriesModule,

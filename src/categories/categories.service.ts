@@ -5,6 +5,7 @@ import { Category } from './entities/category.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { LanguageUtilsService } from '../common/utils/language-utils.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class CategoriesService {
@@ -12,13 +13,16 @@ export class CategoriesService {
     @InjectRepository(Category)
     private categoriesRepository: Repository<Category>,
     private languageUtilsService: LanguageUtilsService,
+    private eventEmitter: EventEmitter2
   ) {}
 
   async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
     const category = this.categoriesRepository.create();
     this.languageUtilsService.mapPropertyToField(category, 'name', createCategoryDto.name, createCategoryDto.language);
     this.languageUtilsService.mapPropertyToField(category, 'description', createCategoryDto.description, createCategoryDto.language);
-    return this.categoriesRepository.save(category);
+    const savedCategory = await this.categoriesRepository.save(category);
+    this.eventEmitter.emit('category.created', savedCategory);
+    return savedCategory;
   }
 
   async findAll(): Promise<Category[]> {

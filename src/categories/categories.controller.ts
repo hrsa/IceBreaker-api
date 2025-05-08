@@ -23,12 +23,13 @@ import { AdminGuard } from '../common/guards/admin.guard';
 
 @ApiTags('categories')
 @Controller('categories')
+@UseGuards(JwtAuthGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard, AdminGuard)
+  @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Create a new category (Admin only)' })
   @ApiResponse({
     status: 201,
@@ -43,7 +44,6 @@ export class CategoriesController {
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get all categories' })
   @ApiResponse({
     status: 200,
@@ -57,7 +57,6 @@ export class CategoriesController {
   }
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get a category by ID' })
   @ApiResponse({
     status: 200,
@@ -72,7 +71,7 @@ export class CategoriesController {
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard, AdminGuard)
+  @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Update a category (Admin only)' })
   @ApiResponse({
     status: 200,
@@ -91,7 +90,7 @@ export class CategoriesController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard, AdminGuard)
+  @UseGuards(AdminGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a category (Admin only)' })
   @ApiResponse({ status: 204, description: 'Category deleted successfully' })
@@ -103,7 +102,6 @@ export class CategoriesController {
   }
 
   @Get(':id/cards-count')
-  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get the number of cards in a category' })
   @ApiResponse({
     status: 200,

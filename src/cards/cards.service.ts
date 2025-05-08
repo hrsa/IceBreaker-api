@@ -8,6 +8,7 @@ import { CategoriesService } from "../categories/categories.service";
 import { UpdateCardDto } from "./dto/update-card.dto";
 import { LanguageUtilsService } from "../common/utils/language-utils.service";
 import { GetRandomCardDto } from "./dto/get-random-card.dto";
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class CardsService {
@@ -17,7 +18,8 @@ export class CardsService {
     @InjectRepository(CardPreference)
     private cardPreferencesRepository: Repository<CardPreference>,
     private categoriesService: CategoriesService,
-    private languageUtilsService: LanguageUtilsService
+    private languageUtilsService: LanguageUtilsService,
+    private eventEmitter: EventEmitter2
   ) {}
 
   async create(createCardDto: CreateCardDto): Promise<Card> {
@@ -25,7 +27,9 @@ export class CardsService {
 
     const card = this.cardsRepository.create(createCardDto);
     this.languageUtilsService.mapPropertyToField(card, "question", createCardDto.question, createCardDto.language);
-    return this.cardsRepository.save(card);
+    const savedCard = await this.cardsRepository.save(card);
+    this.eventEmitter.emit('card.created', savedCard);
+    return savedCard;
   }
 
   async findAll(categoryId?: string): Promise<Card[]> {
