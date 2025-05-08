@@ -1,11 +1,13 @@
 import { ConfigModule } from '@nestjs/config';
 import { CardsModule } from '../cards/cards.module';
 import { Module } from '@nestjs/common';
-import { OpenAIService } from './openai.service';
+import { AIService } from './ai.service';
 import { TranslationService } from './translation.service';
-import { TranslationsController } from './translations.controller';
+import { AIController } from './ai.controller';
 import { LanguageUtilsModule } from '../common/utils/language-utils.module';
 import { CategoriesModule } from '../categories/categories.module';
+import { GameGenerationStoreService } from './game-generation-store.service';
+import { RedisSessionModule } from '../redis/redis-session.module';
 
 @Module({
   imports: [
@@ -13,9 +15,10 @@ import { CategoriesModule } from '../categories/categories.module';
     CardsModule,
     CategoriesModule,
     LanguageUtilsModule,
+    RedisSessionModule
   ],
-  controllers: [TranslationsController],
-  providers: [OpenAIService, TranslationService],
-  exports: [OpenAIService, TranslationService]
+  controllers: [AIController],
+  providers: [AIService, TranslationService, GameGenerationStoreService],
+  exports: [AIService, TranslationService]
 })
-export class TranslationsModule {}
+export class AIModule {}

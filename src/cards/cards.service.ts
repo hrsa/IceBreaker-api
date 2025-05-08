@@ -8,7 +8,7 @@ import { CategoriesService } from "../categories/categories.service";
 import { UpdateCardDto } from "./dto/update-card.dto";
 import { LanguageUtilsService } from "../common/utils/language-utils.service";
 import { GetRandomCardDto } from "./dto/get-random-card.dto";
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { EventEmitter2 } from "@nestjs/event-emitter";
 
 @Injectable()
 export class CardsService {
@@ -23,12 +23,12 @@ export class CardsService {
   ) {}
 
   async create(createCardDto: CreateCardDto): Promise<Card> {
-    await this.categoriesService.findOne(createCardDto.categoryId);
+    await this.categoriesService.findOne(createCardDto.categoryId, "", true);
 
     const card = this.cardsRepository.create(createCardDto);
     this.languageUtilsService.mapPropertyToField(card, "question", createCardDto.question, createCardDto.language);
     const savedCard = await this.cardsRepository.save(card);
-    this.eventEmitter.emit('card.created', savedCard);
+    this.eventEmitter.emit("card.created", savedCard);
     return savedCard;
   }
 
@@ -85,17 +85,32 @@ export class CardsService {
     }
   }
 
-  async getRandomCard(getRandomCardDto: GetRandomCardDto): Promise<Card[]> {
+  async getRandomCard(getRandomCardDto: GetRandomCardDto, userId?: string): Promise<Card[]> {
     const { profileId, categoryIds, includeArchived, includeLoved, limit = 1 } = getRandomCardDto;
+
+    let validCategoryIds: string[] = [];
+
+    if (categoryIds && categoryIds.length > 0) {
+      for (const categoryId of categoryIds) {
+        try {
+          await this.categoriesService.findOne(categoryId, userId);
+          validCategoryIds.push(categoryId);
+        } catch (error) {}
+      }
+    } else {
+      const publicCategories = await this.categoriesService.findAll(userId);
+      validCategoryIds = publicCategories.map(category => category.id);
+    }
+
+    if (validCategoryIds.length === 0) {
+      throw new NotFoundException("No accessible categories found");
+    }
 
     const query = this.cardsRepository
       .createQueryBuilder("card")
       .leftJoinAndSelect("card.category", "category")
-      .leftJoinAndSelect("card.profilePreferences", "cardPreference", "cardPreference.profileId = :profileId", { profileId });
-
-    if (categoryIds && categoryIds.length > 0) {
-      query.where("card.categoryId IN (:...categoryIds)", { categoryIds });
-    }
+      .leftJoinAndSelect("card.profilePreferences", "cardPreference", "cardPreference.profileId = :profileId", { profileId })
+      .where("card.categoryId IN (:...validCategoryIds)", { validCategoryIds });
 
     const banStatuses = [CardStatus.BANNED];
     if (!includeArchived) {
@@ -109,7 +124,7 @@ export class CardsService {
       const subQuery = qb
         .subQuery()
         .select("1")
-        .from(CardPreference, "cardPreference") // Use entity class name
+        .from(CardPreference, "cardPreference")
         .where("cardPreference.cardId = card.id")
         .andWhere("cardPreference.profileId = :profileId", { profileId })
         .andWhere("cardPreference.status IN (:...banStatuses)", { banStatuses });
@@ -134,10 +149,7 @@ export class CardsService {
   }
 
   async getRandomCardForGeneration(limit = 4): Promise<Card[]> {
-    const query = this.cardsRepository
-      .createQueryBuilder("card")
-      .orderBy("RANDOM()")
-      .limit(limit);
+    const query = this.cardsRepository.createQueryBuilder("card").orderBy("RANDOM()").limit(limit);
 
     return query.getMany();
   }
@@ -146,17 +158,12 @@ export class CardsService {
     const { profileId, categoryIds } = getRandomCardDto;
 
     const query = this.cardsRepository
-      .createQueryBuilder('card')
-      .leftJoin(
-        'card.profilePreferences',
-        'cardPreference',
-        'cardPreference.profileId = :profileId',
-        { profileId }
-      )
-      .where('card.id IS NOT NULL');
+      .createQueryBuilder("card")
+      .leftJoin("card.profilePreferences", "cardPreference", "cardPreference.profileId = :profileId", { profileId })
+      .where("card.id IS NOT NULL");
 
     if (categoryIds && categoryIds.length > 0) {
-      query.andWhere('card.categoryId IN (:...categoryIds)', { categoryIds });
+      query.andWhere("card.categoryId IN (:...categoryIds)", { categoryIds });
     }
 
     query.andWhere(`(
@@ -168,5 +175,4 @@ export class CardsService {
 
     return count === 0;
   }
-
 }

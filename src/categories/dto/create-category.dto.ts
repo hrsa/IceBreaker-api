@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { IsBoolean, IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { AppLanguage } from '../../common/constants/app-language.enum';
 
@@ -29,4 +29,12 @@ export class CreateCategoryDto {
   @IsNotEmpty({ message: 'Description is required' })
   @MaxLength(500, { message: 'Description cannot exceed 500 characters' })
   description: string;
+
+  @ApiProperty({
+    example: true,
+    description: 'Whether the category is public or not',
+  })
+  @IsBoolean()
+  @IsOptional()
+  isPublic: boolean;
 }

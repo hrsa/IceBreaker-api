@@ -1,6 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Profile } from "../../profiles/entities/profile.entity";
 import { Suggestion } from "../../suggestions/entities/suggestion.entity";
+import { Category } from '../../categories/entities/category.entity';
 
 @Entity()
 export class User {
@@ -42,4 +43,10 @@ export class User {
     onDelete: "CASCADE",
   })
   suggestions: Suggestion[];
+
+  @OneToMany(() => Category, category => category.user, {
+    cascade: true,
+    onDelete: "CASCADE",
+  })
+  privateCategories: Category[];
 }

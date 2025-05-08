@@ -53,6 +53,10 @@ export class CategoryResponseDto {
   description_it?: string;
 
   @Expose()
+  @ApiProperty({ example: true, required: false })
+  isPublic: boolean;
+
+  @Expose()
   @ApiProperty({ example: '2023-01-01T00:00:00.000Z' })
   createdAt: Date;
 

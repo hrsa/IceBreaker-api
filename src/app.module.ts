@@ -10,7 +10,7 @@ import { CardsModule } from "./cards/cards.module";
 import { CardPreferencesModule } from "./card-preferences/card-preferences.module";
 import { AuthModule } from "./auth/auth.module";
 import { SuggestionsModule } from "./suggestions/suggestions.module";
-import { TranslationsModule } from "./translations/translations.module";
+import { AIModule } from "./ai/ai.module";
 import { TelegramModule } from "./telegram/telegram.module";
 import { AcceptLanguageResolver, HeaderResolver, I18nModule, QueryResolver } from "nestjs-i18n";
 import { join } from "path";
@@ -54,7 +54,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     CardPreferencesModule,
     AuthModule,
     SuggestionsModule,
-    TranslationsModule,
+    AIModule,
     TelegramModule,
     RedisSessionModule,
   ],

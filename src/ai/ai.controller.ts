@@ -2,7 +2,7 @@ import {
   Controller,
   Get,
   UseGuards,
-  Query,
+  Query, Body, Post,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -15,15 +15,18 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../common/guards/admin.guard';
 import { TranslationService } from './translation.service';
 import { AppLanguage } from '../common/constants/app-language.enum';
+import { AIService } from './ai.service';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { CurrentUserData } from '../auth/strategies/jwt.strategy';
 
-@ApiTags('translations')
-@Controller('translations')
+@ApiTags('ai')
+@Controller('ai')
 @UseGuards(JwtAuthGuard, AdminGuard)
 @ApiBearerAuth()
-export class TranslationsController {
-  constructor(private readonly translationService: TranslationService) {}
+export class AIController {
+  constructor(private readonly translationService: TranslationService, private readonly aiService: AIService) {}
 
-  @Get('cards')
+  @Get('translate/cards')
   @ApiOperation({ summary: 'Translate cards' })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({
@@ -50,7 +53,7 @@ export class TranslationsController {
     );
   }
 
-  @Get('categories')
+  @Get('translate/categories')
   @ApiOperation({ summary: 'Translate categories' })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({
@@ -75,5 +78,19 @@ export class TranslationsController {
       limit,
       sourceLanguage,
     );
+  }
+
+  @Post('create-game')
+  @ApiOperation({ summary: 'Start a new game' })
+  @ApiResponse({
+    status: 200,
+    description: 'Game started successfully',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin access required',
+  })
+  async startGame(@Body('description') description: any, @CurrentUser() user: CurrentUserData) {
+    return this.aiService.createCustomGame(description, user.id);
   }
 }

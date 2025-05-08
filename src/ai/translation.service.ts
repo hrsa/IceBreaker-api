@@ -1,7 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { CardsService } from "../cards/cards.service";
 import { CategoriesService } from "../categories/categories.service";
-import { OpenAIService } from "./openai.service";
+import { AIService } from "./ai.service";
 import { Card } from "../cards/entities/card.entity";
 import { Category } from "../categories/entities/category.entity";
 import { AppLanguage } from "../common/constants/app-language.enum";
@@ -23,7 +23,7 @@ export class TranslationService {
   constructor(
     private cardsService: CardsService,
     private categoriesService: CategoriesService,
-    private openAIService: OpenAIService,
+    private AIService: AIService,
     private languageUtilsService: LanguageUtilsService
   ) {}
 
@@ -91,7 +91,7 @@ export class TranslationService {
       try {
         this.logger.log(`Translating card ${card.id} from ${effectiveSourceLanguage} to ${targetLang}...`);
 
-        const translatedText = await this.openAIService.translateText(sourceText, this.languageMap[targetLang]);
+        const translatedText = await this.AIService.translateText(sourceText, this.languageMap[targetLang]);
 
         const updateDto = {
           question: translatedText,
@@ -114,7 +114,7 @@ export class TranslationService {
     sourceLanguage?: AppLanguage,
     targetLanguages?: AppLanguage[]
   ): Promise<{ processed: number; updated: Category[] }> {
-    const allCategories = await this.categoriesService.findAll();
+    const allCategories = await this.categoriesService.findAll('', true);
     const allLanguages = Object.values(AppLanguage);
 
     // Filter categories with at least one language but missing some translations
@@ -204,7 +204,7 @@ export class TranslationService {
       try {
         this.logger.log(`Translating category ${category.id} ${propertyPrefix} from ${effectiveSourceLanguage} to ${targetLang}...`);
 
-        const translatedText = await this.openAIService.translateText(sourceText, this.languageMap[targetLang]);
+        const translatedText = await this.AIService.translateText(sourceText, this.languageMap[targetLang]);
 
         const updateDto: any = {
           language: targetLang,

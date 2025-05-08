@@ -36,7 +36,7 @@ export class CardRetrievalState implements BotState {
       return;
     }
     try {
-      let card;
+      let card: Card;
       let hasViewedAllCards = false;
 
       if (useExistingCard && ctx.session.card) {
@@ -50,7 +50,7 @@ export class CardRetrievalState implements BotState {
           includeLoved: ctx.session.includeLoved ?? true,
         };
 
-        const { cards, hasViewedAllCards: allViewed } = await this.telegramService.getRandomCard(dto);
+        const { cards, hasViewedAllCards: allViewed } = await this.telegramService.getRandomCard(dto, ctx.session.userId);
 
         if (cards.length === 0) {
           await this.telegramService.updateOrSendMessage(

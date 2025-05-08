@@ -262,8 +262,8 @@ export class TelegramService {
     return profile?.name;
   }
 
-  async getRandomCard(dto: GetRandomCardDto) {
-    const result = await this.cardsService.getRandomCard(dto);
+  async getRandomCard(dto: GetRandomCardDto, userId?: string) {
+    const result = await this.cardsService.getRandomCard(dto, userId);
     const hasViewedAllCards = await this.cardsService.hasOnlyLovedCardsLeft(dto);
     return {
       cards: result,

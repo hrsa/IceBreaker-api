@@ -1,4 +1,3 @@
-// src/categories/categories.controller.ts
 import {
   Controller,
   Get,
@@ -20,6 +19,8 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoryResponseDto } from './dto/category-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../common/guards/admin.guard';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { CurrentUserData } from '../auth/strategies/jwt.strategy';
 
 @ApiTags('categories')
 @Controller('categories')
@@ -51,8 +52,8 @@ export class CategoriesController {
     type: [CategoryResponseDto]
   })
   @ApiBearerAuth()
-  async findAll(): Promise<CategoryResponseDto[]> {
-    const categories = await this.categoriesService.findAll();
+  async findAll(@CurrentUser() user: CurrentUserData): Promise<CategoryResponseDto[]> {
+    const categories = await this.categoriesService.findAll(user.id, user.isAdmin);
     return categories.map(category => new CategoryResponseDto(category));
   }
 
@@ -65,8 +66,8 @@ export class CategoriesController {
   })
   @ApiResponse({ status: 404, description: 'Category not found' })
   @ApiBearerAuth()
-  async findOne(@Param('id') id: string): Promise<CategoryResponseDto> {
-    const category = await this.categoriesService.findOne(id);
+  async findOne(@Param('id') id: string, @CurrentUser() user: CurrentUserData): Promise<CategoryResponseDto> {
+    const category = await this.categoriesService.findOne(id, user.id, user.isAdmin);
     return new CategoryResponseDto(category);
   }
 

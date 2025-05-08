@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, ManyToOne, JoinColumn } from 'typeorm';
 import { Card } from '../../cards/entities/card.entity';
 import { Suggestion } from '../../suggestions/entities/suggestion.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity()
 export class Category {
@@ -30,6 +31,18 @@ export class Category {
 
   @Column({ nullable: true })
   description_it: string;
+
+  @Column({ default: true })
+  isPublic: boolean;
+
+  @Column({nullable: true})
+  userId: string;
+
+  @ManyToOne(() => User, user => user.privateCategories, {
+    onDelete: "SET NULL"
+  })
+  @JoinColumn({ name: 'userId' })
+  user: User;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
