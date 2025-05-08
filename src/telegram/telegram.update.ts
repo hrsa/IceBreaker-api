@@ -27,8 +27,13 @@ export class TelegramUpdate {
     await this.telegramService.deleteBotMessage(ctx);
     this.telegramService.resetMessageTracking(ctx);
 
+    if (ctx.session.step === "help") {
+      ctx.session.step = undefined;
+    }
+
     if (!ctx.session.userId) {
       ctx.session.step = "authentication";
+
     }
 
     const state = this.stateFactory.getState(ctx);
@@ -37,17 +42,8 @@ export class TelegramUpdate {
 
   @Help()
   async help(@Ctx() ctx: Context) {
-    await this.telegramService.deleteUserMessage(ctx);
-    await this.telegramService.updateOrSendMessage(
-      ctx,
-      this.translate.t("telegram.help.message", { lang: ctx.session.language }),
-      Markup.inlineKeyboard([
-        Markup.button.callback(
-          this.translate.t("telegram.card.actions.change_language", { lang: ctx.session.language }),
-          "card:change_language"
-        ),
-      ])
-    );
+    ctx.session.step = "help";
+    await this.stateFactory.getState(ctx).handle(ctx);
   }
 
   @Action(/language:(.+)/)

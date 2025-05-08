@@ -10,11 +10,13 @@ import { SuggestionCreationState } from "./suggestion-creation.state";
 import { SignupEmailState } from "./signup-email.state";
 import { SignupNameState } from "./signup-name.state";
 import { ProfileDeletionState } from "./profile-deletion.state";
+import { HelpState } from './help.state';
 
 @Injectable()
 export class StateFactory {
   constructor(
     private readonly authenticationState: AuthenticationState,
+    private readonly helpState: HelpState,
     private readonly profileSelectionState: ProfileSelectionState,
     private readonly profileCreationState: ProfileCreationState,
     private readonly categorySelectionState: CategorySelectionState,
@@ -27,6 +29,10 @@ export class StateFactory {
   ) {}
 
   getState(ctx: Context): BotState {
+    if (ctx.session.step === "help") {
+      return this.helpState;
+    }
+
     if (ctx.session.step === "signup-email") {
       return this.signupEmailState;
     }
@@ -69,6 +75,8 @@ export class StateFactory {
     switch (stateName) {
       case "authentication":
         return this.authenticationState;
+      case "help":
+        return this.helpState;
       case "profile-selection":
         return this.profileSelectionState;
       case "profile-creation":

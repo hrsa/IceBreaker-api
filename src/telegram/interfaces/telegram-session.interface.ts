@@ -16,6 +16,6 @@ export interface TelegramSession {
   includeLoved?: boolean;
   selectedProfileId?: string;
   selectedCategoryIds?: string[];
-  step?: "authentication" | "profile-selection" | "profile-creation" | "profile-deletion" | "category-selection" | "card-retrieval" | "suggestion-creation" | "signup-email" | "signup-name";
+  step?: "authentication" | "help" | "profile-selection" | "profile-creation" | "profile-deletion" | "category-selection" | "card-retrieval" | "suggestion-creation" | "signup-email" | "signup-name";
   email?: string;
 }

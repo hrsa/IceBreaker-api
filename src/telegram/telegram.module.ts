@@ -22,6 +22,7 @@ import { SignupEmailState } from './states/signup-email.state';
 import { SignupNameState } from './states/signup-name.state';
 import { CardPreferencesModule } from '../card-preferences/card-preferences.module';
 import { ProfileDeletionState } from './states/profile-deletion.state';
+import { HelpState } from './states/help.state';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { ProfileDeletionState } from './states/profile-deletion.state';
     TelegramService,
     TelegramUpdate,
     StateFactory,
+    HelpState,
     AuthenticationState,
     ProfileSelectionState,
     ProfileCreationState,
