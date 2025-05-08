@@ -7,7 +7,6 @@ import { CategoriesService } from "../categories/categories.service";
 import { CardsService } from "../cards/cards.service";
 import { AppLanguage } from "src/common/constants/app-language.enum";
 import { GameGenerationStoreService } from "./game-generation-store.service";
-import { UpdateCardDto } from '../cards/dto/update-card.dto';
 
 @Injectable()
 export class AIService {
@@ -28,7 +27,7 @@ export class AIService {
   async translateText(text: string, targetLanguage: string): Promise<string> {
     try {
       const response = await this.openai.chat.completions.create({
-        model: "gpt-4o",
+        model: "gpt-4.1-2025-04-14",
         messages: [
           {
             role: "system",
@@ -41,12 +40,8 @@ export class AIService {
         ],
         temperature: 0.3,
       });
+        return response!.choices[0]!.message!.content!.trim();
 
-      if (response && response.choices && response.choices[0] && response.choices[0].message && response.choices[0].message.content) {
-        return response.choices[0].message.content.trim();
-      }
-      this.logger.error(`Translation error`, response);
-      throw new Error(`Failed to translate text`);
     } catch (error) {
       this.logger.error(`Translation error: ${error.message}`, error.stack);
       throw new Error(`Failed to translate text: ${error.message}`);

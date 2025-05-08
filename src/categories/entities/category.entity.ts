@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
 import { Card } from '../../cards/entities/card.entity';
 import { Suggestion } from '../../suggestions/entities/suggestion.entity';
 import { User } from '../../users/entities/user.entity';

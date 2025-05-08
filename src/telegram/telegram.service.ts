@@ -241,6 +241,13 @@ export class TelegramService {
     );
   }
 
+  getBuyCoffeeButton(ctx: Context) {
+    return Markup.button.url(
+      this.translate.t("telegram.buttons.buy_me_a_coffee", { lang: ctx.session.language }),
+      `https://ko-fi.com/anton_c`
+    );
+  }
+
   async getCategoriesForSelection() {
     return this.categoriesService.findAll();
   }

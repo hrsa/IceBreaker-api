@@ -16,12 +16,12 @@ export class HelpState implements BotState {
     await this.telegramService.updateOrSendMessage(
       ctx,
       this.translate.t("telegram.help.message", { lang: ctx.session.language }),
-      Markup.inlineKeyboard([
+      Markup.inlineKeyboard([[
         Markup.button.callback(
           this.translate.t("telegram.card.actions.change_language", { lang: ctx.session.language }),
           "card:change_language"
-        ),
-      ])
+        )
+      ], [this.telegramService.getBuyCoffeeButton(ctx)]])
     );
   }
 
