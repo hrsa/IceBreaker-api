@@ -1,5 +1,5 @@
 import { Action, Command, Ctx, Help, On, Start, Update } from "nestjs-telegraf";
-import { Context, Markup } from "telegraf";
+import { Context } from "telegraf";
 import { TelegramService } from "./telegram.service";
 import { AppLanguage } from "../common/constants/app-language.enum";
 import { StateFactory } from "./states/state.factory";

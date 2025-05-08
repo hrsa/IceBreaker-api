@@ -27,12 +27,13 @@ export class RedisSessionService {
   middleware(): MiddlewareFn<Context> {
     return async (ctx, next) => {
       const telegramUser = ctx.callbackQuery?.from || ctx.message?.from;
-      const telegramId = telegramUser?.id.toString();
+      const telegramId = telegramUser?.id.toString() || ctx.chat?.id.toString();
 
-      const key = `session:${ctx.chat?.id}`;
-      const sessionData = await this.redisClient.get(key);
+      if (!telegramId) {
+        this.logger.warn(`Cannot load session for undefined chatId`);
+      }
 
-      const session = sessionData ? JSON.parse(sessionData) : {} as TelegramSession;
+      const session = await this.getSession(telegramId);
       ctx.session = session;
 
       if (!ctx.session?.language) {
@@ -50,7 +51,7 @@ export class RedisSessionService {
             this.logger.debug(`Found user with Telegram ID: ${telegramId}`);
           }
         } catch (e) {}
-        this.logger.error(`No user found with Telegram ID: ${telegramId}`);
+        this.logger.warn(`No user found with Telegram ID: ${telegramId}`);
       }
 
 
@@ -60,20 +61,51 @@ export class RedisSessionService {
 
 
       if (ctx.session) {
-        await this.redisClient.set(
-          key,
-          JSON.stringify(ctx.session),
-          'EX',
-          this.ttl
-        );
+        await this.saveSession(telegramId, ctx.session);
       } else {
-        await this.redisClient.del(key);
+        await this.clearSession(telegramId);
       }
     };
   }
 
-  async clearSession(chatId: number): Promise<void> {
+  async clearSession(chatId: number | string | undefined): Promise<void> {
+    if (!chatId) {
+      return;
+    }
+
     const key = `session:${chatId}`;
     await this.redisClient.del(key);
+  }
+
+  async getSession(chatId: string | number | undefined): Promise<TelegramSession> {
+    if (!chatId) {
+      return { language: AppLanguage.ENGLISH } as TelegramSession;
+    }
+    const key = `session:${chatId}`;
+    const sessionData = await this.redisClient.get(key);
+
+    if (sessionData) {
+      return JSON.parse(sessionData) as TelegramSession;
+    }
+
+    return { language: AppLanguage.ENGLISH } as TelegramSession;
+  }
+
+  async saveSession(chatId: string | number | undefined, session: TelegramSession): Promise<void> {
+    if (!chatId) {
+      this.logger.warn(`Cannot save session for undefined chatId`);
+      return;
+    }
+    const key = `session:${chatId}`;
+    await this.redisClient.set(
+      key,
+      JSON.stringify(session),
+      'EX',
+      this.ttl
+    );
+  }
+
+  getRedisClient(): Redis {
+    return this.redisClient;
   }
 }

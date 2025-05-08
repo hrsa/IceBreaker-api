@@ -23,6 +23,7 @@ import { SignupNameState } from './states/signup-name.state';
 import { CardPreferencesModule } from '../card-preferences/card-preferences.module';
 import { ProfileDeletionState } from './states/profile-deletion.state';
 import { HelpState } from './states/help.state';
+import { TelegramEventsService } from './telegram-events.service';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { HelpState } from './states/help.state';
   ],
   providers: [
     TelegramService,
+    TelegramEventsService,
     TelegramUpdate,
     StateFactory,
     HelpState,
@@ -59,6 +61,6 @@ import { HelpState } from './states/help.state';
     SignupNameState,
     RedisSessionService,
   ],
-  exports: [TelegramService],
+  exports: [TelegramService, TelegramEventsService],
 })
 export class TelegramModule {}
