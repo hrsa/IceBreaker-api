@@ -1,7 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from "typeorm";
 import { User } from "../../users/entities/user.entity";
 import { CardPreference } from "../../card-preferences/entitites/card-preference.entity";
-import { getSchemaPath } from '@nestjs/swagger';
 
 @Entity()
 export class Profile {
@@ -25,8 +24,4 @@ export class Profile {
     onDelete: "CASCADE",
   })
   cardPreferences: CardPreference[];
-
-  getSchema() {
-    return getSchemaPath(Profile);
-  }
 }

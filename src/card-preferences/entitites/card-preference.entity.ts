@@ -23,7 +23,9 @@ export class CardPreference {
   @Column()
   profileId: string;
 
-  @ManyToOne(() => Card, card => card.profilePreferences)
+  @ManyToOne(() => Card, card => card.profilePreferences, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'cardId' })
   card: Card;
 

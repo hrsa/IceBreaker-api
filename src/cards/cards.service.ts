@@ -133,6 +133,15 @@ export class CardsService {
     });
   }
 
+  async getRandomCardForGeneration(limit = 4): Promise<Card[]> {
+    const query = this.cardsRepository
+      .createQueryBuilder("card")
+      .orderBy("RANDOM()")
+      .limit(limit);
+
+    return query.getMany();
+  }
+
   async hasOnlyLovedCardsLeft(getRandomCardDto: GetRandomCardDto): Promise<boolean> {
     const { profileId, categoryIds } = getRandomCardDto;
 

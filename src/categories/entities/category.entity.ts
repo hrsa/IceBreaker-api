@@ -34,7 +34,10 @@ export class Category {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
-  @OneToMany(() => Card, card => card.category)
+  @OneToMany(() => Card, card => card.category, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   cards: Card[];
 
   @OneToMany(() => Suggestion, suggestion => suggestion.category)

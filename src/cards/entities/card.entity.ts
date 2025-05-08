@@ -19,7 +19,9 @@ export class Card {
   @Column({nullable: true})
   question_it: string;
 
-  @ManyToOne(() => Category, category => category.cards)
+  @ManyToOne(() => Category, category => category.cards, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'categoryId' })
   category: Category;
 
@@ -32,7 +34,10 @@ export class Card {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
 
-  @OneToMany(() => CardPreference, preference => preference.card)
+  @OneToMany(() => CardPreference, preference => preference.card, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   profilePreferences: CardPreference[];
 
   cardPreference?: CardPreference;
