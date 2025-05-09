@@ -9,14 +9,13 @@ import { UpdateCardDto } from "./dto/update-card.dto";
 import { LanguageUtilsService } from "../common/utils/language-utils.service";
 import { GetRandomCardDto } from "./dto/get-random-card.dto";
 import { EventEmitter2 } from "@nestjs/event-emitter";
+import { CardCreatedEvent } from './events/card-created.event';
 
 @Injectable()
 export class CardsService {
   constructor(
     @InjectRepository(Card)
     private cardsRepository: Repository<Card>,
-    @InjectRepository(CardPreference)
-    private cardPreferencesRepository: Repository<CardPreference>,
     private categoriesService: CategoriesService,
     private languageUtilsService: LanguageUtilsService,
     private eventEmitter: EventEmitter2
@@ -28,7 +27,7 @@ export class CardsService {
     const card = this.cardsRepository.create(createCardDto);
     this.languageUtilsService.mapPropertyToField(card, "question", createCardDto.question, createCardDto.language);
     const savedCard = await this.cardsRepository.save(card);
-    this.eventEmitter.emit("card.created", savedCard);
+    this.eventEmitter.emit("card.created", new CardCreatedEvent(savedCard));
     return savedCard;
   }
 

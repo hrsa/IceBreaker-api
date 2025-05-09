@@ -6,6 +6,7 @@ import { CreateCategoryDto } from "./dto/create-category.dto";
 import { UpdateCategoryDto } from "./dto/update-category.dto";
 import { LanguageUtilsService } from "../common/utils/language-utils.service";
 import { EventEmitter2 } from "@nestjs/event-emitter";
+import { CategoryCreatedEvent } from './events/category-created.event';
 
 @Injectable()
 export class CategoriesService {
@@ -25,9 +26,8 @@ export class CategoriesService {
     if (!category.isPublic && userId) {
       category.userId = userId;
     }
-    console.log(category);
     const savedCategory = await this.categoriesRepository.save(category);
-    this.eventEmitter.emit("category.created", savedCategory);
+    this.eventEmitter.emit("category.created", new CategoryCreatedEvent(savedCategory));
     return savedCategory;
   }
 

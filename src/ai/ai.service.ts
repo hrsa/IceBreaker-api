@@ -7,6 +7,8 @@ import { CategoriesService } from "../categories/categories.service";
 import { CardsService } from "../cards/cards.service";
 import { AppLanguage } from "src/common/constants/app-language.enum";
 import { GameGenerationStoreService } from "./game-generation-store.service";
+import { EventEmitter2 } from "@nestjs/event-emitter";
+import { GameGenerationCompletedEvent } from "./events/game-generation-completed.event";
 
 @Injectable()
 export class AIService {
@@ -17,7 +19,8 @@ export class AIService {
     private readonly configService: ConfigService,
     private readonly gameGenerationStore: GameGenerationStoreService,
     private readonly categoriesService: CategoriesService,
-    private readonly cardsService: CardsService
+    private readonly cardsService: CardsService,
+    private eventEmitter: EventEmitter2
   ) {
     this.openai = new OpenAI({
       apiKey: this.configService.get<string>("OPENAI_API_KEY"),
@@ -25,13 +28,20 @@ export class AIService {
   }
 
   async translateText(text: string, targetLanguage: string): Promise<string> {
+    const systemPromptTemplate = Buffer.from(
+      this.configService.getOrThrow<string>("TRANSLATOR_SYSTEM_PROMPT"),
+      "base64"
+    ).toString("ascii");
+
+    const systemPrompt = systemPromptTemplate.replace("{{LANGUAGE}}", targetLanguage);
+
     try {
       const response = await this.openai.chat.completions.create({
         model: "gpt-4.1-2025-04-14",
         messages: [
           {
             role: "system",
-            content: `You are a professional translator. Translate the following text to ${targetLanguage}. Maintain the original meaning, tone, and style, but use singular "you" ("ты", "tu" instead of "вы", "vous"). Only return the translated text without any additional comments or explanations.`,
+            content: systemPrompt,
           },
           {
             role: "user",
@@ -40,8 +50,7 @@ export class AIService {
         ],
         temperature: 0.3,
       });
-        return response!.choices[0]!.message!.content!.trim();
-
+      return response!.choices[0]!.message!.content!.trim();
     } catch (error) {
       this.logger.error(`Translation error: ${error.message}`, error.stack);
       throw new Error(`Failed to translate text: ${error.message}`);
@@ -58,15 +67,14 @@ export class AIService {
         })
       ),
     });
+    const systemPrompt = Buffer.from(
+      this.configService.getOrThrow<string>("GAME_GENERATION_PROMPT"),
+      "base64"
+    ).toString("ascii");
 
-    let prompt =
-      "You create private and customized icebreaker games with thoughtful questions to help people become closer. Each game contains 35 questions." +
-      "Your goal is to think of both the name and a description for a new game, according to user's input." +
-      "here are some examples of questions:" +
-      cardsData;
+    let prompt = systemPrompt + cardsData;
     try {
       const response = await this.openai.beta.chat.completions.parse({
-        //model: "gpt-4o-2024-08-06",
         model: "gpt-4.1-2025-04-14",
         messages: [
           { role: "system", content: prompt },
@@ -129,6 +137,8 @@ export class AIService {
           language: AppLanguage.ENGLISH,
           categoryId: category.id,
         });
+        //set a 5-second delay between cards to let translations finish
+        await new Promise(resolve => setTimeout(resolve, 5000));
       }
 
       await this.gameGenerationStore.updateTaskStatus(requestId, "completed", {
@@ -137,6 +147,8 @@ export class AIService {
         gameName: generationData.name_en,
         cardsCount: generationData.cards.length,
       });
+
+      this.eventEmitter.emit("game.generation.completed", new GameGenerationCompletedEvent(userId, category.id));
 
       this.logger.log(`Game generation completed for request ${requestId}`);
     } catch (e) {
