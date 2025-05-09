@@ -1,10 +1,12 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { Redis } from 'ioredis';
-import { ConfigService } from '@nestjs/config';
-import { Context, MiddlewareFn } from 'telegraf';
-import { TelegramSession } from '../telegram/interfaces/telegram-session.interface';
-import { UsersService } from '../users/users.service';
-import { AppLanguage } from '../common/constants/app-language.enum';
+import { Injectable, Logger } from "@nestjs/common";
+import { Redis } from "ioredis";
+import { ConfigService } from "@nestjs/config";
+import { Context, MiddlewareFn } from "telegraf";
+import { TelegramSession } from "../telegram/interfaces/telegram-session.interface";
+import { UsersService } from "../users/users.service";
+import { AppLanguage } from "../common/constants/app-language.enum";
+import { OnEvent } from "@nestjs/event-emitter";
+import { UserCreditsUpdatedEvent } from '../users/events/user-credits-updated.event';
 
 @Injectable()
 export class RedisSessionService {
@@ -12,16 +14,18 @@ export class RedisSessionService {
   private readonly ttl: number;
   private readonly logger = new Logger(RedisSessionService.name);
 
-  constructor(private configService: ConfigService, private usersService: UsersService) {
-
+  constructor(
+    private configService: ConfigService,
+    private usersService: UsersService,
+  ) {
     this.redisClient = new Redis({
-      host: this.configService.get('REDIS_HOST', 'localhost'),
-      port: this.configService.get('REDIS_PORT', 6379),
-      password: this.configService.get('REDIS_PASSWORD', ''),
-      db: this.configService.get('REDIS_DB', 0),
+      host: this.configService.get("REDIS_HOST", "localhost"),
+      port: this.configService.get("REDIS_PORT", 6379),
+      password: this.configService.get("REDIS_PASSWORD", ""),
+      db: this.configService.get("REDIS_DB", 0),
     });
 
-    this.ttl = this.configService.get('SESSION_TTL', 86400*30);
+    this.ttl = this.configService.get("SESSION_TTL", 86400 * 30);
   }
 
   middleware(): MiddlewareFn<Context> {
@@ -48,17 +52,16 @@ export class RedisSessionService {
           if (user) {
             ctx.session.userId = user.id;
             ctx.session.email = user.email;
+            ctx.session.credits = user.credits;
             this.logger.debug(`Found user with Telegram ID: ${telegramId}`);
           }
         } catch (e) {}
         this.logger.warn(`No user found with Telegram ID: ${telegramId}`);
       }
 
-
       await next();
 
       this.logger.debug(`Saving session for chat ${ctx.chat?.id}: ${JSON.stringify(ctx.session)}`);
-
 
       if (ctx.session) {
         await this.saveSession(telegramId, ctx.session);
@@ -66,6 +69,18 @@ export class RedisSessionService {
         await this.clearSession(telegramId);
       }
     };
+  }
+
+  @OnEvent("user.credits.updated")
+  async handleDonationReceived(event: UserCreditsUpdatedEvent): Promise<void> {
+    const { telegramId, credits } = event;
+    if (telegramId) {
+      const session = await this.getSession(telegramId);
+      if (session) {
+        session.credits = credits;
+        await this.saveSession(telegramId, session);
+      }
+    }
   }
 
   async clearSession(chatId: number | string | undefined): Promise<void> {
@@ -97,12 +112,7 @@ export class RedisSessionService {
       return;
     }
     const key = `session:${chatId}`;
-    await this.redisClient.set(
-      key,
-      JSON.stringify(session),
-      'EX',
-      this.ttl
-    );
+    await this.redisClient.set(key, JSON.stringify(session), "EX", this.ttl);
   }
 
   getRedisClient(): Redis {

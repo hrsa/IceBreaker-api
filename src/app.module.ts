@@ -16,6 +16,7 @@ import { AcceptLanguageResolver, HeaderResolver, I18nModule, QueryResolver } fro
 import { join } from "path";
 import { RedisSessionModule } from './redis/redis-session.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { WebhooksModule } from './webhooks/webhooks.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     AIModule,
     TelegramModule,
     RedisSessionModule,
+    WebhooksModule,
   ],
   controllers: [AppController],
   providers: [AppService],

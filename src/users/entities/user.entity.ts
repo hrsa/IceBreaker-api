@@ -32,6 +32,9 @@ export class User {
   @Column({ nullable: true, unique: true })
   secretPhrase: string;
 
+  @Column({ nullable: false, default: 0})
+  credits: number;
+
   @OneToMany(() => Profile, profile => profile.user, {
     cascade: true,
     onDelete: "CASCADE",

@@ -36,6 +36,10 @@ export class UserResponseDto {
   @ApiProperty({ example: "something secret" })
   secretPhrase?: string;
 
+  @Expose()
+  @ApiProperty({ example: 10 })
+  credits: number;
+
   constructor(partial: Partial<User>) {
     Object.assign(this, partial);
   }

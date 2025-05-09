@@ -5,13 +5,20 @@ import { Repository } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
 import * as bcrypt from "bcrypt";
 import { UpdateUserDto } from "./dto/update-user.dto";
-import { generate } from 'random-words';
+import { generate } from "random-words";
+import { DonationReceivedEvent } from "../webhooks/events/donation-received.event";
+import { EventEmitter2, OnEvent } from "@nestjs/event-emitter";
+import { UserCreditsUpdatedEvent } from "./events/user-credits-updated.event";
+import { GameGenerationCompletedEvent } from "../ai/events/game-generation-completed.event";
+import { TelegramMessageEvent } from "../telegram/events/telegram-message.event";
+import { GameReadyToPlayEvent } from "../ai/events/game-ready-to-play.event";
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private usersRepository: Repository<User>
+    private usersRepository: Repository<User>,
+    private eventEmitter: EventEmitter2
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -31,7 +38,7 @@ export class UsersService {
     });
 
     if (!user.telegramId) {
-      user.secretPhrase = generate({exactly: 1, wordsPerString: 4, minLength: 9})[0];
+      user.secretPhrase = generate({ exactly: 1, wordsPerString: 4, minLength: 9 })[0];
     }
 
     return this.usersRepository.save(user);
@@ -135,6 +142,66 @@ export class UsersService {
       throw new UnauthorizedException("User account is not activated");
     }
 
+    return user;
+  }
+
+  @OnEvent("donation.received")
+  async onDonationReceived(event: DonationReceivedEvent) {
+    await this.addCredit(event.userId, event.email, event.amount);
+  }
+
+  @OnEvent("game.generation.completed")
+  async onGameGenerationCompleted(event: GameGenerationCompletedEvent) {
+    const { userId, categoryId } = event;
+    await this.spendCredit(userId, undefined, 1);
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+      relations: ["privateCategories"],
+    });
+    if (!user) {
+      throw new NotFoundException(`User with ID "${userId}" not found`);
+    }
+    const category = user.privateCategories.find(c => c.id === categoryId);
+    if (!category) {
+      throw new NotFoundException(`Category with ID "${categoryId}" not found`);
+    }
+
+    this.eventEmitter.emit("game.ready.to.play", new GameReadyToPlayEvent(user, category));
+  }
+
+  async addCredit(id?: string, email?: string, credits = 1): Promise<User> {
+    let user: User | undefined;
+    if (id) {
+      user = await this.findOne(id);
+    }
+    if (email) {
+      user = await this.findByEmail(email);
+    }
+    if (!user) {
+      throw new NotFoundException(`User with ID "${id}" and email "${email}" not found`);
+    }
+
+    user.credits += credits;
+    await this.usersRepository.save(user);
+    this.eventEmitter.emit("user.credits.updated", new UserCreditsUpdatedEvent(parseInt(user.telegramId), user.credits));
+    return user;
+  }
+
+  async spendCredit(id?: string, email?: string, credits = 1): Promise<User> {
+    let user: User | undefined;
+    if (id) {
+      user = await this.findOne(id);
+    }
+    if (email) {
+      user = await this.findByEmail(email);
+    }
+    if (!user) {
+      throw new NotFoundException(`User with ID "${id}" and email "${email}" not found`);
+    }
+
+    user.credits -= credits;
+    await this.usersRepository.save(user);
+    this.eventEmitter.emit("user.credits.updated", new UserCreditsUpdatedEvent(parseInt(user.telegramId), user.credits));
     return user;
   }
 }
