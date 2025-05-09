@@ -14,15 +14,30 @@
     },
     "delete_profile": {
       "description": "Delete a profile"
+    },
+    "generate": {
+      "description": "Generate an exclusive and private game"
     }
   },
   "buttons": {
     "back_to_the_game": "Back to the game",
     "sign_up": "Create a new account",
-    "buy_me_a_coffee": "Buy me a coffee ☕"
+    "buy_me_a_coffee": "Buy me a coffee ☕",
+    "generate": "Generate a private game",
+    "start_the_game": "Start the game"
+  },
+  "credits": {
+    "updated": "You've got {credits} credits available!"
+  },
+  "generate": {
+    "rules": "So, here are the rules. I can create a completely private game that will be exclusive to you. All you need to do is to give me a description in several phrases. For example: \n\n <blockquote>We are a group of friends: Jack, Sally, Thomas and Jessie. We're walking in the mountains and we would like to talk about our passions, fears and desires. We're open for some truth or dare options, too!</blockquote>",
+    "generation_started": "Thank you! Your exclusive and private game will be created in a couple of minutes. I'll let you know when it's ready.",
+    "ready_to_play": "Your new exclusive and private game {categoryName} is ready to play! Click the button below to start.",
+    "no_credits": "I'm sorry, but you don't have any credits to create an exclusive and private game. But a coffee will change that, right? 😊"
   },
   "help": {
-    "message": "IceBreaker helps you spark meaningful conversations and create unforgettable moments with anyone: partners, colleagues, friends, family, or even strangers!\nExplore thought-provoking questions across different categories and languages.\n\nCommands:\n\n/start - Start or restart the bot.\n\n/help - Display this help message.\n\n/suggest - Suggest a question to add to the game.\n\n/language - Change the active language (supports \uD83C\uDDF7\uD83C\uDDFA Russian, \uD83C\uDDFA\uD83C\uDDF8 English, \uD83C\uDDEB\uD83C\uDDF7 French, \uD83C\uDDEE\uD83C\uDDF9 Italian).\n\nHow to Play?\n\n- Authenticate and select your profile (create multiple profiles for different groups).\n- Pick categories you enjoy.\n- Start drawing random cards with unique, thought-provoking questions to break the ice.\n- Like your favorite questions—they’ll appear again in future rounds.\n\nWhy would you choose IceBreaker Bot?\n\n- Explore diverse categories and draw random questions effortlessly.\n- Fresh questions every time—no repeats unless you want them!\n- Build personalized decks by liking the best questions.\n- Switch languages in real-time for multilingual conversations.\n- Suggest your own questions to make the experience truly yours.\n\nReady to create deeper connections and memorable conversations? Type /start to begin!\n\nDo you like this bot? You can buy me a coffee and get access to a secret feature 😊"
+    "message": "IceBreaker helps you spark meaningful conversations and create unforgettable moments with anyone: partners, colleagues, friends, family, or even strangers!\nExplore thought-provoking questions across different categories and languages.\n\nCommands:\n\n/start - Start or restart the bot.\n\n/help - Display this help message.\n\n/suggest - Suggest a question to add to the game.\n\n/language - Change the active language (supports \uD83C\uDDF7\uD83C\uDDFA Russian, \uD83C\uDDFA\uD83C\uDDF8 English, \uD83C\uDDEB\uD83C\uDDF7 French, \uD83C\uDDEE\uD83C\uDDF9 Italian).\n\nHow to Play?\n\n- Authenticate and select your profile (create multiple profiles for different groups).\n- Pick categories you enjoy.\n- Start drawing random cards with unique, thought-provoking questions to break the ice.\n- Like your favorite questions—they’ll appear again in future rounds.\n\nWhy would you choose IceBreaker Bot?\n\n- Explore diverse categories and draw random questions effortlessly.\n- Fresh questions every time—no repeats unless you want them!\n- Build personalized decks by liking the best questions.\n- Switch languages in real-time for multilingual conversations.\n- Suggest your own questions to make the experience truly yours.\n\nReady to create deeper connections and memorable conversations? Type /start to begin!\n\nDo you like this bot? You can buy me a coffee and get access to a secret feature 😊",
+    "message_for_supporters": "IceBreaker helps you spark meaningful conversations and create unforgettable moments with anyone: partners, colleagues, friends, family, or even strangers!\nExplore thought-provoking questions across different categories and languages.\n\nCommands:\n\n/start - Start or restart the bot.\n\n/generate - 🔒 Generate a private and exclusive game, you can ask for anything!\n\n/help - Display this help message.\n\n/suggest - Suggest a question to add to the game.\n\n/language - Change the active language (supports \uD83C\uDDF7\uD83C\uDDFA Russian, \uD83C\uDDFA\uD83C\uDDF8 English, \uD83C\uDDEB\uD83C\uDDF7 French, \uD83C\uDDEE\uD83C\uDDF9 Italian).\n\nHow to Play?\n\n- Authenticate and select your profile (create multiple profiles for different groups).\n- Pick categories you enjoy.\n- Start drawing random cards with unique, thought-provoking questions to break the ice.\n- Like your favorite questions—they’ll appear again in future rounds.\n\nWhy would you choose IceBreaker Bot?\n\n- Explore diverse categories and draw random questions effortlessly.\n- Fresh questions every time—no repeats unless you want them!\n- Build personalized decks by liking the best questions.\n- Switch languages in real-time for multilingual conversations.\n- Suggest your own questions to make the experience truly yours.\n- Generate your private and exclusive games\n\nReady to create deeper connections and memorable conversations? Type /start to begin!"
   },
   "language": {
     "select_prompt": "Please select your preferred language:",

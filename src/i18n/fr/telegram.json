@@ -14,15 +14,30 @@
     },
     "delete_profile": {
       "description": "Supprimer un profil"
+    },
+    "generate": {
+      "description": "Générer un jeu exclusif et privé"
     }
   },
   "buttons": {
     "back_to_the_game": "Continuer le jeu",
     "sign_up": "Créer un compte",
-    "buy_me_a_coffee": "Offre-moi un café ☕"
+    "buy_me_a_coffee": "Offre-moi un café ☕",
+    "generate": "Générer un jeu privé",
+    "start_the_game": "Commencer le jeu"
+  },
+  "credits": {
+    "updated": "Tu as {credits} crédits disponible!"
+  },
+  "generate": {
+    "rules": "Alors, voici les règles. Je peux te créer un jeu entièrement privé et exclusif. Il te suffit de me donner une description en quelques phrases. Par exemple :\n\n<blockquote>Nous sommes un groupe d'amis : Jack, Sally, Thomas et Jessie. Nous marchons en montagne et aimerions parler de nos passions, de nos peurs et de nos envies. Nous sommes également ouverts au 'défi ou vérité' !</blockquote>",
+    "generation_started": "Merci ! Ton jeu exclusif et privé sera créé dans quelques minutes. Je te préviendrai dès qu'il sera prêt.",
+    "ready_to_play": "Ton nouveau jeu exclusif et privé {categoryName} est prêt ! Clique sur le bouton ci-dessous pour commencer.",
+    "no_credits": "Désolé, mais tu n'as pas les crédits pour créer un jeu exclusif et privé. Mais un café changera tout ça, non ? 😊"
   },
   "help": {
-    "message": "IceBreaker t'aide à commencer des conversations profondes et à créer des moments inoubliables avec n'importe qui : partenaires, collègues, amis, famille ou même des inconnus !\nDécouvre des questions qui suscitent la réflexion dans différentes catégories et langues.\n\nCommands:\n\n/start - Lancer ou redémarrer le bot.\n\n/help - Afficher ce message d'aide.\n\n/suggest - Proposer une question à ajouter au jeu.\n\n/language - Changer la langue active (supporte \uD83C\uDDF7\uD83C\uDDFA russe, \uD83C\uDDFA\uD83C\uDDF8 anglais, \uD83C\uDDEB\uD83C\uDDF7 français, \uD83C\uDDEE\uD83C\uDDF9 italien).\n\nComment jouer ?\n\n- Authentifie-toi et sélectionne ton profil (crée plusieurs profils pour différents groupes).\n- Choisis les catégories qui te plaisent.\n- Commence à tirer des cartes aléatoires avec des questions uniques et stimulantes pour briser la glace.\n- Like tes questions préférées — elles réapparaîtront dans les prochains tours.\n\nPourquoi choisir IceBreaker Bot ?\n\n- Explore facilement diverses catégories et tire des questions aléatoires.\n- Des questions nouvelles à chaque fois — pas de répétitions sauf si tu le souhaites !\n- Crée des decks personnalisés en likeant les meilleures questions.\n- Change de langue en temps réel pour des conversations multilingues.\n- Propose tes propres questions pour rendre l'expérience vraiment unique.\n\nPrêt à créer des connexions profondes et des conversations mémorables ? Tape /start pour commencer !\n\nEst-ce que tu aimes ce bot? Offre-moi un café pour accèder à la fonctionnalité secréte 😊"
+    "message": "IceBreaker t'aide à commencer des conversations profondes et à créer des moments inoubliables avec n'importe qui : partenaires, collègues, amis, famille ou même des inconnus !\nDécouvre des questions qui suscitent la réflexion dans différentes catégories et langues.\n\nCommands:\n\n/start - Lancer ou redémarrer le bot.\n\n/help - Afficher ce message d'aide.\n\n/suggest - Proposer une question à ajouter au jeu.\n\n/language - Changer la langue active (supporte \uD83C\uDDF7\uD83C\uDDFA russe, \uD83C\uDDFA\uD83C\uDDF8 anglais, \uD83C\uDDEB\uD83C\uDDF7 français, \uD83C\uDDEE\uD83C\uDDF9 italien).\n\nComment jouer ?\n\n- Authentifie-toi et sélectionne ton profil (crée plusieurs profils pour différents groupes).\n- Choisis les catégories qui te plaisent.\n- Commence à tirer des cartes aléatoires avec des questions uniques et stimulantes pour briser la glace.\n- Like tes questions préférées — elles réapparaîtront dans les prochains tours.\n\nPourquoi choisir IceBreaker Bot ?\n\n- Explore facilement diverses catégories et tire des questions aléatoires.\n- Des questions nouvelles à chaque fois — pas de répétitions sauf si tu le souhaites !\n- Crée des decks personnalisés en likeant les meilleures questions.\n- Change de langue en temps réel pour des conversations multilingues.\n- Propose tes propres questions pour rendre l'expérience vraiment unique.\n\nPrêt à créer des connexions profondes et des conversations mémorables ? Tape /start pour commencer !\n\nEst-ce que tu aimes ce bot? Offre-moi un café pour accèder à la fonctionnalité secréte 😊",
+    "message_for_supporters": "IceBreaker t'aide à commencer des conversations profondes et à créer des moments inoubliables avec n'importe qui : partenaires, collègues, amis, famille ou même des inconnus !\nDécouvre des questions qui suscitent la réflexion dans différentes catégories et langues.\n\nCommands:\n\n/start - Lancer ou redémarrer le bot.\n\n/generate - \uD83D\uDD12 Génére un jeu privé et exclusif, tu peux demander tout ce que tu veux !\n\n/help - Afficher ce message d'aide.\n\n/suggest - Proposer une question à ajouter au jeu.\n\n/language - Changer la langue active (supporte \uD83C\uDDF7\uD83C\uDDFA russe, \uD83C\uDDFA\uD83C\uDDF8 anglais, \uD83C\uDDEB\uD83C\uDDF7 français, \uD83C\uDDEE\uD83C\uDDF9 italien).\n\nComment jouer ?\n\n- Authentifie-toi et sélectionne ton profil (crée plusieurs profils pour différents groupes).\n- Choisis les catégories qui te plaisent.\n- Commence à tirer des cartes aléatoires avec des questions uniques et stimulantes pour briser la glace.\n- Like tes questions préférées — elles réapparaîtront dans les prochains tours.\n\nPourquoi choisir IceBreaker Bot ?\n\n- Explore facilement diverses catégories et tire des questions aléatoires.\n- Des questions nouvelles à chaque fois — pas de répétitions sauf si tu le souhaites !\n- Crée des decks personnalisés en likeant les meilleures questions.\n- Change de langue en temps réel pour des conversations multilingues.\n- Propose tes propres questions pour rendre l'expérience vraiment unique.\n- Génére des jeux privés et exclusifs\n\nPrêt à créer des connexions profondes et des conversations mémorables ? Tape /start pour commencer !"
   },
   "language": {
     "select_prompt": "Veuillez sélectionner votre langue préférée :",

@@ -1,28 +1,43 @@
 {
   "commands": {
     "start": {
-      "description": "Avvia il gioco"
+      "description": "Iniziare il gioco"
     },
     "help": {
-      "description": "Mostra aiuto"
+      "description": "Mostrare aiuto"
     },
     "language": {
-      "description": "Seleziona la lingua"
+      "description": "Selezionare la lingua"
     },
     "suggest": {
       "description": "Suggerire una domanda"
     },
     "delete_profile": {
       "description": "Eliminare un profilio"
+    },
+    "generate": {
+      "description": "Genera un gioco esclusivo e privato"
     }
   },
   "buttons": {
     "back_to_the_game": "Continuare il gioco",
     "sign_up": "Crea un nuovo account",
-    "buy_me_a_coffee": "Offrirmi un caffé ☕"
+    "buy_me_a_coffee": "Offrirmi un caffé ☕",
+    "generate": "Genera un gioco privato",
+    "start_the_game": "Iniziare il gioco"
+  },
+  "credits": {
+    "updated": "Hai {credits} crediti disponibili!"
+  },
+  "generate": {
+    "rules": "Ecco le regole. Posso creare un gioco completamente privato, esclusivo per te. Tutto ciò che devi fare è fornirmi una descrizione in poche frasi. Per esempio:\n\n<blockquote>Siamo un gruppo di amici: Jack, Sally, Thomas e Jessie. Stiamo camminando in montagna e vorremmo parlare delle nostre passioni, paure e desideri. Siamo aperti anche a qualche 'obbligo o verità'!</blockquote>",
+    "generation_started": "Grazie! Il tuo gioco esclusivo e privato verrà creato in un paio di minuti. Ti farò sapere quando sarà pronto.",
+    "ready_to_play": "Il tuo nuovo gioco esclusivo e privato {categoryName} è pronto! Clicca sul pulsante qui sotto per iniziare.",
+    "no_credits": "Mi dispiace, ma non hai crediti per creare una partita esclusiva e privata. Ma un caffè cambierà le cose, giusto? 😊"
   },
   "help": {
-    "message": "IceBreaker ti aiuta a iniziare conversazioni coinvolgenti e a creare momenti indimenticabili con chiunque: partner, colleghi, amici, familiari o anche sconosciuti!\nEsplora domande stimolanti in diverse categorie e lingue.\n\nCommands:\n\n/start - Avvia o riavvia il bot.\n\n/help - Mostra questo messaggio di aiuto.\n\n/suggest - Suggerisci una domanda da aggiungere al gioco.\n\n/language - Cambia la lingua attiva (supporta \uD83C\uDDF7\uD83C\uDDFA russo, \uD83C\uDDFA\uD83C\uDDF8 inglese, \uD83C\uDDEB\uD83C\uDDF7 francese, \uD83C\uDDEE\uD83C\uDDF9 italiano).\n\nCome giocare?\n\n- Autenticati e seleziona il tuo profilo (crea più profili per gruppi diversi).\n- Scegli le categorie che preferisci.\n- Inizia a pescare carte casuali con domande uniche e stimolanti per rompere il ghiaccio.\n- Metti \"mi piace\" alle tue domande preferite: riappariranno nei turni futuri.\n\nPerché scegliere IceBreaker Bot?\n\n- Esplora facilmente diverse categorie e pesca domande casuali.\n- Domande nuove ogni volta — nessuna ripetizione a meno che tu non lo voglia!\n- Crea mazzi personalizzati mettendo \"mi piace\" alle migliori domande.\n- Cambia lingua in tempo reale per conversazioni multilingue.\n- Suggerisci le tue domande per rendere l'esperienza davvero unica.\n\nPronto a creare connessioni profonde? Digita /start per iniziare!\n\nTi piace questo bot? Puoi offrirmi un caffè e accedere a una funzionalità segreta 😊"
+    "message": "IceBreaker ti aiuta a iniziare conversazioni coinvolgenti e a creare momenti indimenticabili con chiunque: partner, colleghi, amici, familiari o anche sconosciuti!\nEsplora domande stimolanti in diverse categorie e lingue.\n\nCommands:\n\n/start - Avvia o riavvia il bot.\n\n/help - Mostra questo messaggio di aiuto.\n\n/suggest - Suggerisci una domanda da aggiungere al gioco.\n\n/language - Cambia la lingua attiva (supporta \uD83C\uDDF7\uD83C\uDDFA russo, \uD83C\uDDFA\uD83C\uDDF8 inglese, \uD83C\uDDEB\uD83C\uDDF7 francese, \uD83C\uDDEE\uD83C\uDDF9 italiano).\n\nCome giocare?\n\n- Autenticati e seleziona il tuo profilo (crea più profili per gruppi diversi).\n- Scegli le categorie che preferisci.\n- Inizia a pescare carte casuali con domande uniche e stimolanti per rompere il ghiaccio.\n- Metti \"mi piace\" alle tue domande preferite: riappariranno nei turni futuri.\n\nPerché scegliere IceBreaker Bot?\n\n- Esplora facilmente diverse categorie e pesca domande casuali.\n- Domande nuove ogni volta — nessuna ripetizione a meno che tu non lo voglia!\n- Crea mazzi personalizzati mettendo \"mi piace\" alle migliori domande.\n- Cambia lingua in tempo reale per conversazioni multilingue.\n- Suggerisci le tue domande per rendere l'esperienza davvero unica.\n\nPronto a creare connessioni profonde? Digita /start per iniziare!\n\nTi piace questo bot? Puoi offrirmi un caffè e accedere a una funzionalità segreta 😊",
+    "message_for_supporters": "IceBreaker ti aiuta a iniziare conversazioni coinvolgenti e a creare momenti indimenticabili con chiunque: partner, colleghi, amici, familiari o anche sconosciuti!\nEsplora domande stimolanti in diverse categorie e lingue.\n\nCommands:\n\n/start - Avvia o riavvia il bot.\n\n/generate - 🔒 Crea una partita privata ed esclusiva, puoi chiedere qualsiasi cosa!\n\n/help - Mostra questo messaggio di aiuto.\n\n/suggest - Suggerisci una domanda da aggiungere al gioco.\n\n/language - Cambia la lingua attiva (supporta \uD83C\uDDF7\uD83C\uDDFA russo, \uD83C\uDDFA\uD83C\uDDF8 inglese, \uD83C\uDDEB\uD83C\uDDF7 francese, \uD83C\uDDEE\uD83C\uDDF9 italiano).\n\nCome giocare?\n\n- Autenticati e seleziona il tuo profilo (crea più profili per gruppi diversi).\n- Scegli le categorie che preferisci.\n- Inizia a pescare carte casuali con domande uniche e stimolanti per rompere il ghiaccio.\n- Metti \"mi piace\" alle tue domande preferite: riappariranno nei turni futuri.\n\nPerché scegliere IceBreaker Bot?\n\n- Esplora facilmente diverse categorie e pesca domande casuali.\n- Domande nuove ogni volta — nessuna ripetizione a meno che tu non lo voglia!\n- Crea mazzi personalizzati mettendo \"mi piace\" alle migliori domande.\n- Cambia lingua in tempo reale per conversazioni multilingue.\n- Suggerisci le tue domande per rendere l'esperienza davvero unica.\n- Genera i tuoi giochi privati ed esclusivi\n\nPronto a creare connessioni profonde? Digita /start per iniziare!"
   },
   "language": {
     "select_prompt": "Seleziona la tua lingua preferita:",
