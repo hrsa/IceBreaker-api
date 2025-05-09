@@ -7,6 +7,8 @@ import { Category } from "../categories/entities/category.entity";
 import { AppLanguage } from "../common/constants/app-language.enum";
 import { LanguageUtilsService } from "../common/utils/language-utils.service";
 import { OnEvent } from "@nestjs/event-emitter";
+import { CardCreatedEvent } from '../cards/events/card-created.event';
+import { CategoryCreatedEvent } from '../categories/events/category-created.event';
 
 @Injectable()
 export class TranslationService {
@@ -153,17 +155,17 @@ export class TranslationService {
   }
 
   @OnEvent("category.created")
-  async translateCategoryOnCreate(category: Category): Promise<void> {
-    this.logger.log(`Translating category ${category.id} on creation...`);
-    await this.translateCategoryProperty(category, "name");
+  async translateCategoryOnCreate(event: CategoryCreatedEvent): Promise<void> {
+    this.logger.log(`Translating category ${event.category.id} on creation...`);
+    await this.translateCategoryProperty(event.category, "name");
 
-    await this.translateCategoryProperty(category, "description");
+    await this.translateCategoryProperty(event.category, "description");
   }
 
   @OnEvent("card.created")
-  async translateCardOnCreate(card: Card): Promise<void> {
-    this.logger.log(`Translating card ${card.id} on creation...`);
-    await this.translateCard(card);
+  async translateCardOnCreate(event: CardCreatedEvent): Promise<void> {
+    this.logger.log(`Translating card ${event.card.id} on creation...`);
+    await this.translateCard(event.card);
   }
 
   private async translateCategoryProperty(

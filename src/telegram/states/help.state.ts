@@ -13,6 +13,22 @@ export class HelpState implements BotState {
 
   async handle(ctx: Context): Promise<void> {
     await this.telegramService.deleteUserMessage(ctx);
+    if (ctx.session.credits && ctx.session.credits > 0) {
+      await this.telegramService.updateOrSendMessage(
+        ctx,
+        this.translate.t("telegram.help.message_for_supporters", { lang: ctx.session.language }),
+        Markup.inlineKeyboard([[
+          Markup.button.callback(
+            this.translate.t("telegram.card.actions.change_language", { lang: ctx.session.language }),
+            "card:change_language"
+          )
+        ], [Markup.button.callback(
+          this.translate.t("telegram.buttons.generate", { lang: ctx.session.language }),
+          "game:generate"
+        )]])
+      );
+      return;
+    }
     await this.telegramService.updateOrSendMessage(
       ctx,
       this.translate.t("telegram.help.message", { lang: ctx.session.language }),
@@ -21,7 +37,7 @@ export class HelpState implements BotState {
           this.translate.t("telegram.card.actions.change_language", { lang: ctx.session.language }),
           "card:change_language"
         )
-      ], [this.telegramService.getBuyCoffeeButton(ctx)]])
+      ], [this.telegramService.getBuyCoffeeButton(ctx.session.language)]])
     );
   }
 

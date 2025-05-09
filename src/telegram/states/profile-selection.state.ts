@@ -36,7 +36,7 @@ export class ProfileSelectionState implements BotState {
     ctx.session.step = "category-selection";
     ctx.session.selectedCategoryIds = [];
 
-    const categories = await this.telegramService.getCategoriesForSelection();
+    const categories = await this.telegramService.getCategoriesForSelection(ctx.session.userId);
 
     await ctx.editMessageText(
       this.translate.t("telegram.category.selection.prompt", { lang: ctx.session.language }),

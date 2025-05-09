@@ -25,7 +25,8 @@ export class TelegramUpdate {
     await this.telegramService.deleteUserMessage(ctx);
     await this.telegramService.deleteOldMessages(ctx);
     await this.telegramService.deleteBotMessage(ctx);
-    this.telegramService.resetMessageTracking(ctx);
+    await this.telegramService.setCommands(ctx.session);
+    this.telegramService.resetMessageTracking(ctx.session);
 
     if (ctx.session.step === "help") {
       ctx.session.step = undefined;
@@ -33,7 +34,6 @@ export class TelegramUpdate {
 
     if (!ctx.session.userId) {
       ctx.session.step = "authentication";
-
     }
 
     const state = this.stateFactory.getState(ctx);
@@ -42,6 +42,7 @@ export class TelegramUpdate {
 
   @Help()
   async help(@Ctx() ctx: Context) {
+    await this.telegramService.setCommands(ctx.session);
     ctx.session.step = "help";
     await this.stateFactory.getState(ctx).handle(ctx);
   }
@@ -52,6 +53,7 @@ export class TelegramUpdate {
     const language = ctx.match[1];
     if (!Object.values(AppLanguage).includes(language as AppLanguage)) return;
     ctx.session.language = language as AppLanguage;
+    await this.telegramService.setCommands(ctx.session);
 
     if (ctx.callbackQuery && "message" in ctx.callbackQuery && ctx.callbackQuery.message) {
       try {
@@ -74,12 +76,25 @@ export class TelegramUpdate {
 
   @Command("language")
   async showLanguageSelection(@Ctx() ctx: Context) {
+    await this.telegramService.setCommands(ctx.session);
     await this.telegramService.deleteUserMessage(ctx);
     const keyboard = this.telegramService.createLanguageSelectionKeyboard(ctx.session.language);
     const msg = await ctx.reply(this.translate.t("telegram.language.select_prompt", { lang: ctx.session.language }), keyboard);
     if ("message_id" in msg) {
       ctx.session.languageSelectionMessageId = msg.message_id;
     }
+  }
+
+  @Command("generate")
+  @Action("game:generate")
+  async handleGenerateGame(@Ctx() ctx: Context) {
+    await this.telegramService.deleteUserMessage(ctx);
+    if (!ctx.session.credits || ctx.session.credits < 1) {
+      await this.telegramService.askUserToDonate(ctx);
+      return;
+    }
+    ctx.session.step = "game-generation";
+    await this.stateFactory.getState(ctx).handle(ctx);
   }
 
   @Command("delete_profile")
@@ -105,7 +120,7 @@ export class TelegramUpdate {
   }
 
   @Action(/profile:delete:cancel/)
-  async handleProfileDelectionCancel(@Ctx() ctx: Context) {
+  async handleProfileDeletionCancel(@Ctx() ctx: Context) {
     ctx.session.selectedProfileId = undefined;
     ctx.session.step = "profile-selection";
     await this.start(ctx);
@@ -113,7 +128,7 @@ export class TelegramUpdate {
   }
 
   @Action(/profile:delete:(.+)/)
-  async handleProfileDelection(@Ctx() ctx: Context) {
+  async handleProfileDeletion(@Ctx() ctx: Context) {
     if (!ctx.session.userId) {
       await this.start(ctx);
       return;
@@ -139,7 +154,7 @@ export class TelegramUpdate {
       await this.start(ctx);
       return;
     }
-
+    await this.telegramService.setCommands(ctx.session);
     const state = this.stateFactory.getState(ctx);
     await state.next(ctx);
   }
@@ -152,7 +167,7 @@ export class TelegramUpdate {
       await profileState.next(ctx);
       return;
     }
-
+    await this.telegramService.setCommands(ctx.session);
     await this.categorySelectionState.next(ctx);
   }
 
@@ -166,7 +181,6 @@ export class TelegramUpdate {
   async handleSignupEmail(@Ctx() ctx: Context) {
     ctx.session.step = "signup-email";
     const state = this.stateFactory.getState(ctx);
-    console.log(ctx);
     await state.handle(ctx);
   }
 
@@ -193,7 +207,7 @@ export class TelegramUpdate {
     ctx.session.step = "category-selection";
     ctx.session.selectedCategoryIds = [];
 
-    await this.categorySelectionState.handle(ctx);
+    await this.stateFactory.getStateByName("category-selection").handle(ctx);
   }
 
   @Action("card:change_profile")
@@ -202,8 +216,7 @@ export class TelegramUpdate {
     ctx.session.selectedProfileId = undefined;
     ctx.session.selectedCategoryIds = [];
 
-    const profileState = this.stateFactory.getStateByName("profile-selection");
-    await profileState.handle(ctx);
+    await this.stateFactory.getStateByName("profile-selection").handle(ctx);
   }
 
   @Action("card:change_language")
@@ -278,18 +291,19 @@ export class TelegramUpdate {
 
   @Action("card:back_to_the_game")
   async handleBackToTheGame(@Ctx() ctx: Context) {
+    await this.telegramService.setCommands(ctx.session);
     if (!ctx.session.selectedProfileId) {
       ctx.session.step = "profile-selection";
-      await this.profileSelectionState.handle(ctx);
+      await this.stateFactory.getStateByName("profile-selection").handle(ctx);
       return;
     }
     if (!ctx.session.selectedCategoryIds) {
       ctx.session.step = "category-selection";
-      await this.categorySelectionState.handle(ctx);
+      await this.stateFactory.getStateByName("category-selection").handle(ctx);
       return;
     }
     ctx.session.step = "card-retrieval";
-    await this.cardRetrievalState.handle(ctx, true);
+    await this.stateFactory.getStateByName("card-retrieval").handle(ctx, true);
   }
 
   @Command("suggest")
@@ -307,5 +321,8 @@ export class TelegramUpdate {
 
     const state = this.stateFactory.getState(ctx);
     await state.next(ctx);
+    if (ctx.chat?.id && ctx.message && ctx.message.message_id) {
+      await this.telegramService.safeDeleteMessage(ctx.chat.id, ctx.message.message_id);
+    }
   }
 }

@@ -1,5 +1,18 @@
-import { AppLanguage } from '../../common/constants/app-language.enum';
-import { Card } from '../../cards/entities/card.entity';
+import { AppLanguage } from "../../common/constants/app-language.enum";
+import { Card } from "../../cards/entities/card.entity";
+
+export type StepName =
+  | "authentication"
+  | "help"
+  | "profile-selection"
+  | "profile-creation"
+  | "profile-deletion"
+  | "category-selection"
+  | "card-retrieval"
+  | "suggestion-creation"
+  | "signup-email"
+  | "signup-name"
+  | "game-generation";
 
 export interface TelegramSession {
   language: AppLanguage;
@@ -9,6 +22,7 @@ export interface TelegramSession {
   botMessageIds?: number[];
   chatId?: number;
   userId?: string;
+  credits?: number;
   suggestionText?: string;
   card?: Card;
   previousCard?: Card;
@@ -16,6 +30,6 @@ export interface TelegramSession {
   includeLoved?: boolean;
   selectedProfileId?: string;
   selectedCategoryIds?: string[];
-  step?: "authentication" | "help" | "profile-selection" | "profile-creation" | "profile-deletion" | "category-selection" | "card-retrieval" | "suggestion-creation" | "signup-email" | "signup-name";
+  step?: StepName;
   email?: string;
 }

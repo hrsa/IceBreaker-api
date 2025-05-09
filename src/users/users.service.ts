@@ -10,7 +10,6 @@ import { DonationReceivedEvent } from "../webhooks/events/donation-received.even
 import { EventEmitter2, OnEvent } from "@nestjs/event-emitter";
 import { UserCreditsUpdatedEvent } from "./events/user-credits-updated.event";
 import { GameGenerationCompletedEvent } from "../ai/events/game-generation-completed.event";
-import { TelegramMessageEvent } from "../telegram/events/telegram-message.event";
 import { GameReadyToPlayEvent } from "../ai/events/game-ready-to-play.event";
 
 @Injectable()

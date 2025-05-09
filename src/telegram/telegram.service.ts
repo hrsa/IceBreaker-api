@@ -13,16 +13,29 @@ import { LanguageUtilsService } from "../common/utils/language-utils.service";
 import { I18nService } from "nestjs-i18n";
 import { CreateSuggestionDto } from "../suggestions/dto/create-suggestion.dto";
 import { SuggestionsService } from "../suggestions/suggestions.service";
-import { CreateUserDto } from "../users/dto/create-user.dto"
+import { CreateUserDto } from "../users/dto/create-user.dto";
 import { generate } from "random-words";
 import { validateOrReject } from "class-validator";
 import { CardPreferencesService } from "../card-preferences/card-preferences.service";
-import { CardStatus } from "../card-preferences/entitites/card-preference.entity";
+import { CardPreference, CardStatus } from "../card-preferences/entitites/card-preference.entity";
+import { ConfigService } from "@nestjs/config";
+import { OnEvent } from "@nestjs/event-emitter";
+import { TelegramSession } from "./interfaces/telegram-session.interface";
+import { RedisSessionService } from "../redis/redis-session.middleware";
+import { UserCreditsUpdatedEvent } from "../users/events/user-credits-updated.event";
+import { TelegramMessageEvent } from "./events/telegram-message.event";
+import { InjectQueue } from "@nestjs/bullmq";
+import { Queue } from "bullmq";
+import { GameReadyToPlayEvent } from '../ai/events/game-ready-to-play.event';
+import { AIService } from '../ai/ai.service';
 
 @Injectable()
 export class TelegramService {
   constructor(
     @InjectBot() private bot: Telegraf<Context>,
+    @InjectQueue("telegram-messages") private telegramQueue: Queue,
+    private readonly configService: ConfigService,
+    private redisSessionService: RedisSessionService,
     private usersService: UsersService,
     private profilesService: ProfilesService,
     private categoriesService: CategoriesService,
@@ -30,38 +43,56 @@ export class TelegramService {
     private cardPreferencesService: CardPreferencesService,
     private suggestionsService: SuggestionsService,
     private languageUtilsService: LanguageUtilsService,
+    private aiService: AIService,
     private translate: I18nService
   ) {}
 
   private readonly logger = new Logger(TelegramService.name);
 
   async onModuleInit() {
-    await this.bot.telegram.setMyCommands([
-      { command: "start", description: this.translate.t("telegram.commands.start.description") },
-      { command: "help", description: this.translate.t("telegram.commands.help.description") },
-      { command: "language", description: this.translate.t("telegram.commands.language.description") },
-      { command: "suggest", description: this.translate.t("telegram.commands.suggest.description") },
-      { command: "delete_profile", description: this.translate.t("telegram.commands.delete_profile.description") },
-    ]);
+    await this.setCommands();
   }
 
-  private initMessageIds(ctx: Context): void {
-    if (!ctx.session.botMessageIds) {
-      ctx.session.botMessageIds = [];
+  async setCommands(session?: TelegramSession) {
+    const basicCommands = [
+      { command: "start", description: this.translate.t("telegram.commands.start.description", { lang: session?.language }) },
+      { command: "help", description: this.translate.t("telegram.commands.help.description", { lang: session?.language }) },
+      { command: "language", description: this.translate.t("telegram.commands.language.description", { lang: session?.language }) },
+      { command: "suggest", description: this.translate.t("telegram.commands.suggest.description", { lang: session?.language }) },
+      {
+        command: "delete_profile",
+        description: this.translate.t("telegram.commands.delete_profile.description", { lang: session?.language }),
+      },
+    ];
+    const generateCommand = {
+      command: "generate",
+      description: this.translate.t("telegram.commands.generate.description", { lang: session?.language }),
+    };
+
+    if (session?.credits && session?.credits > 0) {
+      basicCommands.splice(1, 0, generateCommand);
+    }
+
+    return await this.bot.telegram.setMyCommands(basicCommands);
+  }
+
+  private initMessageIds(session: TelegramSession): void {
+    if (!session.botMessageIds) {
+      session.botMessageIds = [];
     }
   }
 
-  private trackMessage(ctx: Context, messageId: number, text: string): void {
-    this.initMessageIds(ctx);
-    ctx.session.botMessageIds!.push(messageId);
-    ctx.session.botMessageId = messageId;
-    ctx.session.lastMessageText = text;
+  private trackMessage(session: TelegramSession, messageId: number, text: string): void {
+    this.initMessageIds(session);
+    session.botMessageIds!.push(messageId);
+    session.botMessageId = messageId;
+    session.lastMessageText = text;
   }
 
-  resetMessageTracking(ctx: Context): void {
-    ctx.session.botMessageIds = [];
-    ctx.session.botMessageId = undefined;
-    ctx.session.lastMessageText = undefined;
+  resetMessageTracking(session: TelegramSession): void {
+    session.botMessageIds = [];
+    session.botMessageId = undefined;
+    session.lastMessageText = undefined;
   }
 
   async safeDeleteMessage(chatId: number | string, messageId: number): Promise<boolean> {
@@ -77,7 +108,7 @@ export class TelegramService {
   async replyAndSave(ctx: Context, text: string, extra?: any) {
     const sentMsg = await ctx.reply(text, extra);
     if ("message_id" in sentMsg) {
-      this.trackMessage(ctx, sentMsg.message_id, text);
+      this.trackMessage(ctx.session, sentMsg.message_id, text);
     }
   }
 
@@ -96,7 +127,7 @@ export class TelegramService {
   }
 
   async updateOrSendMessage(ctx: Context, text: string, extra?: any) {
-    this.initMessageIds(ctx);
+    this.initMessageIds(ctx.session);
     try {
       if (await this.tryUpdateExistingMessage(ctx, text, extra)) {
         return;
@@ -140,7 +171,7 @@ export class TelegramService {
     const sentMsg = await ctx.reply(text, extra);
 
     if ("message_id" in sentMsg) {
-      this.trackMessage(ctx, sentMsg.message_id, text);
+      this.trackMessage(ctx.session, sentMsg.message_id, text);
 
       if (ctx.session.botMessageIds && ctx.session.botMessageIds.length > 1) {
         await this.deleteOldMessages(ctx);
@@ -151,13 +182,13 @@ export class TelegramService {
   }
 
   private async recoverAndSendMessage(ctx: Context, text: string, extra?: any): Promise<any> {
-    this.resetMessageTracking(ctx);
+    this.resetMessageTracking(ctx.session);
 
     try {
       const sentMsg = await ctx.reply(text, extra);
 
       if ("message_id" in sentMsg) {
-        this.trackMessage(ctx, sentMsg.message_id, text);
+        this.trackMessage(ctx.session, sentMsg.message_id, text);
       }
 
       return sentMsg;
@@ -241,15 +272,15 @@ export class TelegramService {
     );
   }
 
-  getBuyCoffeeButton(ctx: Context) {
+  getBuyCoffeeButton(language: AppLanguage) {
     return Markup.button.url(
-      this.translate.t("telegram.buttons.buy_me_a_coffee", { lang: ctx.session.language }),
-      `https://ko-fi.com/anton_c`
+      this.translate.t("telegram.buttons.buy_me_a_coffee", { lang: language }),
+      this.configService.get<string>("BUY_COFFEE_LINK", "`https://ko-fi.com/anton_c`")
     );
   }
 
-  async getCategoriesForSelection() {
-    return this.categoriesService.findAll();
+  async getCategoriesForSelection(userId?: string) {
+    return this.categoriesService.findAll(userId);
   }
 
   async createProfile(userId: string, name: string) {
@@ -267,6 +298,90 @@ export class TelegramService {
   async getProfileName(profileId: string) {
     const profile = await this.profilesService.findOne(profileId);
     return profile?.name;
+  }
+
+  async generateNewGame(ctx: Context, description: string) {
+    if (ctx.session.userId && ctx.session.credits && ctx.session.credits > 0) {
+      await this.aiService.createCustomGame(description, ctx.session.userId);
+      await this.updateOrSendMessage(
+        ctx,
+        this.translate.t("telegram.generate.generation_started", { lang: ctx.session.language }),
+        this.createBackToTheGameKeyboard(ctx.session.language)
+      );
+    } else {
+      await this.askUserToDonate(ctx);
+    }
+
+    return;
+  }
+
+  async askUserToDonate(ctx: Context) {
+    return this.updateOrSendMessage(
+      ctx,
+      this.translate.t("telegram.generate.no_credits", { lang: ctx.session.language }),
+      Markup.inlineKeyboard([
+        [Markup.button.callback(this.translate.t("telegram.buttons.back_to_the_game", { lang: ctx.session.language }), "card:back_to_the_game")],
+        [this.getBuyCoffeeButton(ctx.session.language)]
+      ])
+    )
+  }
+
+  @OnEvent("game.ready.to.play")
+  async handleGameReadyToPlay(event: GameReadyToPlayEvent) {
+    const { user, category } = event;
+    if (!user.telegramId) {
+      return;
+    }
+    const session = await this.redisSessionService.getSession(user.telegramId);
+    const language = session.language;
+    const categoryName = this.languageUtilsService.getPropertyByLanguage(category, "name", language);
+    await this.telegramQueue.add(
+      "send-message",
+      {
+        telegramId: user.telegramId,
+        text: this.translate.t("telegram.generate.ready_to_play", {
+          args: { categoryName },
+          lang: language,
+        }),
+        extra: Markup.inlineKeyboard([
+          Markup.button.callback(this.translate.t("telegram.buttons.start_the_game", { lang: language }), "card:change_profile"),
+        ]),
+      },
+      { delay: 1000 }
+    );
+  }
+
+  @OnEvent("user.credits.updated")
+  @OnEvent("telegram.message")
+  async sendNotificationToUserMessage(event: UserCreditsUpdatedEvent | TelegramMessageEvent) {
+    if (!event.telegramId) {
+      return;
+    }
+    const session = await this.redisSessionService.getSession(event.telegramId);
+    if (event instanceof UserCreditsUpdatedEvent) {
+      await this.telegramQueue.add(
+        "send-message",
+        {
+          telegramId: event.telegramId,
+          text: this.translate.t("telegram.credits.updated", {
+            args: { credits: event.credits },
+            lang: session.language,
+          }),
+          extra: this.createBackToTheGameKeyboard(session.language),
+        },
+        { delay: 1000 }
+      );
+    } else {
+      await this.telegramQueue.add(
+        "send-message",
+        {
+          telegramId: event.telegramId,
+          text: event.messageText,
+          extra: event.extra,
+        },
+        { delay: 1000 }
+      );
+    }
   }
 
   async getRandomCard(dto: GetRandomCardDto, userId?: string) {
@@ -293,7 +408,7 @@ export class TelegramService {
       await this.replyAndSave(ctx, this.translate.t("telegram.errors.no_profile", { lang: ctx.session.language }));
       return;
     }
-    let cardPreference;
+    let cardPreference: CardPreference | null;
     switch (action) {
       case CardStatus.LOVED:
         cardPreference = await this.cardPreferencesService.loveCard(cardId, profileId);
@@ -305,10 +420,13 @@ export class TelegramService {
         cardPreference = await this.cardPreferencesService.archiveCard(cardId, profileId);
         break;
       case CardStatus.ACTIVE:
+      default:
         cardPreference = await this.cardPreferencesService.reactivateCard(cardId, profileId);
         break;
     }
-    ctx.session.card.cardPreference = cardPreference;
+    if (cardPreference) {
+      ctx.session.card.cardPreference = cardPreference;
+    }
   }
 
   createBackToTheGameKeyboard(language?: AppLanguage) {
@@ -320,7 +438,7 @@ export class TelegramService {
   createProfileKeyboard(profiles: Profile[], language?: AppLanguage, deleteProfile = false) {
     const buttons = profiles.map(profile => [Markup.button.callback(profile.name, `profile:${profile.id}`)]);
     if (!deleteProfile) {
-      buttons.push([Markup.button.callback(this.translate.t('telegram.profile.selection.create_new', { lang: language }), 'profile:new')]);
+      buttons.push([Markup.button.callback(this.translate.t("telegram.profile.selection.create_new", { lang: language }), "profile:new")]);
     }
     return Markup.inlineKeyboard(buttons);
   }
@@ -330,7 +448,10 @@ export class TelegramService {
       const isSelected = selectedCategoryIds.includes(category.id);
       let categoryName = this.languageUtilsService.getPropertyByLanguage(category, "name", language);
       if (!categoryName) categoryName = "MISSING TRANSLATION";
-      const categoryButtonText = isSelected ? `${categoryName} ✅` : categoryName;
+      let categoryButtonText = isSelected ? `${categoryName} ✅` : categoryName;
+      if (!category.isPublic) {
+        categoryButtonText = `🔒 ${categoryButtonText}`;
+      }
       return [Markup.button.callback(categoryButtonText, `category:${category.id}`)];
     });
 
@@ -355,20 +476,12 @@ export class TelegramService {
       : this.translate.t("telegram.card.actions.include_loved", { lang: language });
     const includeLoved = Markup.button.callback(includeLovedText, "card:toggle_loved");
 
-    const homeButton = Markup.button.callback(
-      this.translate.t("🏠", { lang: language }),
-      "card:change_profile"
-    );
+    const homeButton = Markup.button.callback(this.translate.t("🏠", { lang: language }), "card:change_profile");
     const changeLanguage = Markup.button.callback(
       this.translate.t("telegram.card.actions.change_language", { lang: language }),
       "card:change_language"
     );
-    return Markup.inlineKeyboard([
-      cardActions,
-      [reactionButton],
-      [homeButton, includeLoved],
-      [changeLanguage],
-    ]);
+    return Markup.inlineKeyboard([cardActions, [reactionButton], [homeButton, includeLoved], [changeLanguage]]);
   }
 
   buildCardActions(hasPreviousCard: boolean, cardStatus?: string) {

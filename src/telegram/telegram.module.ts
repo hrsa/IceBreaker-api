@@ -22,8 +22,11 @@ import { SignupEmailState } from './states/signup-email.state';
 import { SignupNameState } from './states/signup-name.state';
 import { CardPreferencesModule } from '../card-preferences/card-preferences.module';
 import { ProfileDeletionState } from './states/profile-deletion.state';
-import { HelpState } from './states/help.state';
-import { TelegramEventsService } from './telegram-events.service';
+import { HelpState } from "./states/help.state";
+import { BullModule } from "@nestjs/bullmq";
+import { TelegramMessageProcessor } from './telegram-message.processor';
+import { GameGenerationState } from './states/game-generation.state';
+import { AIModule } from '../ai/ai.module';
 
 @Module({
   imports: [
@@ -36,17 +39,32 @@ import { TelegramEventsService } from './telegram-events.service';
         include: [TelegramModule],
       }),
     }),
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        connection: {
+          host: configService.getOrThrow("REDIS_HOST"),
+          port: configService.getOrThrow<number>("REDIS_PORT"),
+          password: configService.getOrThrow("REDIS_PASSWORD"),
+          db: configService.getOrThrow("REDIS_DB", 0),
+        },
+      })
+    }),
+    BullModule.registerQueue({
+      name: "telegram-messages",
+    }),
     UsersModule,
     ProfilesModule,
     CategoriesModule,
     CardsModule,
     LanguageUtilsModule,
     SuggestionsModule,
+    AIModule,
     CardPreferencesModule
   ],
   providers: [
     TelegramService,
-    TelegramEventsService,
     TelegramUpdate,
     StateFactory,
     HelpState,
@@ -59,8 +77,10 @@ import { TelegramEventsService } from './telegram-events.service';
     SuggestionCreationState,
     SignupEmailState,
     SignupNameState,
+    GameGenerationState,
     RedisSessionService,
+    TelegramMessageProcessor,
   ],
-  exports: [TelegramService, TelegramEventsService],
+  exports: [TelegramService],
 })
 export class TelegramModule {}

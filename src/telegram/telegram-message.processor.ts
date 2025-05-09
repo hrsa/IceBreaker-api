@@ -1,8 +1,7 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Logger } from "@nestjs/common";
 import { InjectBot } from "nestjs-telegraf";
-import { Context, Markup, Telegraf } from "telegraf";
-import { I18nService } from "nestjs-i18n";
+import { Context, Telegraf } from "telegraf";
 import { RedisSessionService } from "../redis/redis-session.middleware";
 import { Message } from "telegraf/typings/core/types/typegram";
 import { TelegramSession } from "./interfaces/telegram-session.interface";
@@ -14,8 +13,7 @@ export class TelegramMessageProcessor extends WorkerHost {
 
   constructor(
     @InjectBot() private bot: Telegraf<Context>,
-    private readonly redisSessionService: RedisSessionService,
-    private readonly translate: I18nService
+    private readonly redisSessionService: RedisSessionService
   ) {
     super();
   }
@@ -30,8 +28,6 @@ export class TelegramMessageProcessor extends WorkerHost {
   }
 
   async process(job: Job<{ telegramId: string | number; text: string; extra?: any }>) {
-    console.log(job.data);
-    console.log(job.name);
     switch (job.name) {
       case "send-message":
         const { telegramId, text, extra } = job.data;
@@ -42,9 +38,6 @@ export class TelegramMessageProcessor extends WorkerHost {
           const message = await this.bot.telegram.sendMessage(telegramId, text, extra);
           this.trackMessage(session, message);
           await this.redisSessionService.saveSession(telegramId, session);
-          //wait for 6 seconds
-          await new Promise((resolve) => setTimeout(resolve, 6000));
-
           return { success: true, messageId: message.message_id };
         } catch (error) {
           this.logger.error(`Failed to send message to ${telegramId}: ${error.message}`);

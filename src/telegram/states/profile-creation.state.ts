@@ -49,7 +49,7 @@ export class ProfileCreationState implements BotState {
       ctx.session.step = "category-selection";
       ctx.session.selectedCategoryIds = [];
 
-      const categories = await this.telegramService.getCategoriesForSelection();
+      const categories = await this.telegramService.getCategoriesForSelection(ctx.session.userId);
 
       await this.telegramService.updateOrSendMessage(
         ctx,

@@ -10,7 +10,9 @@ import { SuggestionCreationState } from "./suggestion-creation.state";
 import { SignupEmailState } from "./signup-email.state";
 import { SignupNameState } from "./signup-name.state";
 import { ProfileDeletionState } from "./profile-deletion.state";
-import { HelpState } from './help.state';
+import { HelpState } from "./help.state";
+import { GameGenerationState } from "./game-generation.state";
+import { StepName } from '../interfaces/telegram-session.interface';
 
 @Injectable()
 export class StateFactory {
@@ -25,7 +27,8 @@ export class StateFactory {
     private readonly profileDeletionState: ProfileDeletionState,
     @Inject(forwardRef(() => SignupEmailState))
     private readonly signupEmailState: SignupEmailState,
-    private readonly signupNameState: SignupNameState
+    private readonly signupNameState: SignupNameState,
+    private readonly gameGenerationState: GameGenerationState
   ) {}
 
   getState(ctx: Context): BotState {
@@ -35,6 +38,10 @@ export class StateFactory {
 
     if (ctx.session.step === "signup-email") {
       return this.signupEmailState;
+    }
+
+    if (ctx.session.credits && ctx.session.credits > 0 && ctx.session.step === "game-generation") {
+      return this.gameGenerationState;
     }
 
     if (ctx.session.step === "signup-name") {
@@ -71,7 +78,7 @@ export class StateFactory {
     return this.cardRetrievalState;
   }
 
-  getStateByName(stateName: string): BotState {
+  getStateByName(stateName: StepName): BotState {
     switch (stateName) {
       case "authentication":
         return this.authenticationState;
@@ -91,6 +98,8 @@ export class StateFactory {
         return this.suggestionCreationState;
       case "signup-email":
         return this.signupEmailState;
+      case "game-generation":
+        return this.gameGenerationState;
       default:
         return this.authenticationState;
     }

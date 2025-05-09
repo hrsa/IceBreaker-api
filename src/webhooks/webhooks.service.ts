@@ -2,7 +2,6 @@ import { Injectable, Logger } from "@nestjs/common";
 import { KofiPaymentType, KofiWebhookPayload } from "./interfaces/kofi.interface";
 import { ConfigService } from "@nestjs/config";
 import { EventEmitter2 } from "@nestjs/event-emitter";
-import { TelegramMessageEvent } from "../telegram/events/telegram-message.event";
 import { DonationReceivedEvent } from "./events/donation-received.event";
 
 @Injectable()

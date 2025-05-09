@@ -11,7 +11,7 @@ export class CategorySelectionState implements BotState {
   async handle(ctx: Context): Promise<void> {
     if (!ctx.session.selectedProfileId) return;
 
-    const categories = await this.telegramService.getCategoriesForSelection();
+    const categories = await this.telegramService.getCategoriesForSelection(ctx.session.userId);
 
     await this.telegramService.updateOrSendMessage(
       ctx,
@@ -42,7 +42,7 @@ export class CategorySelectionState implements BotState {
       ctx.session.selectedCategoryIds.push(categoryId);
     }
 
-    const categories = await this.telegramService.getCategoriesForSelection();
+    const categories = await this.telegramService.getCategoriesForSelection(ctx.session.userId);
 
     const selectedText = this.translate.t('telegram.category.selection.selected_count', {args: {count: ctx.session.selectedCategoryIds.length}, lang: ctx.session.language})
 
