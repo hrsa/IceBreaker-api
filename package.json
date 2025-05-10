@@ -22,6 +22,7 @@
     "typeorm": "typeorm-ts-node-commonjs",
     "migration:generate": "npm run typeorm -- -d ./src/dataSource.ts migration:generate",
     "migration:run": "npm run typeorm -- -d ./src/dataSource.ts migration:run",
+    "migration:runprod": "npm run typeorm -- -d ./dist/dataSource.js migration:run",
     "migration:revert": "npm run typeorm -- -d ./src/dataSource.ts migration:revert"
   },
   "dependencies": {
@@ -65,7 +66,6 @@
     "@nestjs/testing": "^11.1.0",
     "@swc/cli": "^0.7.5",
     "@swc/core": "^1.11.24",
-    "@types/bcrypt": "^5.0.2",
     "@types/express": "^5.0.1",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.15.17",

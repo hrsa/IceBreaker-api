@@ -1,10 +1,10 @@
-import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
-import { App } from 'supertest/types';
-import { resetDatabase } from './helpers/database.helper';
-import { getTestApp } from './config/setup';
+import { INestApplication } from "@nestjs/common";
+import * as request from "supertest";
+import { App } from "supertest/types";
+import { resetDatabase } from "./helpers/database.helper";
+import { getTestApp } from "./config/setup";
 
-describe('AppController (e2e)', () => {
+describe("AppController (e2e)", () => {
   let app: INestApplication<App>;
 
   beforeAll(async () => {
@@ -16,11 +16,7 @@ describe('AppController (e2e)', () => {
     await app.close();
   });
 
-
-  it('/ (GET)', async () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
+  it("/ (GET)", async () => {
+    return request(app.getHttpServer()).get("/").expect(200).expect("Welcome to IceMelter API!");
   });
 });

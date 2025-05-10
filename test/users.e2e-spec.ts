@@ -30,7 +30,11 @@ describe("Users API (e2e)", () => {
 
   afterAll(async () => {
     await resetDatabase(app);
-    await app.close();
+    try {
+      await app.close();
+    } catch (e) {
+      console.error("Error closing app:", e);
+    }
   });
 
   it("creates a new user", async () => {
@@ -53,7 +57,6 @@ describe("Users API (e2e)", () => {
     const { body } = await client.post("/auth/login").send(user).expect(200);
     const { accessToken } = body as TokenDto;
     expect(accessToken).toBeDefined();
-
 
     client.clearToken();
     await client

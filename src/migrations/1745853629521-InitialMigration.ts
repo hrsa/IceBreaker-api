@@ -4,6 +4,8 @@ export class InitialMigration1745853629521 implements MigrationInterface {
   name = "InitialMigration1745853629521";
 
   public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`CREATE TYPE "public"."card_preference_status_enum" AS ENUM('active', 'archived', 'loved', 'banned')`);
+
     await queryRunner.query(`CREATE TABLE "suggestion"
                              (
                                "id"         uuid              NOT NULL DEFAULT uuid_generate_v4(),

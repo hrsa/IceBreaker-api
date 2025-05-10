@@ -34,7 +34,7 @@ import { WebhooksModule } from "./webhooks/webhooks.module";
         password: configService.getOrThrow("DB_PASSWORD"),
         database: configService.getOrThrow("DB_NAME"),
         entities: [__dirname + "/**/*.entity{.ts,.js}"],
-        synchronize: configService.get<boolean>("DB_SYNC", false),
+        synchronize: false,
       }),
     }),
     I18nModule.forRootAsync({

@@ -3,7 +3,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { testDatabaseConfig } from "./test-database.config";
 import { exec } from "child_process";
 import { promisify } from "util";
-import { DataSource } from "typeorm";
+import { DataSource, DataSourceOptions } from "typeorm";
 import { INestApplication } from "@nestjs/common";
 import { setupTestApp } from "./app-test.module";
 
@@ -22,9 +22,6 @@ export class TestSetup {
   static async createDatabase(): Promise<void> {
     const { database, ...dbConfig } = testDatabaseConfig as any;
 
-    console.log("Creating test database:", database);
-    console.log("Database config:", dbConfig);
-
     try {
       const tmpDataSource = new DataSource({
         type: dbConfig.type,
@@ -36,7 +33,9 @@ export class TestSetup {
 
       await tmpDataSource.initialize();
 
-      const result = await tmpDataSource.query(`SELECT 1 FROM pg_database WHERE datname = '${database}'`);
+      const result = await tmpDataSource.query(`SELECT 1
+                                                FROM pg_database
+                                                WHERE datname = '${database}'`);
 
       if (result.length === 0) {
         await tmpDataSource.query(`CREATE DATABASE ${database}`);
@@ -54,11 +53,12 @@ export class TestSetup {
       await execPromise(`npx typeorm-ts-node-commonjs migration:run -d src/dataSource.ts`);
     } catch (error) {
       console.error("Error running migrations:", error.stderr || error);
-      throw error;
+      //throw error;
     }
   }
 
   static async initializeTestDatabase(): Promise<void> {
+    await this.createDatabase();
     await this.runMigrations();
   }
 

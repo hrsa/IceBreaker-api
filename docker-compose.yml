@@ -1,5 +1,5 @@
 networks:
-  ice_breaker:
+  icemelter_network:
 
 volumes:
   postgres_data:
@@ -36,7 +36,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
-      - ice_breaker
+      - icemelter_network
 
   api:
     build:
@@ -53,7 +53,7 @@ services:
     volumes:
       - .:/app/
     networks:
-      - ice_breaker
+      - icemelter_network
     depends_on:
       - db
       - redis
@@ -80,7 +80,7 @@ services:
       timeout: 30s
       retries: 6
     networks:
-      - ice_breaker
+      - icemelter_network
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -99,13 +99,13 @@ services:
       timeout: 30s
       retries: 6
     networks:
-      - ice_breaker
+      - icemelter_network
 
   ngrok:
     image: ngrok/ngrok:latest
     container_name: icemelter-ngrok
     environment:
-      NGROK_AUTHTOKEN: ${NGROK_TOKEN}
+      NGROK_AUTHTOKEN: ${NGROK_TOKEN:-""}
     volumes:
       - ./docker/ngrok.yml:/etc/ngrok.yml
     command:
@@ -131,6 +131,6 @@ services:
     ports:
       - "8091:8081"
     networks:
-      - ice_breaker
+      - icemelter_network
     depends_on:
       - redis

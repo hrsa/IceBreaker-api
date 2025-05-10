@@ -1,6 +1,7 @@
 import * as request from "supertest";
 import { App } from "supertest/types";
 import { Test } from "supertest";
+import { TokenDto } from "../../src/auth/dto/token.dto";
 
 export class TestClientHelper {
   private readonly app: App;
@@ -26,8 +27,9 @@ export class TestClientHelper {
     if (response.status !== 200) {
       throw new Error(`Failed to authenticate: ${response.status}`);
     }
+    const { accessToken } = response.body as TokenDto;
 
-    this.setToken(response.body.accessToken);
+    this.setToken(accessToken);
     return this;
   }
 

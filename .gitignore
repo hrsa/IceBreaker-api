@@ -42,6 +42,10 @@ lerna-debug.log*
 .env.test.local
 .env.production.local
 .env.local
+.env.prod
+
+#scripts
+add_secrets.sh
 
 # temp directory
 .temp

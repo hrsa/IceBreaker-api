@@ -1,44 +1,37 @@
-FROM --platform=linux/amd64 node:24.0-alpine AS base
+FROM node:24.0-alpine AS dev
 
+WORKDIR /app
+
+CMD ["npm", "run", "start:debug"]
+
+
+FROM node:24-alpine AS prod
 ARG UID
 ARG GID
 ARG USER
+ARG GROUP=docker
 
 ENV UID=${UID}
 ENV GID=${GID}
 ENV USER=${USER}
+ENV GROUP=${GROUP}
 
 WORKDIR /app
+RUN apk add --no-cache curl nano
 
-RUN apk add --no-cache python3 make g++ curl
-RUN npm i -g @nestjs/cli
-
-
-FROM base AS dev
-WORKDIR /app
-CMD ["npm", "run", "start:debug"]
-
-
-FROM base AS build
-WORKDIR /app
-COPY . .
-RUN npm ci && npm run build
-
-
-FROM node:24-alpine AS prod
-WORKDIR /app
 
 COPY package*.json ./
 RUN npm ci --only=production
-COPY --from=build /app/dist ./dist
+COPY dist/ ./dist/
 
 RUN mkdir -p logs storage
 
-RUN addgroup --gid ${GID} --system ${USER} \
-    && adduser --system --home /home/${USER} --shell /bin/sh --uid ${UID} --ingroup ${USER} ${USER} \
-    && chown -R ${UID}:${GID} /app \
-    && chmod 755 -R /app
+RUN addgroup -g ${GID} -S ${GROUP}
+RUN adduser -u ${UID} -S -G ${GROUP} -h /home/${USER} -s /bin/sh ${USER}
+RUN chown -R ${USER}:${GROUP} /app && chmod 755 -R /app
+
+
 
 USER ${USER}
 
-CMD ["npm", "run", "start:prod"]
+CMD ["node", "dist/main"]
