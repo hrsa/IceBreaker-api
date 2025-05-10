@@ -1,7 +1,7 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class InitialMigration1745853629521 implements MigrationInterface {
-  name = 'InitialMigration1745853629521';
+  name = "InitialMigration1745853629521";
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`CREATE TABLE "suggestion"

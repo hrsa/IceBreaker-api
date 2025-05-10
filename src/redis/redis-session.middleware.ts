@@ -6,7 +6,7 @@ import { TelegramSession } from "../telegram/interfaces/telegram-session.interfa
 import { UsersService } from "../users/users.service";
 import { AppLanguage } from "../common/constants/app-language.enum";
 import { OnEvent } from "@nestjs/event-emitter";
-import { UserCreditsUpdatedEvent } from '../users/events/user-credits-updated.event';
+import { UserCreditsUpdatedEvent } from "../users/events/user-credits-updated.event";
 
 @Injectable()
 export class RedisSessionService {
@@ -16,7 +16,7 @@ export class RedisSessionService {
 
   constructor(
     private configService: ConfigService,
-    private usersService: UsersService,
+    private usersService: UsersService
   ) {
     this.redisClient = new Redis({
       host: this.configService.get("REDIS_HOST", "localhost"),

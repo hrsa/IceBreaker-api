@@ -6,7 +6,7 @@ import { CreateCategoryDto } from "./dto/create-category.dto";
 import { UpdateCategoryDto } from "./dto/update-category.dto";
 import { LanguageUtilsService } from "../common/utils/language-utils.service";
 import { EventEmitter2 } from "@nestjs/event-emitter";
-import { CategoryCreatedEvent } from './events/category-created.event';
+import { CategoryCreatedEvent } from "./events/category-created.event";
 
 @Injectable()
 export class CategoriesService {
@@ -32,7 +32,7 @@ export class CategoriesService {
   }
 
   async findAll(userId?: string, isAdmin = false): Promise<Category[]> {
-    let parameters: any = [{ isPublic: true }];
+    const parameters: any = [{ isPublic: true }];
     if (userId) {
       parameters.push({ userId: userId, isPublic: false });
     }
@@ -73,7 +73,7 @@ export class CategoriesService {
   }
 
   async update(id: string, updateCategoryDto: UpdateCategoryDto): Promise<Category> {
-    const category = await this.findOne(id, '', true);
+    const category = await this.findOne(id, "", true);
     if (updateCategoryDto.name && updateCategoryDto.language) {
       this.languageUtilsService.mapPropertyToField(category, "name", updateCategoryDto.name, updateCategoryDto.language);
     }

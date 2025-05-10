@@ -1,13 +1,4 @@
-import {
-  Controller,
-  Post,
-  UseGuards,
-  Body,
-  HttpCode,
-  HttpStatus,
-  ClassSerializerInterceptor,
-  UseInterceptors,
-} from "@nestjs/common";
+import { Controller, Post, UseGuards, Body, HttpCode, HttpStatus, ClassSerializerInterceptor, UseInterceptors } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
 import { LocalAuthGuard } from "./guards/local-auth.guard";

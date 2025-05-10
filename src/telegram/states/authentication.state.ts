@@ -13,9 +13,10 @@ export class AuthenticationState implements BotState {
 
   async handle(ctx: Context): Promise<void> {
     ctx.session.step = "authentication";
-    const signupButton =
-      Markup.button.callback(this.translate.t("telegram.buttons.sign_up", { lang: ctx.session.language }), "signup:email")
-    ;
+    const signupButton = Markup.button.callback(
+      this.translate.t("telegram.buttons.sign_up", { lang: ctx.session.language }),
+      "signup:email"
+    );
     const changeLanguageButton = Markup.button.callback(
       this.translate.t("telegram.card.actions.change_language", { lang: ctx.session.language }),
       "card:change_language"

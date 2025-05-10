@@ -1,7 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { AppLanguage, EntityWithLanguageProperties } from '../constants/app-language.enum';
-
-
+import { Injectable } from "@nestjs/common";
+import { AppLanguage, EntityWithLanguageProperties } from "../constants/app-language.enum";
 
 @Injectable()
 export class LanguageUtilsService {

@@ -1,8 +1,8 @@
 export enum KofiPaymentType {
-  DONATION = 'Donation',
-  SUBSCRIPTION = 'Subscription',
-  COMMISSION = 'Commission',
-  SHOP_ORDER = 'Shop Order',
+  DONATION = "Donation",
+  SUBSCRIPTION = "Subscription",
+  COMMISSION = "Commission",
+  SHOP_ORDER = "Shop Order",
 }
 
 export interface KofiWebhookPayload {
@@ -11,7 +11,7 @@ export interface KofiWebhookPayload {
   timestamp: string;
   type: string;
   is_public: boolean;
-  from_name: string | null
+  from_name: string | null;
   message: string | null;
   amount: string;
   url: string;
@@ -20,7 +20,7 @@ export interface KofiWebhookPayload {
   is_subscription_payment: boolean;
   is_first_subscription_payment: boolean;
   kofi_transaction_id: string;
-  shop_items: any | null;
+  shop_items: any;
   tier_name: string | null;
-  shipping: any | null;
+  shipping: any;
 }

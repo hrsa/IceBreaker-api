@@ -24,7 +24,7 @@ export class WebhooksService {
     switch (payload.type) {
       case KofiPaymentType.DONATION:
       case KofiPaymentType.SUBSCRIPTION:
-        return await this.processDonation(payload);
+        return this.processDonation(payload);
 
       default:
         this.logger.warn(`Unhandled Ko-fi payment type: ${payload.type}`);
@@ -32,7 +32,7 @@ export class WebhooksService {
     }
   }
 
-  private async processDonation(payload: KofiWebhookPayload) {
+  private processDonation(payload: KofiWebhookPayload) {
     this.logger.log(`Got donation from ${payload.email}`);
     this.eventEmitter.emit("donation.received", new DonationReceivedEvent(parseInt(payload.amount), payload.email));
   }

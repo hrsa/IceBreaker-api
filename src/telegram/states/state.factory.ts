@@ -12,7 +12,7 @@ import { SignupNameState } from "./signup-name.state";
 import { ProfileDeletionState } from "./profile-deletion.state";
 import { HelpState } from "./help.state";
 import { GameGenerationState } from "./game-generation.state";
-import { StepName } from '../interfaces/telegram-session.interface';
+import { StepName } from "../interfaces/telegram-session.interface";
 
 @Injectable()
 export class StateFactory {

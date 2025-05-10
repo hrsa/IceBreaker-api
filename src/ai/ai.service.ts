@@ -28,10 +28,7 @@ export class AIService {
   }
 
   async translateText(text: string, targetLanguage: string): Promise<string> {
-    const systemPromptTemplate = Buffer.from(
-      this.configService.getOrThrow<string>("TRANSLATOR_SYSTEM_PROMPT"),
-      "base64"
-    ).toString("ascii");
+    const systemPromptTemplate = Buffer.from(this.configService.getOrThrow<string>("TRANSLATOR_SYSTEM_PROMPT"), "base64").toString("ascii");
 
     const systemPrompt = systemPromptTemplate.replace("{{LANGUAGE}}", targetLanguage);
 
@@ -50,7 +47,7 @@ export class AIService {
         ],
         temperature: 0.3,
       });
-      return response!.choices[0]!.message!.content!.trim();
+      return response.choices[0].message.content!.trim();
     } catch (error) {
       this.logger.error(`Translation error: ${error.message}`, error.stack);
       throw new Error(`Failed to translate text: ${error.message}`);
@@ -67,12 +64,9 @@ export class AIService {
         })
       ),
     });
-    const systemPrompt = Buffer.from(
-      this.configService.getOrThrow<string>("GAME_GENERATION_PROMPT"),
-      "base64"
-    ).toString("ascii");
+    const systemPrompt = Buffer.from(this.configService.getOrThrow<string>("GAME_GENERATION_PROMPT"), "base64").toString("ascii");
 
-    let prompt = systemPrompt + cardsData;
+    const prompt = systemPrompt + cardsData;
     try {
       const response = await this.openai.beta.chat.completions.parse({
         model: "gpt-4.1-2025-04-14",

@@ -1,11 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
-import { Card } from '../../cards/entities/card.entity';
-import { Suggestion } from '../../suggestions/entities/suggestion.entity';
-import { User } from '../../users/entities/user.entity';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, JoinColumn } from "typeorm";
+import { Card } from "../../cards/entities/card.entity";
+import { Suggestion } from "../../suggestions/entities/suggestion.entity";
+import { User } from "../../users/entities/user.entity";
 
 @Entity()
 export class Category {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column({ nullable: true })
@@ -35,21 +35,21 @@ export class Category {
   @Column({ default: true })
   isPublic: boolean;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   userId: string;
 
   @ManyToOne(() => User, user => user.privateCategories, {
-    onDelete: "SET NULL"
+    onDelete: "SET NULL",
   })
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn({ name: "userId" })
   user: User;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
 
   @OneToMany(() => Card, card => card.category, {
     cascade: true,
-    onDelete: 'CASCADE',
+    onDelete: "CASCADE",
   })
   cards: Card[];
 

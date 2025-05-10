@@ -1,15 +1,14 @@
-import * as request from 'supertest';
-import { App } from 'supertest/types';
-import { Test } from 'supertest';
+import * as request from "supertest";
+import { App } from "supertest/types";
+import { Test } from "supertest";
 
 export class TestClientHelper {
-  private readonly app: App
+  private readonly app: App;
   private token: string | null = null;
 
   constructor(app: App) {
     this.app = app;
   }
-
 
   public setToken(token: string): this {
     this.token = token;
@@ -22,9 +21,7 @@ export class TestClientHelper {
   }
 
   public async actingAs(credentials: { email: string; password: string }): Promise<this> {
-    const response = await request(this.app)
-      .post('/auth/login')
-      .send(credentials);
+    const response = await request(this.app).post("/auth/login").send(credentials);
 
     if (response.status !== 200) {
       throw new Error(`Failed to authenticate: ${response.status}`);
@@ -37,7 +34,7 @@ export class TestClientHelper {
   public get(url: string): Test {
     const req = request(this.app).get(url);
     if (this.token) {
-      req.set('Authorization', `Bearer ${this.token}`);
+      req.set("Authorization", `Bearer ${this.token}`);
     }
     return req;
   }
@@ -45,7 +42,7 @@ export class TestClientHelper {
   public post(url: string): Test {
     const req = request(this.app).post(url);
     if (this.token) {
-      req.set('Authorization', `Bearer ${this.token}`);
+      req.set("Authorization", `Bearer ${this.token}`);
     }
     return req;
   }
@@ -53,7 +50,7 @@ export class TestClientHelper {
   public put(url: string): Test {
     const req = request(this.app).put(url);
     if (this.token) {
-      req.set('Authorization', `Bearer ${this.token}`);
+      req.set("Authorization", `Bearer ${this.token}`);
     }
     return req;
   }
@@ -61,7 +58,7 @@ export class TestClientHelper {
   public patch(url: string): Test {
     const req = request(this.app).patch(url);
     if (this.token) {
-      req.set('Authorization', `Bearer ${this.token}`);
+      req.set("Authorization", `Bearer ${this.token}`);
     }
     return req;
   }
@@ -69,7 +66,7 @@ export class TestClientHelper {
   public delete(url: string): Test {
     const req = request(this.app).delete(url);
     if (this.token) {
-      req.set('Authorization', `Bearer ${this.token}`);
+      req.set("Authorization", `Bearer ${this.token}`);
     }
     return req;
   }
@@ -80,9 +77,7 @@ export class TestClientHelper {
     name: string;
   }): Promise<{ user: any; client: TestClientHelper }> {
     // Create user
-    const userResponse = await request(this.app)
-      .post('/users')
-      .send(userData);
+    const userResponse = await request(this.app).post("/users").send(userData);
 
     if (userResponse.status !== 201) {
       throw new Error(`Failed to create user: ${userResponse.status}`);

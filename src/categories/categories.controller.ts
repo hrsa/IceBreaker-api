@@ -11,19 +11,19 @@ import {
   HttpStatus,
   UseInterceptors,
   ClassSerializerInterceptor,
-} from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { CategoriesService } from './categories.service';
-import { CreateCategoryDto } from './dto/create-category.dto';
-import { UpdateCategoryDto } from './dto/update-category.dto';
-import { CategoryResponseDto } from './dto/category-response.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { AdminGuard } from '../common/guards/admin.guard';
-import { CurrentUser } from '../common/decorators/current-user.decorator';
-import { CurrentUserData } from '../auth/strategies/jwt.strategy';
+} from "@nestjs/common";
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from "@nestjs/swagger";
+import { CategoriesService } from "./categories.service";
+import { CreateCategoryDto } from "./dto/create-category.dto";
+import { UpdateCategoryDto } from "./dto/update-category.dto";
+import { CategoryResponseDto } from "./dto/category-response.dto";
+import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+import { AdminGuard } from "../common/guards/admin.guard";
+import { CurrentUser } from "../common/decorators/current-user.decorator";
+import { CurrentUserData } from "../auth/strategies/jwt.strategy";
 
-@ApiTags('categories')
-@Controller('categories')
+@ApiTags("categories")
+@Controller("categories")
 @UseGuards(JwtAuthGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 export class CategoriesController {
@@ -31,13 +31,13 @@ export class CategoriesController {
 
   @Post()
   @UseGuards(AdminGuard)
-  @ApiOperation({ summary: 'Create a new category (Admin only)' })
+  @ApiOperation({ summary: "Create a new category (Admin only)" })
   @ApiResponse({
     status: 201,
-    description: 'Category created successfully',
-    type: CategoryResponseDto
+    description: "Category created successfully",
+    type: CategoryResponseDto,
   })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
+  @ApiResponse({ status: 403, description: "Forbidden - Admin access required" })
   @ApiBearerAuth()
   async create(@Body() createCategoryDto: CreateCategoryDto): Promise<CategoryResponseDto> {
     const category = await this.categoriesService.create(createCategoryDto);
@@ -45,11 +45,11 @@ export class CategoriesController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all categories' })
+  @ApiOperation({ summary: "Get all categories" })
   @ApiResponse({
     status: 200,
-    description: 'Return all categories',
-    type: [CategoryResponseDto]
+    description: "Return all categories",
+    type: [CategoryResponseDto],
   })
   @ApiBearerAuth()
   async findAll(@CurrentUser() user: CurrentUserData): Promise<CategoryResponseDto[]> {
@@ -57,61 +57,58 @@ export class CategoriesController {
     return categories.map(category => new CategoryResponseDto(category));
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Get a category by ID' })
+  @Get(":id")
+  @ApiOperation({ summary: "Get a category by ID" })
   @ApiResponse({
     status: 200,
-    description: 'Return the category',
-    type: CategoryResponseDto
+    description: "Return the category",
+    type: CategoryResponseDto,
   })
-  @ApiResponse({ status: 404, description: 'Category not found' })
+  @ApiResponse({ status: 404, description: "Category not found" })
   @ApiBearerAuth()
-  async findOne(@Param('id') id: string, @CurrentUser() user: CurrentUserData): Promise<CategoryResponseDto> {
+  async findOne(@Param("id") id: string, @CurrentUser() user: CurrentUserData): Promise<CategoryResponseDto> {
     const category = await this.categoriesService.findOne(id, user.id, user.isAdmin);
     return new CategoryResponseDto(category);
   }
 
-  @Patch(':id')
+  @Patch(":id")
   @UseGuards(AdminGuard)
-  @ApiOperation({ summary: 'Update a category (Admin only)' })
+  @ApiOperation({ summary: "Update a category (Admin only)" })
   @ApiResponse({
     status: 200,
-    description: 'Category updated successfully',
-    type: CategoryResponseDto
+    description: "Category updated successfully",
+    type: CategoryResponseDto,
   })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
-  @ApiResponse({ status: 404, description: 'Category not found' })
+  @ApiResponse({ status: 403, description: "Forbidden - Admin access required" })
+  @ApiResponse({ status: 404, description: "Category not found" })
   @ApiBearerAuth()
-  async update(
-    @Param('id') id: string,
-    @Body() updateCategoryDto: UpdateCategoryDto,
-  ): Promise<CategoryResponseDto> {
+  async update(@Param("id") id: string, @Body() updateCategoryDto: UpdateCategoryDto): Promise<CategoryResponseDto> {
     const category = await this.categoriesService.update(id, updateCategoryDto);
     return new CategoryResponseDto(category);
   }
 
-  @Delete(':id')
+  @Delete(":id")
   @UseGuards(AdminGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Delete a category (Admin only)' })
-  @ApiResponse({ status: 204, description: 'Category deleted successfully' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
-  @ApiResponse({ status: 404, description: 'Category not found' })
+  @ApiOperation({ summary: "Delete a category (Admin only)" })
+  @ApiResponse({ status: 204, description: "Category deleted successfully" })
+  @ApiResponse({ status: 403, description: "Forbidden - Admin access required" })
+  @ApiResponse({ status: 404, description: "Category not found" })
   @ApiBearerAuth()
-  async remove(@Param('id') id: string): Promise<void> {
+  async remove(@Param("id") id: string): Promise<void> {
     return this.categoriesService.remove(id);
   }
 
-  @Get(':id/cards-count')
-  @ApiOperation({ summary: 'Get the number of cards in a category' })
+  @Get(":id/cards-count")
+  @ApiOperation({ summary: "Get the number of cards in a category" })
   @ApiResponse({
     status: 200,
-    description: 'Return the number of cards',
-    schema: { type: 'object', properties: { count: { type: 'number' } } }
+    description: "Return the number of cards",
+    schema: { type: "object", properties: { count: { type: "number" } } },
   })
-  @ApiResponse({ status: 404, description: 'Category not found' })
+  @ApiResponse({ status: 404, description: "Category not found" })
   @ApiBearerAuth()
-  async getCardsCount(@Param('id') id: string): Promise<{ count: number }> {
+  async getCardsCount(@Param("id") id: string): Promise<{ count: number }> {
     const count = await this.categoriesService.getCardsCount(id);
     return { count };
   }

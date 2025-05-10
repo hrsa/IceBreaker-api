@@ -26,8 +26,8 @@ import { UserCreditsUpdatedEvent } from "../users/events/user-credits-updated.ev
 import { TelegramMessageEvent } from "./events/telegram-message.event";
 import { InjectQueue } from "@nestjs/bullmq";
 import { Queue } from "bullmq";
-import { GameReadyToPlayEvent } from '../ai/events/game-ready-to-play.event';
-import { AIService } from '../ai/ai.service';
+import { GameReadyToPlayEvent } from "../ai/events/game-ready-to-play.event";
+import { AIService } from "../ai/ai.service";
 
 @Injectable()
 export class TelegramService {
@@ -320,10 +320,15 @@ export class TelegramService {
       ctx,
       this.translate.t("telegram.generate.no_credits", { lang: ctx.session.language }),
       Markup.inlineKeyboard([
-        [Markup.button.callback(this.translate.t("telegram.buttons.back_to_the_game", { lang: ctx.session.language }), "card:back_to_the_game")],
-        [this.getBuyCoffeeButton(ctx.session.language)]
+        [
+          Markup.button.callback(
+            this.translate.t("telegram.buttons.back_to_the_game", { lang: ctx.session.language }),
+            "card:back_to_the_game"
+          ),
+        ],
+        [this.getBuyCoffeeButton(ctx.session.language)],
       ])
-    )
+    );
   }
 
   @OnEvent("game.ready.to.play")
@@ -490,7 +495,7 @@ export class TelegramService {
     const loveCard = Markup.button.callback("❤️", "card:love");
     const unLoveCard = Markup.button.callback("💔", "card:reactivate");
     const getPreviousCard = Markup.button.callback("⏪", "card:undo");
-    let cardActions: any[] = [];
+    const cardActions: any[] = [];
 
     if (hasPreviousCard) {
       cardActions.push(getPreviousCard);

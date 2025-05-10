@@ -9,7 +9,7 @@ import { UpdateCardDto } from "./dto/update-card.dto";
 import { LanguageUtilsService } from "../common/utils/language-utils.service";
 import { GetRandomCardDto } from "./dto/get-random-card.dto";
 import { EventEmitter2 } from "@nestjs/event-emitter";
-import { CardCreatedEvent } from './events/card-created.event';
+import { CardCreatedEvent } from "./events/card-created.event";
 
 @Injectable()
 export class CardsService {

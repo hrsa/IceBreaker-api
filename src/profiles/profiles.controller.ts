@@ -20,7 +20,7 @@ import { UpdateProfileDto } from "./dto/update-profile.dto";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { ProfileResponseDto } from "./dto/profile-response.dto";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
-import { CurrentUserData } from '../auth/strategies/jwt.strategy';
+import { CurrentUserData } from "../auth/strategies/jwt.strategy";
 
 @ApiTags("profiles")
 @Controller("profiles")
@@ -107,11 +107,7 @@ export class ProfilesController {
     status: 200,
     description: "Return all card preferences for the profile",
   })
-  async getCardPreferences(
-    @Param("id") profileId: string,
-    @CurrentUser("id") userId: string,
-    @Query("status") status?: string
-  ) {
+  async getCardPreferences(@Param("id") profileId: string, @CurrentUser("id") userId: string, @Query("status") status?: string) {
     return this.profilesService.getCardPreferences(profileId, status, userId);
   }
 }

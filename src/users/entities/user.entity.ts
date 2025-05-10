@@ -1,7 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Profile } from "../../profiles/entities/profile.entity";
 import { Suggestion } from "../../suggestions/entities/suggestion.entity";
-import { Category } from '../../categories/entities/category.entity';
+import { Category } from "../../categories/entities/category.entity";
 
 @Entity()
 export class User {
@@ -32,7 +32,7 @@ export class User {
   @Column({ nullable: true, unique: true })
   secretPhrase: string;
 
-  @Column({ nullable: false, default: 0})
+  @Column({ nullable: false, default: 0 })
   credits: number;
 
   @OneToMany(() => Profile, profile => profile.user, {

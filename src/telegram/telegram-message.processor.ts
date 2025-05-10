@@ -1,11 +1,11 @@
-import { Processor, WorkerHost } from '@nestjs/bullmq';
+import { Processor, WorkerHost } from "@nestjs/bullmq";
 import { Logger } from "@nestjs/common";
 import { InjectBot } from "nestjs-telegraf";
 import { Context, Telegraf } from "telegraf";
 import { RedisSessionService } from "../redis/redis-session.middleware";
 import { Message } from "telegraf/typings/core/types/typegram";
 import { TelegramSession } from "./interfaces/telegram-session.interface";
-import { Job } from 'bullmq';
+import { Job } from "bullmq";
 
 @Processor("telegram-messages")
 export class TelegramMessageProcessor extends WorkerHost {

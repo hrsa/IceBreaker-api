@@ -1,5 +1,5 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
-import { ProfilesService } from '../../profiles/profiles.service';
+import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from "@nestjs/common";
+import { ProfilesService } from "../../profiles/profiles.service";
 
 @Injectable()
 export class ProfileOwnerGuard implements CanActivate {
@@ -10,27 +10,20 @@ export class ProfileOwnerGuard implements CanActivate {
     const user = request.user;
 
     if (!user) {
-      throw new ForbiddenException('Not authenticated');
+      throw new ForbiddenException("Not authenticated");
     }
 
-    // Get profileId from query params or route params
-    let profileId = request.query.profileId ||
-      (request.params && request.params.profileId);
+    const profileId = request.query.profileId || (request.params && request.params.profileId);
 
     if (!profileId || user.isAdmin === true) {
       return true;
     }
 
     try {
-      const profile = await this.profilesService.findOne(profileId);
-
-      if (profile.userId !== user.userId) {
-        throw new ForbiddenException('You can only access your own profiles');
-      }
-
+      await this.profilesService.findOne(profileId, user.id, user.isAdmin);
       return true;
     } catch (error) {
-      throw new ForbiddenException('Profile not found or access denied');
+      return false;
     }
   }
 }

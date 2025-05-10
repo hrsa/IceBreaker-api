@@ -1,35 +1,28 @@
-import {
-  IsArray, IsBoolean,
-  IsNotEmpty,
-  IsNumber, IsOptional,
-  IsUUID,
-
-} from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsArray, IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsUUID } from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
 
 export class GetRandomCardDto {
   @ApiProperty({
-    example: '123e4567-e89b-12d3-a456-426614174000',
+    example: "123e4567-e89b-12d3-a456-426614174000",
     description: "Player's profile UUID",
   })
   @IsUUID()
-  @IsNotEmpty({ message: 'Profile UUID is required' })
+  @IsNotEmpty({ message: "Profile UUID is required" })
   profileId: string;
 
   @ApiProperty({
-    example:
-      '["123e4567-e89b-12d3-a456-426614174000", "234r5678-e89b-12d3-a456-426614174000"]',
-    description: 'Categories UUIDS',
+    example: '["123e4567-e89b-12d3-a456-426614174000", "234r5678-e89b-12d3-a456-426614174000"]',
+    description: "Categories UUIDS",
     type: [String],
     isArray: true,
   })
   @IsArray()
-  @IsUUID('all', { each: true, message: 'Category UUIDs are invalid' })
+  @IsUUID("all", { each: true, message: "Category UUIDs are invalid" })
   categoryIds: string[];
 
   @ApiProperty({
     example: "true",
-    description: 'Include archived cards',
+    description: "Include archived cards",
     required: false,
   })
   @IsBoolean()
@@ -38,7 +31,7 @@ export class GetRandomCardDto {
 
   @ApiProperty({
     example: "true",
-    description: 'Include loved cards',
+    description: "Include loved cards",
     required: false,
   })
   @IsBoolean()
@@ -46,8 +39,8 @@ export class GetRandomCardDto {
   includeLoved: boolean;
 
   @ApiProperty({
-    example: '1',
-    description: 'Number of cards to return',
+    example: "1",
+    description: "Number of cards to return",
   })
   @IsNumber()
   @IsOptional()

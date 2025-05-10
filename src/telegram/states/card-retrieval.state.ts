@@ -5,9 +5,9 @@ import { BotState } from "./base.state";
 import { GetRandomCardDto } from "../../cards/dto/get-random-card.dto";
 import { LanguageUtilsService } from "../../common/utils/language-utils.service";
 import { I18nService } from "nestjs-i18n";
-import { Card } from '../../cards/entities/card.entity';
-import { AppLanguage } from '../../common/constants/app-language.enum';
-import { CardStatus } from '../../card-preferences/entitites/card-preference.entity';
+import { Card } from "../../cards/entities/card.entity";
+import { AppLanguage } from "../../common/constants/app-language.enum";
+import { CardStatus } from "../../card-preferences/entitites/card-preference.entity";
 
 @Injectable()
 export class CardRetrievalState implements BotState {
@@ -82,7 +82,7 @@ export class CardRetrievalState implements BotState {
       const language = ctx.session.language;
       const cardStatusText = this.generateCardStatusText(card, language);
 
-      let question = this.languageUtilsService.getPropertyByLanguage(card, "question", language);
+      const question = this.languageUtilsService.getPropertyByLanguage(card, "question", language);
       let cardMessage = `${cardStatusText}\n<blockquote><b>\n${question}\n\n\n</b></blockquote>`;
 
       if (card.category) {
@@ -125,7 +125,7 @@ export class CardRetrievalState implements BotState {
   }
 
   generateCardStatusText(card: Card, language: AppLanguage): string {
-    const status = card.cardPreference?.status
+    const status = card.cardPreference?.status;
 
     switch (status) {
       case CardStatus.LOVED:

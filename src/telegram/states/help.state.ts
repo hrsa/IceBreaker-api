@@ -17,27 +17,30 @@ export class HelpState implements BotState {
       await this.telegramService.updateOrSendMessage(
         ctx,
         this.translate.t("telegram.help.message_for_supporters", { lang: ctx.session.language }),
-        Markup.inlineKeyboard([[
-          Markup.button.callback(
-            this.translate.t("telegram.card.actions.change_language", { lang: ctx.session.language }),
-            "card:change_language"
-          )
-        ], [Markup.button.callback(
-          this.translate.t("telegram.buttons.generate", { lang: ctx.session.language }),
-          "game:generate"
-        )]])
+        Markup.inlineKeyboard([
+          [
+            Markup.button.callback(
+              this.translate.t("telegram.card.actions.change_language", { lang: ctx.session.language }),
+              "card:change_language"
+            ),
+          ],
+          [Markup.button.callback(this.translate.t("telegram.buttons.generate", { lang: ctx.session.language }), "game:generate")],
+        ])
       );
       return;
     }
     await this.telegramService.updateOrSendMessage(
       ctx,
       this.translate.t("telegram.help.message", { lang: ctx.session.language }),
-      Markup.inlineKeyboard([[
-        Markup.button.callback(
-          this.translate.t("telegram.card.actions.change_language", { lang: ctx.session.language }),
-          "card:change_language"
-        )
-      ], [this.telegramService.getBuyCoffeeButton(ctx.session.language)]])
+      Markup.inlineKeyboard([
+        [
+          Markup.button.callback(
+            this.translate.t("telegram.card.actions.change_language", { lang: ctx.session.language }),
+            "card:change_language"
+          ),
+        ],
+        [this.telegramService.getBuyCoffeeButton(ctx.session.language)],
+      ])
     );
   }
 

@@ -13,20 +13,20 @@ import { AuthenticationState } from "./states/authentication.state";
 import { ProfileSelectionState } from "./states/profile-selection.state";
 import { CategorySelectionState } from "./states/category-selection.state";
 import { CardRetrievalState } from "./states/card-retrieval.state";
-import { ProfileCreationState } from './states/profile-creation.state';
-import { RedisSessionService } from '../redis/redis-session.middleware';
-import { RedisSessionModule } from '../redis/redis-session.module';
-import { SuggestionsModule } from '../suggestions/suggestions.module';
-import { SuggestionCreationState } from './states/suggestion-creation.state';
-import { SignupEmailState } from './states/signup-email.state';
-import { SignupNameState } from './states/signup-name.state';
-import { CardPreferencesModule } from '../card-preferences/card-preferences.module';
-import { ProfileDeletionState } from './states/profile-deletion.state';
+import { ProfileCreationState } from "./states/profile-creation.state";
+import { RedisSessionService } from "../redis/redis-session.middleware";
+import { RedisSessionModule } from "../redis/redis-session.module";
+import { SuggestionsModule } from "../suggestions/suggestions.module";
+import { SuggestionCreationState } from "./states/suggestion-creation.state";
+import { SignupEmailState } from "./states/signup-email.state";
+import { SignupNameState } from "./states/signup-name.state";
+import { CardPreferencesModule } from "../card-preferences/card-preferences.module";
+import { ProfileDeletionState } from "./states/profile-deletion.state";
 import { HelpState } from "./states/help.state";
 import { BullModule } from "@nestjs/bullmq";
-import { TelegramMessageProcessor } from './telegram-message.processor';
-import { GameGenerationState } from './states/game-generation.state';
-import { AIModule } from '../ai/ai.module';
+import { TelegramMessageProcessor } from "./telegram-message.processor";
+import { GameGenerationState } from "./states/game-generation.state";
+import { AIModule } from "../ai/ai.module";
 
 @Module({
   imports: [
@@ -40,10 +40,9 @@ import { AIModule } from '../ai/ai.module';
         launchOptions: {
           webhook: {
             domain: configService.getOrThrow<string>("TELEGRAM_BOT_DOMAIN"),
-            port: configService.get<number>("TELEGRAM_BOT_PORT", 443),
             hookPath: configService.get<string>("TELEGRAM_BOT_HOOK_PATH", "/tg-webhook"),
-          }
-        }
+          },
+        },
       }),
     }),
     BullModule.forRootAsync({
@@ -56,7 +55,7 @@ import { AIModule } from '../ai/ai.module';
           password: configService.getOrThrow("REDIS_PASSWORD"),
           db: configService.getOrThrow("REDIS_DB", 0),
         },
-      })
+      }),
     }),
     BullModule.registerQueue({
       name: "telegram-messages",
@@ -68,7 +67,7 @@ import { AIModule } from '../ai/ai.module';
     LanguageUtilsModule,
     SuggestionsModule,
     AIModule,
-    CardPreferencesModule
+    CardPreferencesModule,
   ],
   providers: [
     TelegramService,

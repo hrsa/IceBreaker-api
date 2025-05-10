@@ -12,11 +12,9 @@ export class GameGenerationState implements BotState {
   ) {}
 
   async handle(ctx: Context): Promise<void> {
-    await this.telegramService.updateOrSendMessage(
-      ctx,
-      this.translate.t("telegram.generate.rules", { lang: ctx.session.language }),
-      {parse_mode: "HTML"}
-    );
+    await this.telegramService.updateOrSendMessage(ctx, this.translate.t("telegram.generate.rules", { lang: ctx.session.language }), {
+      parse_mode: "HTML",
+    });
   }
 
   async next(ctx: Context): Promise<void> {

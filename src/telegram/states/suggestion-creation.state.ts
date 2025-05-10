@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { Context } from 'telegraf';
+import { Context } from "telegraf";
 import { TelegramService } from "../telegram.service";
 import { BotState } from "./base.state";
 import { I18nService } from "nestjs-i18n";
@@ -46,7 +46,11 @@ export class SuggestionCreationState implements BotState {
 
     const backToTheGameButton = this.telegramService.createBackToTheGameKeyboard(ctx.session.language);
 
-    await this.telegramService.updateOrSendMessage(ctx, this.translate.t("telegram.suggestion.success", { lang: ctx.session.language }), backToTheGameButton);
+    await this.telegramService.updateOrSendMessage(
+      ctx,
+      this.translate.t("telegram.suggestion.success", { lang: ctx.session.language }),
+      backToTheGameButton
+    );
 
     ctx.session.step = "card-retrieval";
   }

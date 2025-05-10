@@ -14,9 +14,9 @@ import { AIModule } from "./ai/ai.module";
 import { TelegramModule } from "./telegram/telegram.module";
 import { AcceptLanguageResolver, HeaderResolver, I18nModule, QueryResolver } from "nestjs-i18n";
 import { join } from "path";
-import { RedisSessionModule } from './redis/redis-session.module';
-import { EventEmitterModule } from '@nestjs/event-emitter';
-import { WebhooksModule } from './webhooks/webhooks.module';
+import { RedisSessionModule } from "./redis/redis-session.module";
+import { EventEmitterModule } from "@nestjs/event-emitter";
+import { WebhooksModule } from "./webhooks/webhooks.module";
 
 @Module({
   imports: [

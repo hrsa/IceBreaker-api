@@ -1,10 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { CardPreference, CardStatus } from './entitites/card-preference.entity';
-import { UpdateCardPreferenceDto } from './dto/update-card-preference.dto';
-import { ProfilesService } from '../profiles/profiles.service';
-import { CardsService } from '../cards/cards.service';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { CardPreference, CardStatus } from "./entitites/card-preference.entity";
+import { UpdateCardPreferenceDto } from "./dto/update-card-preference.dto";
+import { ProfilesService } from "../profiles/profiles.service";
+import { CardsService } from "../cards/cards.service";
 
 @Injectable()
 export class CardPreferencesService {

@@ -21,8 +21,8 @@ import { CardResponseDto } from "./dto/card-response.dto";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { AdminGuard } from "../common/guards/admin.guard";
 import { GetRandomCardDto } from "./dto/get-random-card.dto";
-import { CurrentUserData } from '../auth/strategies/jwt.strategy';
-import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { CurrentUserData } from "../auth/strategies/jwt.strategy";
+import { CurrentUser } from "../common/decorators/current-user.decorator";
 
 @ApiTags("cards")
 @Controller("cards")
@@ -68,7 +68,10 @@ export class CardsController {
     description: "Return a random card",
     type: [CardResponseDto],
   })
-  async getRandom(@Body() getRandomCardDto: GetRandomCardDto, @CurrentUser() user: CurrentUserData): Promise<{
+  async getRandom(
+    @Body() getRandomCardDto: GetRandomCardDto,
+    @CurrentUser() user: CurrentUserData
+  ): Promise<{
     cards: CardResponseDto[];
     hasViewedAllCards: boolean;
   }> {

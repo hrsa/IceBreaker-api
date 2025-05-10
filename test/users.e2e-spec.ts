@@ -5,25 +5,27 @@ import { getTestApp } from "./config/setup";
 import { UserResponseDto } from "../src/users/dto/user-response.dto";
 import { TestClientHelper } from "./helpers/test-client.helper";
 import { plainToInstance } from "class-transformer";
-import { testUsers } from './seeders/test-data.seeder';
+import { testUsers } from "./seeders/test-data.seeder";
+import { TokenDto } from "../src/auth/dto/token.dto";
 
 describe("Users API (e2e)", () => {
   let app: INestApplication<App>;
   let api: App;
   let client: TestClientHelper;
-  let user = {
+  const user = {
     email: "tester@test.net",
     password: "testingpassword",
     name: "Tester",
   };
-  let admin = testUsers.admin;
+  const admin = testUsers.admin;
   let userId = "";
   let adminId = "";
 
   beforeAll(async () => {
-    app = await getTestApp();
+    app = (await getTestApp()) as INestApplication<App>;
     api = app.getHttpServer();
     client = new TestClientHelper(api);
+    await resetDatabase(app);
   });
 
   afterAll(async () => {
@@ -48,8 +50,10 @@ describe("Users API (e2e)", () => {
   test("user can login with correct password", async () => {
     await client.actingAs(user);
 
-    const response = await client.post("/auth/login").send(user).expect(200);
-    expect(response.body.accessToken).toBeDefined();
+    const { body } = await client.post("/auth/login").send(user).expect(200);
+    const { accessToken } = body as TokenDto;
+    expect(accessToken).toBeDefined();
+
 
     client.clearToken();
     await client
@@ -185,14 +189,14 @@ describe("Users API (e2e)", () => {
     await client.delete(`/users/${userId}`).expect(204);
     try {
       await client.actingAs(user);
-      fail('Authentication should have failed but succeeded');
+      fail("Authentication should have failed but succeeded");
     } catch (error) {
-      expect(error.message).toContain('Failed to authenticate: 401');
+      expect(error.message).toContain("Failed to authenticate: 401");
     }
   });
 
   test("admin can delete any user", async () => {
-    let response = await client.post("/users").send(user).expect(201);
+    const response = await client.post("/users").send(user).expect(201);
     userId = response.body.id;
 
     await client.actingAs(admin);
@@ -201,9 +205,9 @@ describe("Users API (e2e)", () => {
     await client.delete(`/users/${adminId}`).expect(204);
     try {
       await client.actingAs(user);
-      fail('Authentication should have failed but succeeded');
+      fail("Authentication should have failed but succeeded");
     } catch (error) {
-      expect(error.message).toContain('Failed to authenticate: 401');
+      expect(error.message).toContain("Failed to authenticate: 401");
     }
-  })
+  });
 });

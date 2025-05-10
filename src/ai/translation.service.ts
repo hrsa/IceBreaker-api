@@ -7,8 +7,8 @@ import { Category } from "../categories/entities/category.entity";
 import { AppLanguage } from "../common/constants/app-language.enum";
 import { LanguageUtilsService } from "../common/utils/language-utils.service";
 import { OnEvent } from "@nestjs/event-emitter";
-import { CardCreatedEvent } from '../cards/events/card-created.event';
-import { CategoryCreatedEvent } from '../categories/events/category-created.event';
+import { CardCreatedEvent } from "../cards/events/card-created.event";
+import { CategoryCreatedEvent } from "../categories/events/category-created.event";
 
 @Injectable()
 export class TranslationService {
@@ -52,7 +52,7 @@ export class TranslationService {
 
     for (const card of cardsToProcess) {
       try {
-        let updatedCard = await this.translateCard(card, sourceLanguage, targetLanguages);
+        const updatedCard = await this.translateCard(card, sourceLanguage, targetLanguages);
         updatedCards.push(updatedCard);
       } catch (e) {
         this.logger.error(`Failed to translate card ${card.id}: ${e.message}`);
@@ -116,7 +116,7 @@ export class TranslationService {
     sourceLanguage?: AppLanguage,
     targetLanguages?: AppLanguage[]
   ): Promise<{ processed: number; updated: Category[] }> {
-    const allCategories = await this.categoriesService.findAll('', true);
+    const allCategories = await this.categoriesService.findAll("", true);
     const allLanguages = Object.values(AppLanguage);
 
     // Filter categories with at least one language but missing some translations

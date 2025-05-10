@@ -12,7 +12,7 @@ import {
   ClassSerializerInterceptor,
   UseInterceptors,
   ForbiddenException,
-} from '@nestjs/common';
+} from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from "@nestjs/swagger";
 import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -21,7 +21,7 @@ import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { UserResponseDto } from "./dto/user-response.dto";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { AdminGuard } from "../common/guards/admin.guard";
-import { CurrentUserData } from '../auth/strategies/jwt.strategy';
+import { CurrentUserData } from "../auth/strategies/jwt.strategy";
 
 @ApiTags("users")
 @Controller("users")
@@ -78,7 +78,7 @@ export class UsersController {
   async update(
     @Param("id") id: string,
     @Body() updateUserDto: UpdateUserDto,
-    @CurrentUser() currentUser: CurrentUserData,
+    @CurrentUser() currentUser: CurrentUserData
   ): Promise<UserResponseDto> {
     if (id !== currentUser.id && !currentUser.isAdmin) {
       throw new ForbiddenException("You can't update other user's data");
@@ -94,8 +94,7 @@ export class UsersController {
   @ApiOperation({ summary: "Delete a user" })
   @ApiResponse({ status: 204, description: "User deleted successfully" })
   @ApiResponse({ status: 404, description: "User not found" })
-  async remove(@Param("id") id: string,
-               @CurrentUser() currentUser: CurrentUserData): Promise<void> {
+  async remove(@Param("id") id: string, @CurrentUser() currentUser: CurrentUserData): Promise<void> {
     if (id !== currentUser.id && !currentUser.isAdmin) {
       throw new ForbiddenException("You can't delete other user's data");
     }
