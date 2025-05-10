@@ -49,7 +49,7 @@ export class User {
 
   @OneToMany(() => Category, category => category.user, {
     cascade: true,
-    onDelete: "CASCADE",
+    onDelete: "SET NULL",
   })
   privateCategories: Category[];
 }

@@ -47,7 +47,7 @@ import { session } from "telegraf";
         }
 
         const options: Record<string, any> = {
-          token: configService.get<string>("TELEGRAM_TEST_BOT_TOKEN"),
+          token: configService.get<string>("TELEGRAM_BOT_TOKEN"),
           middlewares: [redisSessionService.middleware()],
           include: [TelegramModule],
         };

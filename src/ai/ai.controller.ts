@@ -70,7 +70,7 @@ export class AIController {
     status: 403,
     description: "Forbidden - Admin access required",
   })
-  async startGame(@Body("description") description: any, @CurrentUser() user: CurrentUserData) {
+  async startGame(@Body("description") description: string, @CurrentUser() user: CurrentUserData) {
     return this.aiService.createCustomGame(description, user.id);
   }
 }
