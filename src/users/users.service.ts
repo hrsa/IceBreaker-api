@@ -3,7 +3,7 @@ import { User } from "./entities/user.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
-import * as bcrypt from "bcrypt";
+import * as argon2 from "argon2";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { generate } from "random-words";
 import { DonationReceivedEvent } from "../webhooks/events/donation-received.event";
@@ -29,7 +29,7 @@ export class UsersService {
       throw new BadRequestException("User already exists");
     }
 
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    const hashedPassword = await argon2.hash(createUserDto.password);
 
     const user = this.usersRepository.create({
       ...createUserDto,
@@ -108,7 +108,7 @@ export class UsersService {
     const user = await this.findOne(id);
 
     if (updateUserDto.password) {
-      updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
+      updateUserDto.password = await argon2.hash(updateUserDto.password);
     }
 
     this.usersRepository.merge(user, updateUserDto);
@@ -131,7 +131,7 @@ export class UsersService {
       throw new UnauthorizedException("Invalid credentials");
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await argon2.verify(user.password, password);
 
     if (!isPasswordValid) {
       throw new UnauthorizedException("Invalid credentials");
