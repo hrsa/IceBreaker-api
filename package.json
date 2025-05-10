@@ -1,10 +1,10 @@
 {
-  "name": "ice-breaker",
+  "name": "ice-melter",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
-  "private": true,
-  "license": "UNLICENSED",
+  "description": "IceMelter helps you spark meaningful conversations with anyone!",
+  "author": "Anton Cherednichenko",
+  "private": false,
+  "license": "CC-BY-NC-4.0",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -43,6 +43,7 @@
     "ioredis": "^5.6.1",
     "nestjs-i18n": "^10.5.1",
     "nestjs-telegraf": "^2.9.1",
+    "npm": "^11.3.0",
     "openai": "^4.98.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",

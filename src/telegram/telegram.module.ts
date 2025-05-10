@@ -37,6 +37,13 @@ import { AIModule } from '../ai/ai.module';
         token: configService.getOrThrow<string>("TELEGRAM_BOT_TOKEN"),
         middlewares: [redisSessionService.middleware()],
         include: [TelegramModule],
+        launchOptions: {
+          webhook: {
+            domain: configService.getOrThrow<string>("TELEGRAM_BOT_DOMAIN"),
+            port: configService.get<number>("TELEGRAM_BOT_PORT", 443),
+            hookPath: configService.get<string>("TELEGRAM_BOT_HOOK_PATH", "/tg-webhook"),
+          }
+        }
       }),
     }),
     BullModule.forRootAsync({

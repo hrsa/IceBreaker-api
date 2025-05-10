@@ -5,7 +5,7 @@ import { z } from "zod";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { CategoriesService } from "../categories/categories.service";
 import { CardsService } from "../cards/cards.service";
-import { AppLanguage } from "src/common/constants/app-language.enum";
+import { AppLanguage } from "../common/constants/app-language.enum";
 import { GameGenerationStoreService } from "./game-generation-store.service";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { GameGenerationCompletedEvent } from "./events/game-generation-completed.event";
