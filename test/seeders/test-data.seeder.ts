@@ -1,7 +1,7 @@
 import { DataSource } from "typeorm";
 import { User } from "../../src/users/entities/user.entity";
 import { Category } from "../../src/categories/entities/category.entity";
-import * as bcrypt from "bcrypt";
+import * as argon2 from "argon2";
 
 export const testUsers = {
   admin: {
@@ -53,8 +53,8 @@ export class TestDataSeeder {
 
   private async seedUsers(): Promise<void> {
     const userRepository = this.dataSource.getRepository(User);
-    const adminPassword = await bcrypt.hash(testUsers.admin.password, 10);
-    const userPassword = await bcrypt.hash(testUsers.user.password, 10);
+    const adminPassword = await argon2.hash(testUsers.admin.password);
+    const userPassword = await argon2.hash(testUsers.user.password);
 
     await userRepository.save([
       {
