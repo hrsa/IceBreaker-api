@@ -75,15 +75,15 @@ export class InitialMigration1745853629521 implements MigrationInterface {
     await queryRunner.query(`ALTER TABLE "suggestion"
       ADD CONSTRAINT "FK_7536b25ecdb34050f9d4b841fd0" FOREIGN KEY ("categoryId") REFERENCES "category" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
     await queryRunner.query(`ALTER TABLE "suggestion"
-      ADD CONSTRAINT "FK_bc709ea906afb2315940db65096" FOREIGN KEY ("userId") REFERENCES "user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+      ADD CONSTRAINT "FK_bc709ea906afb2315940db65096" FOREIGN KEY ("userId") REFERENCES "user" ("id") ON DELETE CASCADE ON UPDATE CASCADE`);
     await queryRunner.query(`ALTER TABLE "card"
-      ADD CONSTRAINT "FK_14973cece7b39a867065f6c3fda" FOREIGN KEY ("categoryId") REFERENCES "category" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+      ADD CONSTRAINT "FK_14973cece7b39a867065f6c3fda" FOREIGN KEY ("categoryId") REFERENCES "category" ("id") ON DELETE CASCADE ON UPDATE CASCADE`);
     await queryRunner.query(`ALTER TABLE "card_preference"
-      ADD CONSTRAINT "FK_54a038ef2f0aac3f1b3b33c9336" FOREIGN KEY ("profileId") REFERENCES "profile" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+      ADD CONSTRAINT "FK_54a038ef2f0aac3f1b3b33c9336" FOREIGN KEY ("profileId") REFERENCES "profile" ("id") ON DELETE CASCADE ON UPDATE CASCADE`);
     await queryRunner.query(`ALTER TABLE "card_preference"
-      ADD CONSTRAINT "FK_984734e01b62a9d58c5267ff89c" FOREIGN KEY ("cardId") REFERENCES "card" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+      ADD CONSTRAINT "FK_984734e01b62a9d58c5267ff89c" FOREIGN KEY ("cardId") REFERENCES "card" ("id") ON DELETE CASCADE ON UPDATE CASCADE`);
     await queryRunner.query(`ALTER TABLE "profile"
-      ADD CONSTRAINT "FK_a24972ebd73b106250713dcddd9" FOREIGN KEY ("userId") REFERENCES "user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+      ADD CONSTRAINT "FK_a24972ebd73b106250713dcddd9" FOREIGN KEY ("userId") REFERENCES "user" ("id") ON DELETE CASCADE ON UPDATE CASCADE`);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

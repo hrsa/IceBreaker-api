@@ -24,6 +24,7 @@ export class Suggestion {
 
   @ManyToOne(() => User, user => user.suggestions, {
     onDelete: "CASCADE",
+    onUpdate: "CASCADE",
   })
   @JoinColumn({ name: "userId" })
   user: User;

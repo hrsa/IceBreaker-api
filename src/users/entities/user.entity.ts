@@ -38,12 +38,14 @@ export class User {
   @OneToMany(() => Profile, profile => profile.user, {
     cascade: true,
     onDelete: "CASCADE",
+    onUpdate: "CASCADE"
   })
   profiles: Profile[];
 
   @OneToMany(() => Suggestion, suggestion => suggestion.user, {
     cascade: true,
     onDelete: "CASCADE",
+    onUpdate: "CASCADE"
   })
   suggestions: Suggestion[];
 

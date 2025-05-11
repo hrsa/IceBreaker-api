@@ -16,6 +16,7 @@ export class CardPreference {
 
   @ManyToOne(() => Profile, profile => profile.cardPreferences, {
     onDelete: "CASCADE",
+    onUpdate: "CASCADE"
   })
   @JoinColumn({ name: "profileId" })
   profile: Profile;
@@ -25,6 +26,7 @@ export class CardPreference {
 
   @ManyToOne(() => Card, card => card.profilePreferences, {
     onDelete: "CASCADE",
+    onUpdate: "CASCADE"
   })
   @JoinColumn({ name: "cardId" })
   card: Card;

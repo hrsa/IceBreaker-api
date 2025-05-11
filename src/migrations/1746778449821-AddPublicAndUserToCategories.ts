@@ -7,7 +7,7 @@ export class AddPublicAndUserToCategories1746778449821 implements MigrationInter
     await queryRunner.query(`ALTER TABLE "category" ADD "isPublic" boolean NOT NULL DEFAULT true`);
     await queryRunner.query(`ALTER TABLE "category" ADD "userId" uuid`);
     await queryRunner.query(
-      `ALTER TABLE "category" ADD CONSTRAINT "FK_32b856438dffdc269fa84434d9f" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE SET NULL ON UPDATE NO ACTION`
+      `ALTER TABLE "category" ADD CONSTRAINT "FK_32b856438dffdc269fa84434d9f" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE SET NULL ON UPDATE CASCADE`
     );
   }
 
