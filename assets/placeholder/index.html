@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IceMelter - Coming Soon</title>
+  <style>
+      body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          margin: 0;
+          padding: 0;
+          background-color: #f0f8ff;
+          color: #333;
+          line-height: 1.6;
+      }
+      .container {
+          max-width: 800px;
+          margin: 0 auto;
+          padding: 40px 20px;
+          text-align: center;
+      }
+      h1 {
+          color: #0066cc;
+          font-size: 2.5rem;
+          margin-bottom: 20px;
+      }
+      p {
+          font-size: 1.2rem;
+          margin-bottom: 30px;
+      }
+      .qr-container {
+          margin: 40px auto;
+          max-width: 350px;
+      }
+      .qr-code {
+          width: 100%;
+          height: auto;
+          cursor: pointer;
+          transition: transform 0.3s ease;
+          border-radius: 10px;
+      }
+      .qr-code:hover {
+          transform: scale(1.1);
+      }
+      .telegram-link {
+          display: inline-block;
+          margin-top: 20px;
+          padding: 12px 25px;
+          background-color: #0088cc;
+          color: white;
+          text-decoration: none;
+          border-radius: 30px;
+          font-weight: bold;
+          transition: background-color 0.3s ease;
+      }
+      .telegram-link:hover {
+          background-color: #006699;
+      }
+      .footer {
+          margin-top: 60px;
+          font-size: 0.9rem;
+          color: #666;
+      }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>IceMelter App</h1>
+  <p>Our website and application are coming soon!</p>
+
+  <p>In the meantime, you can use our Telegram bot to access all features:</p>
+
+  <div class="qr-container">
+    <a href="https://t.me/IceMelterBot" target="_blank">
+      <img src="https://ice-melter.s3.eu-north-1.amazonaws.com/telegram_qr.webp"
+           alt="QR Code for IceMelter Telegram Bot"
+           class="qr-code"
+           title="Scan to open Telegram bot">
+    </a>
+  </div>
+
+  <a href="https://t.me/IceMelterBot" class="telegram-link" target="_blank">
+    Open Telegram Bot
+  </a>
+
+  <div class="footer">
+    <p>Thank you for your interest in IceMelter!</p>
+  </div>
+</div>
+
+<script>
+  document.querySelector('.qr-code').addEventListener('click', function() {
+    window.open('https://t.me/IceMelterBot', '_blank');
+  });
+</script>
+</body>
+</html>
