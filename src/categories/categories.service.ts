@@ -45,6 +45,12 @@ export class CategoriesService {
     return query.getMany();
   }
 
+  async setUserId(id: string, userId: string): Promise<Category> {
+    const category = await this.findOne(id, "", true);
+    category.userId = userId;
+    return this.categoriesRepository.save(category);
+  }
+
   async findOne(id: string, userId?: string, isAdmin = false): Promise<Category> {
     let whereCondition: any[];
 

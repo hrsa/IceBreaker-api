@@ -28,7 +28,7 @@ export class AIService {
   }
 
   async translateText(text: string, targetLanguage: string): Promise<string> {
-    const systemPromptTemplate = Buffer.from(this.configService.getOrThrow<string>("TRANSLATOR_SYSTEM_PROMPT"), "base64").toString("ascii");
+    const systemPromptTemplate = Buffer.from(this.configService.getOrThrow<string>("TRANSLATION_PROMPT"), "base64").toString("ascii");
 
     const systemPrompt = systemPromptTemplate.replace("{{LANGUAGE}}", targetLanguage);
 
@@ -123,7 +123,6 @@ export class AIService {
           language: AppLanguage.ENGLISH,
           isPublic: false,
         },
-        userId
       );
       for (const cardData of generationData.cards) {
         await this.cardsService.create({
@@ -141,6 +140,8 @@ export class AIService {
         gameName: generationData.name_en,
         cardsCount: generationData.cards.length,
       });
+
+      await this.categoriesService.setUserId(category.id, userId);
 
       this.eventEmitter.emit("game.generation.completed", new GameGenerationCompletedEvent(userId, category.id));
 
