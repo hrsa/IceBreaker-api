@@ -1,4 +1,14 @@
-import { Controller, Post, UseGuards, Body, HttpCode, HttpStatus, ClassSerializerInterceptor, UseInterceptors } from "@nestjs/common";
+import {
+  Controller,
+  Post,
+  UseGuards,
+  Body,
+  HttpCode,
+  HttpStatus,
+  ClassSerializerInterceptor,
+  UseInterceptors,
+  Query,
+} from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
 import { LocalAuthGuard } from "./guards/local-auth.guard";
@@ -28,8 +38,8 @@ export class AuthController {
     return new UserResponseDto(user);
   }
 
-  @UseGuards(LocalAuthGuard)
   @Post("login")
+  @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Login with credentials" })
   @ApiBody({ type: LoginDto })
@@ -37,5 +47,31 @@ export class AuthController {
   @ApiResponse({ status: 401, description: "Unauthorized" })
   async login(@CurrentUser() user: CurrentUserData): Promise<TokenDto> {
     return this.authService.login(user);
+  }
+
+  @Post("password/forgot")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Request password reset" })
+  @ApiBody({ description: "Email of the user" })
+  async requestResetPassword(@Body() body: { email: string }) {
+    await this.authService.requestPasswordReset(body.email);
+    return (
+      {
+        message: "If you have an account, you will receive a link to reset your password via email.",
+      }
+    )
+  }
+
+  @Post("password/reset")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Reset password" })
+  @ApiBody({ description: "New password in body and token in the query" })
+  async resetPassword(@Body() body: { password: string }, @Query("token") token: string) {
+    await this.authService.resetPassword(token, body.password);
+    return (
+      {
+        message: "Your password has been reset. You can now log in.",
+      }
+    )
   }
 }
