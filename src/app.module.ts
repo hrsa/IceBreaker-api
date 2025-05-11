@@ -41,8 +41,9 @@ import { EmailModule } from './email/email.module';
     I18nModule.forRootAsync({
       useFactory: () => ({
         fallbackLanguage: "en",
+
         loaderOptions: {
-          path: join(__dirname, "/i18n/"),
+          path: join(__dirname, "./i18n/"),
         },
       }),
       resolvers: [{ use: QueryResolver, options: ["lang"] }, AcceptLanguageResolver, new HeaderResolver(["x-lang"])],

@@ -1,12 +1,10 @@
-import { getTestApp, TestSetup } from "./setup";
+import { getTestApp } from "./setup";
 import * as dotenv from "dotenv";
 
 dotenv.config({ path: ".env.test" });
 
 beforeAll(async () => {
-  await TestSetup.initializeTestDatabase();
   await getTestApp();
-
   jest.setTimeout(60000);
 });
 

@@ -1,6 +1,6 @@
 import { App } from "supertest/types";
 import { INestApplication } from "@nestjs/common";
-import { resetDatabase } from "./helpers/database.helper";
+import { migrateAndSeed } from "./helpers/database.helper";
 import { getTestApp } from "./config/setup";
 import { UserResponseDto } from "../src/users/dto/user-response.dto";
 import { TestClientHelper } from "./helpers/test-client.helper";
@@ -25,16 +25,11 @@ describe("Users API (e2e)", () => {
     app = (await getTestApp()) as INestApplication<App>;
     api = app.getHttpServer();
     client = new TestClientHelper(api);
-    await resetDatabase(app);
-  });
+    await migrateAndSeed(app);
+  }, 30000);
 
   afterAll(async () => {
-    await resetDatabase(app);
-    try {
-      await app.close();
-    } catch (e) {
-      console.error("Error closing app:", e);
-    }
+    await app.close();
   });
 
   it("creates a new user", async () => {

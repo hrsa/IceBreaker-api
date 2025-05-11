@@ -1,17 +1,17 @@
-import { TypeOrmModuleOptions } from "@nestjs/typeorm";
 import { join } from "path";
 import * as dotenv from "dotenv";
+import { DataSourceOptions } from 'typeorm';
 
 dotenv.config({ path: ".env.test" });
 
-export const testDatabaseConfig: TypeOrmModuleOptions = {
+export const testDataSourceOptions = {
   type: "postgres",
-  host: process.env.DB_HOST || "db",
-  port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 5432,
+  host: process.env.DB_HOST || "localhost",
+  port: parseInt(process.env.DB_PORT || "5432"),
   username: process.env.DB_USER || "postgres",
-  password: process.env.DB_PASSWORD || "",
-  database: process.env.DB_NAME || "test_icebreaker",
+  password: process.env.DB_PASSWORD || "postgres",
+  database: process.env.DB_NAME || "postgres",
   entities: [join(__dirname, "../../src/**/*.entity{.ts,.js}")],
-  synchronize: false,
-  dropSchema: false,
-};
+  migrations: [join(__dirname, "../../src/migrations/**/*{.ts,.js}")],
+  dropSchema: true,
+} as DataSourceOptions;

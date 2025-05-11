@@ -1,7 +1,7 @@
 import { INestApplication } from "@nestjs/common";
 import * as request from "supertest";
 import { App } from "supertest/types";
-import { resetDatabase } from "./helpers/database.helper";
+import { migrateAndSeed } from './helpers/database.helper';
 import { getTestApp } from "./config/setup";
 
 describe("AppController (e2e)", () => {
@@ -9,10 +9,10 @@ describe("AppController (e2e)", () => {
 
   beforeAll(async () => {
     app = await getTestApp();
-  });
+    await migrateAndSeed(app);
+  }, 30000);
 
   afterAll(async () => {
-    await resetDatabase(app);
     await app.close();
   });
 

@@ -1,16 +1,14 @@
 import { INestApplication } from "@nestjs/common";
 import { DataSource } from "typeorm";
-import { TestSetup } from "../config/setup";
 import { TestDataSeeder } from "../seeders/test-data.seeder";
 
-export async function resetDatabase(app: INestApplication): Promise<void> {
+export async function migrateAndSeed(app: INestApplication): Promise<void> {
   const dataSource = app.get(DataSource);
-  await TestSetup.resetDatabase(dataSource);
-  await seedTestData(app);
+  await dataSource.runMigrations();
+  await seedTestData(dataSource);
 }
 
-export async function seedTestData(app: INestApplication): Promise<void> {
-  const dataSource = app.get(DataSource);
+export async function seedTestData(dataSource: DataSource): Promise<void> {
   const seeder = new TestDataSeeder(dataSource);
   await seeder.seed();
 }
