@@ -61,6 +61,10 @@ export class UsersService {
   }
 
   async findByEmail(email: string): Promise<User> {
+    if (!email || email.length < 1) {
+      throw new BadRequestException("Email is required");
+    }
+
     const user = await this.usersRepository.findOne({
       where: { email },
     });
