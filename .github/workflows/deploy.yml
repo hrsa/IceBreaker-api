@@ -108,6 +108,7 @@ jobs:
           APP_PORT=${{ secrets.APP_PORT }}
           HOST=${{ secrets.HOST }}
           ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}
+          RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}
           DB_HOST=${{ secrets.DB_HOST }}
           DB_NAME=${{ secrets.DB_NAME }}
           DB_USER=${{ secrets.DB_USER }}
@@ -139,6 +140,7 @@ jobs:
           APP_PORT=${{ secrets.APP_PORT }}
           HOST=${{ secrets.HOST }}
           ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}
+          RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}
           DB_HOST=${{ secrets.DB_HOST }}
           DB_NAME=${{ secrets.DB_NAME }}
           DB_USER=${{ secrets.DB_USER }}
@@ -277,8 +279,12 @@ jobs:
           cat > .env << EOF
           APP_ENV=production
           APP_PORT=${{ secrets.APP_PORT }}
+          APP_URL=${{ secrets.APP_URL }}
+          LOGO_URL=${{ secrets.LOGO_URL }}
           HOST=${{ secrets.HOST }}
           ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}
+          RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}
+          EMAIL_FROM=${{ secrets.EMAIL_FROM }}
           DB_HOST=${{ secrets.DB_HOST }}
           DB_NAME=${{ secrets.DB_NAME }}
           DB_USER=${{ secrets.DB_USER }}

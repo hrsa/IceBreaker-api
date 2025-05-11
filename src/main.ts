@@ -3,9 +3,11 @@ import { AppModule } from "./app.module";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { ValidationPipe } from "@nestjs/common";
 import { getBotToken } from "nestjs-telegraf";
+import { join } from 'path';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -13,6 +15,9 @@ async function bootstrap() {
       transform: true,
     })
   );
+  app.useStaticAssets(join(__dirname, "..", "assets"), {
+    prefix: "/assets/",
+  });
 
   app.enableCors();
   const bot = app.get(getBotToken());

@@ -17,6 +17,7 @@ import { join } from "path";
 import { RedisSessionModule } from "./redis/redis-session.module";
 import { EventEmitterModule } from "@nestjs/event-emitter";
 import { WebhooksModule } from "./webhooks/webhooks.module";
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { WebhooksModule } from "./webhooks/webhooks.module";
     TelegramModule,
     RedisSessionModule,
     WebhooksModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [AppService],
