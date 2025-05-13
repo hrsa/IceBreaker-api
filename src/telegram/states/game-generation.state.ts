@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { Context } from "telegraf";
+import { Context, Markup } from 'telegraf';
 import { TelegramService } from "../telegram.service";
 import { BotState } from "./base.state";
 import { I18nService } from "nestjs-i18n";
@@ -12,7 +12,10 @@ export class GameGenerationState implements BotState {
   ) {}
 
   async handle(ctx: Context): Promise<void> {
+    const homeButton = Markup.inlineKeyboard([Markup.button.callback('🏠', 'card:change_profile')]);
+
     await this.telegramService.updateOrSendMessage(ctx, this.translate.t("telegram.generate.rules", { lang: ctx.session.language }), {
+      ...homeButton,
       parse_mode: "HTML",
     });
   }
