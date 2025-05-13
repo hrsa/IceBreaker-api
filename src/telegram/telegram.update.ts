@@ -313,6 +313,11 @@ export class TelegramUpdate {
     await state.handle(ctx);
   }
 
+  @Command("hello")
+  async sayHello(@Ctx() ctx: Context) {
+    await this.telegramService.sayHello(ctx);
+  }
+
   @On("text")
   async handleMessage(@Ctx() ctx: Context) {
     if (!ctx.session.step) {

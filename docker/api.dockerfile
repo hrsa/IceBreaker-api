@@ -1,6 +1,7 @@
 FROM node:24.0-alpine AS dev
 
 WORKDIR /app
+RUN apk add --no-cache curl nano
 
 CMD ["npm", "run", "start:debug"]
 

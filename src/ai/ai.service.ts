@@ -9,6 +9,8 @@ import { AppLanguage } from "../common/constants/app-language.enum";
 import { GameGenerationStoreService } from "./game-generation-store.service";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { GameGenerationCompletedEvent } from "./events/game-generation-completed.event";
+import * as path from 'node:path';
+import * as fs from 'node:fs';
 
 @Injectable()
 export class AIService {
@@ -52,6 +54,40 @@ export class AIService {
       this.logger.error(`Translation error: ${error.message}`, error.stack);
       throw new Error(`Failed to translate text: ${error.message}`);
     }
+  }
+
+  async sayHello(name: string, language: AppLanguage) {
+    let input: string;
+    switch (language) {
+      case "en":
+        input = `Hello, ${name}! It's been so long since we played!`;
+        break;
+      case "fr":
+        input = `Salut, ${name}! Cela faisait si longtemps qu'on n'avait pas joué !`;
+        break;
+      case "it":
+        input = `Ciao, ${name}! È passato così tanto tempo da quando abbiamo giocato!`;
+        break;
+      default:
+        input = `Привет, ${name}! Как давно мы не играли!`;
+        break;
+    }
+
+    const voiceInstructionsTemplate = Buffer.from(this.configService.getOrThrow<string>("HELLO_GENERATION_PROMPT"), "base64").toString("ascii");
+    const instructions = voiceInstructionsTemplate.replace("{{NAME}}", name);
+
+    const response = await this.openai.audio.speech.create({
+      model: "gpt-4o-mini-tts",
+      voice: "coral",
+      input,
+      instructions,
+    });
+
+    const audioBuffer = Buffer.from(await response.arrayBuffer());
+    const filename = `Hello-${name}-${Date.now()}.ogg`;
+    const tempFilePath = path.join(`/app/storage/${filename}`);
+    fs.writeFileSync(tempFilePath, audioBuffer);
+    return tempFilePath;
   }
 
   private async generateNewGameData(description: string, cardsData: string) {
@@ -116,14 +152,12 @@ export class AIService {
         return;
       }
 
-      const category = await this.categoriesService.create(
-        {
-          name: generationData.name_en,
-          description: generationData.description_en,
-          language: AppLanguage.ENGLISH,
-          isPublic: false,
-        },
-      );
+      const category = await this.categoriesService.create({
+        name: generationData.name_en,
+        description: generationData.description_en,
+        language: AppLanguage.ENGLISH,
+        isPublic: false,
+      });
       for (const cardData of generationData.cards) {
         await this.cardsService.create({
           question: cardData.question_en,

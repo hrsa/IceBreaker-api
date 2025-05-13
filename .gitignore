@@ -47,6 +47,10 @@ lerna-debug.log*
 #scripts
 add_secrets.sh
 
+#storage and logs
+/storage
+/logs
+
 # temp directory
 .temp
 .tmp

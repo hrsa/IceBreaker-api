@@ -28,6 +28,7 @@ import { InjectQueue } from "@nestjs/bullmq";
 import { Queue } from "bullmq";
 import { GameReadyToPlayEvent } from "../ai/events/game-ready-to-play.event";
 import { AIService } from "../ai/ai.service";
+import * as fs from "node:fs";
 
 @Injectable()
 export class TelegramService {
@@ -55,10 +56,22 @@ export class TelegramService {
 
   async setCommands(session?: TelegramSession) {
     const basicCommands = [
-      { command: "start", description: this.translate.t("telegram.commands.start.description", { lang: session?.language }) },
-      { command: "help", description: this.translate.t("telegram.commands.help.description", { lang: session?.language }) },
-      { command: "language", description: this.translate.t("telegram.commands.language.description", { lang: session?.language }) },
-      { command: "suggest", description: this.translate.t("telegram.commands.suggest.description", { lang: session?.language }) },
+      {
+        command: "start",
+        description: this.translate.t("telegram.commands.start.description", { lang: session?.language }),
+      },
+      {
+        command: "help",
+        description: this.translate.t("telegram.commands.help.description", { lang: session?.language }),
+      },
+      {
+        command: "language",
+        description: this.translate.t("telegram.commands.language.description", { lang: session?.language }),
+      },
+      {
+        command: "suggest",
+        description: this.translate.t("telegram.commands.suggest.description", { lang: session?.language }),
+      },
       {
         command: "delete_profile",
         description: this.translate.t("telegram.commands.delete_profile.description", { lang: session?.language }),
@@ -211,6 +224,21 @@ export class TelegramService {
     ctx.session.botMessageIds = ctx.session.botMessageIds.slice(-1);
   }
 
+  async sayHello(ctx: Context) {
+    if (!ctx.chat) {
+      return;
+    }
+    await this.deleteUserMessage(ctx);
+    const user = await this.usersService.findByTelegramId(ctx.chat.id.toString());
+    if (user) {
+      const helloFilepath = await this.aiService.sayHello(user.name, ctx.session.language);
+      const helloFile = fs.createReadStream(helloFilepath);
+      const voiceMessage = await this.bot.telegram.sendVoice(ctx.chat!.id, { source: helloFile });
+      this.trackMessage(ctx.session, voiceMessage.message_id, "");
+      fs.unlinkSync(helloFilepath);
+    }
+  }
+
   async registerNewUser(ctx: Context, name: string): Promise<void> {
     const telegramId = this.getTelegramId(ctx);
     if (!ctx.session.email) {
@@ -272,10 +300,17 @@ export class TelegramService {
     );
   }
 
-  getBuyCoffeeButton(language: AppLanguage) {
+  getBuyCoffeeButton(session: TelegramSession) {
+    let trackData: string;
+    if (session.email) {
+      trackData = Buffer.from(session.email).toString("base64");
+    } else {
+      trackData = Buffer.from("unknown user").toString("base64");
+    }
+
     return Markup.button.url(
-      this.translate.t("telegram.buttons.buy_me_a_coffee", { lang: language }),
-      this.configService.get<string>("BUY_COFFEE_LINK", "`https://ko-fi.com/anton_c`")
+      this.translate.t("telegram.buttons.buy_me_a_coffee", { lang: session.language }),
+      this.configService.getOrThrow<string>("APP_URL") + `/api/coffee?coffee=${trackData}`
     );
   }
 
@@ -326,7 +361,7 @@ export class TelegramService {
             "card:back_to_the_game"
           ),
         ],
-        [this.getBuyCoffeeButton(ctx.session.language)],
+        [this.getBuyCoffeeButton(ctx.session)],
       ])
     );
   }

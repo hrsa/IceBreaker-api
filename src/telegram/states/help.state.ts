@@ -39,7 +39,7 @@ export class HelpState implements BotState {
             "card:change_language"
           ),
         ],
-        [this.telegramService.getBuyCoffeeButton(ctx.session.language)],
+        [this.telegramService.getBuyCoffeeButton(ctx.session)],
       ])
     );
   }

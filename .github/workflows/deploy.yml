@@ -108,6 +108,7 @@ jobs:
           APP_PORT=${{ secrets.APP_PORT }}
           HOST=${{ secrets.HOST }}
           ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}
+          ADMIN_TELEGRAM_ID=${{ secrets.ADMIN_TELEGRAM_ID }}
           RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}
           DB_HOST=${{ secrets.DB_HOST }}
           DB_NAME=${{ secrets.DB_NAME }}
@@ -127,6 +128,7 @@ jobs:
           TELEGRAM_BOT_PORT=${{ secrets.TELEGRAM_BOT_PORT }}
           KOFI_VERIFICATION_TOKEN=${{ secrets.KOFI_VERIFICATION_TOKEN }}
           BUY_COFFEE_LINK=${{ secrets.BUY_COFFEE_LINK }}
+          HELLO_GENERATION_PROMPT=${{ secrets.HELLO_GENERATION_PROMPT }}
           GAME_GENERATION_PROMPT=${{ secrets.GAME_GENERATION_PROMPT }}
           TRANSLATION_PROMPT=${{ secrets.TRANSLATION_PROMPT }}
           OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}  
@@ -140,6 +142,7 @@ jobs:
           APP_PORT=${{ secrets.APP_PORT }}
           HOST=${{ secrets.HOST }}
           ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}
+          ADMIN_TELEGRAM_ID=${{ secrets.ADMIN_TELEGRAM_ID }}
           RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}
           DB_HOST=${{ secrets.DB_HOST }}
           DB_NAME=${{ secrets.DB_NAME }}
@@ -159,6 +162,7 @@ jobs:
           TELEGRAM_BOT_PORT=${{ secrets.TELEGRAM_BOT_PORT }}
           KOFI_VERIFICATION_TOKEN=${{ secrets.KOFI_VERIFICATION_TOKEN }}
           BUY_COFFEE_LINK=${{ secrets.BUY_COFFEE_LINK }}
+          HELLO_GENERATION_PROMPT=${{ secrets.HELLO_GENERATION_PROMPT }}
           GAME_GENERATION_PROMPT=${{ secrets.GAME_GENERATION_PROMPT }}
           TRANSLATION_PROMPT=${{ secrets.TRANSLATION_PROMPT }}
           OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
@@ -283,6 +287,7 @@ jobs:
           LOGO_URL=${{ secrets.LOGO_URL }}
           HOST=${{ secrets.HOST }}
           ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}
+          ADMIN_TELEGRAM_ID=${{ secrets.ADMIN_TELEGRAM_ID }}
           RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}
           EMAIL_FROM=${{ secrets.EMAIL_FROM }}
           DB_HOST=${{ secrets.DB_HOST }}
@@ -303,6 +308,7 @@ jobs:
           TELEGRAM_BOT_PORT=${{ secrets.TELEGRAM_BOT_PORT }}
           KOFI_VERIFICATION_TOKEN=${{ secrets.KOFI_VERIFICATION_TOKEN }}
           BUY_COFFEE_LINK=${{ secrets.BUY_COFFEE_LINK }}
+          HELLO_GENERATION_PROMPT=${{ secrets.HELLO_GENERATION_PROMPT }}
           GAME_GENERATION_PROMPT=${{ secrets.GAME_GENERATION_PROMPT }}
           TRANSLATION_PROMPT=${{ secrets.TRANSLATION_PROMPT }}
           OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}  
