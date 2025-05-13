@@ -4,7 +4,7 @@ import { CategoriesService } from "../categories/categories.service";
 import { AIService } from "./ai.service";
 import { Card } from "../cards/entities/card.entity";
 import { Category } from "../categories/entities/category.entity";
-import { AppLanguage } from "../common/constants/app-language.enum";
+import { AppLanguage, languageMap } from "../common/constants/app-language.enum";
 import { LanguageUtilsService } from "../common/utils/language-utils.service";
 import { OnEvent } from "@nestjs/event-emitter";
 import { CardCreatedEvent } from "../cards/events/card-created.event";
@@ -14,13 +14,6 @@ import { CategoryCreatedEvent } from "../categories/events/category-created.even
 export class TranslationService {
   private readonly logger = new Logger(TranslationService.name);
   private readonly allLanguages = Object.values(AppLanguage);
-
-  private readonly languageMap = {
-    [AppLanguage.ENGLISH]: "English",
-    [AppLanguage.RUSSIAN]: "Russian",
-    [AppLanguage.FRENCH]: "French",
-    [AppLanguage.ITALIAN]: "Italian",
-  };
 
   constructor(
     private cardsService: CardsService,
@@ -93,7 +86,7 @@ export class TranslationService {
       try {
         this.logger.log(`Translating card ${card.id} from ${effectiveSourceLanguage} to ${targetLang}...`);
 
-        const translatedText = await this.AIService.translateText(sourceText, this.languageMap[targetLang]);
+        const translatedText = await this.AIService.translateText(sourceText, languageMap[targetLang]);
 
         const updateDto = {
           question: translatedText,
@@ -206,7 +199,7 @@ export class TranslationService {
       try {
         this.logger.log(`Translating category ${category.id} ${propertyPrefix} from ${effectiveSourceLanguage} to ${targetLang}...`);
 
-        const translatedText = await this.AIService.translateText(sourceText, this.languageMap[targetLang]);
+        const translatedText = await this.AIService.translateText(sourceText, languageMap[targetLang]);
 
         const updateDto: any = {
           language: targetLang,

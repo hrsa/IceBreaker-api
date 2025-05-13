@@ -5,7 +5,7 @@ import { z } from "zod";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { CategoriesService } from "../categories/categories.service";
 import { CardsService } from "../cards/cards.service";
-import { AppLanguage } from "../common/constants/app-language.enum";
+import { AppLanguage, languageMap } from '../common/constants/app-language.enum';
 import { GameGenerationStoreService } from "./game-generation-store.service";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { GameGenerationCompletedEvent } from "./events/game-generation-completed.event";
@@ -32,6 +32,7 @@ export class AIService {
   async translateText(text: string, targetLanguage: string): Promise<string> {
     const systemPromptTemplate = Buffer.from(this.configService.getOrThrow<string>("TRANSLATION_PROMPT"), "base64").toString("ascii");
 
+
     const systemPrompt = systemPromptTemplate.replace("{{LANGUAGE}}", targetLanguage);
 
     try {
@@ -56,29 +57,51 @@ export class AIService {
     }
   }
 
+  async getGreeting(name: string, language: AppLanguage) {
+
+    const promptTemplate = Buffer.from(this.configService.getOrThrow<string>("GREETING_PROMPT"), "base64").toString("ascii");
+
+    let prompt = promptTemplate.replace("{{NAME}}", name);
+    prompt = prompt.replace("{{LANGUAGE}}", languageMap[language]);
+
+    const response = await this.openai.chat.completions.create({
+      model: "o4-mini-2025-04-16",
+      messages: [
+        {
+          role: "system",
+          content: prompt,
+        }
+      ]
+    });
+    return response.choices[0].message.content;
+  }
+
   async sayHello(name: string, language: AppLanguage) {
-    let input: string;
-    switch (language) {
-      case "en":
-        input = `Hello, ${name}! It's been so long since we played!`;
-        break;
-      case "fr":
-        input = `Salut, ${name}! Cela faisait si longtemps qu'on n'avait pas joué !`;
-        break;
-      case "it":
-        input = `Ciao, ${name}! È passato così tanto tempo da quando abbiamo giocato!`;
-        break;
-      default:
-        input = `Привет, ${name}! Как давно мы не играли!`;
-        break;
+    let input = await this.getGreeting(name, language);
+
+    if (!input) {
+      switch (language) {
+        case 'en':
+          input = `Hello, ${name}! It's been so long since we played!`;
+          break;
+        case 'fr':
+          input = `Salut, ${name}! Cela faisait si longtemps qu'on n'avait pas joué !`;
+          break;
+        case 'it':
+          input = `Ciao, ${name}! È passato così tanto tempo da quando abbiamo giocato!`;
+          break;
+        default:
+          input = `Привет, ${name}! Как давно мы не играли!`;
+          break;
+      }
     }
 
-    const voiceInstructionsTemplate = Buffer.from(this.configService.getOrThrow<string>("HELLO_GENERATION_PROMPT"), "base64").toString("ascii");
-    const instructions = voiceInstructionsTemplate.replace("{{NAME}}", name);
+    let instructions = Buffer.from(this.configService.getOrThrow<string>("HELLO_GENERATION_PROMPT"), "base64").toString("ascii");
+    instructions = instructions.replace("{{NAME}}", name);
 
     const response = await this.openai.audio.speech.create({
       model: "gpt-4o-mini-tts",
-      voice: "coral",
+      voice: "sage",
       input,
       instructions,
     });

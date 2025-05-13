@@ -8,4 +8,11 @@ export enum AppLanguage {
   ITALIAN = "it",
 }
 
+export const languageMap = {
+  [AppLanguage.ENGLISH]: "English",
+  [AppLanguage.RUSSIAN]: "Russian",
+  [AppLanguage.FRENCH]: "French",
+  [AppLanguage.ITALIAN]: "Italian",
+};
+
 export type EntityWithLanguageProperties = Card | Category;
