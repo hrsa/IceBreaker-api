@@ -21,6 +21,7 @@ export class Card {
 
   @ManyToOne(() => Category, category => category.cards, {
     onDelete: "CASCADE",
+    onUpdate: "CASCADE",
   })
   @JoinColumn({ name: "categoryId" })
   category: Category;
