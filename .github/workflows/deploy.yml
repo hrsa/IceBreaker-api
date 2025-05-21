@@ -23,58 +23,58 @@ env:
   VERSION: ${{ github.event.inputs.environment || 'production' }}-${{ github.sha }}
 
 jobs:
-  #  build-frontend:
-  #    name: Build Frontend
-  #    runs-on: ubuntu-latest
-  #    outputs:
-  #      cache-key: ${{ steps.cache-key.outputs.key }}
-  #
-  #    steps:
-  #      - name: Generate unique cache key
-  #        id: cache-key
-  #        run: echo "key=frontend-${{ github.sha }}-${{ github.run_id }}" >> $GITHUB_OUTPUT
-  #
-  #      - name: Checkout frontend repository
-  #        uses: actions/checkout@v4
-  #        with:
-  #          repository: hrsa/IceBreaker-frontend
-  #          path: 'frontend'
-  #          token: ${{ secrets.GH_FRONTEND_PAT }}
-  #
-  #      - name: Set up Node.js
-  #        uses: actions/setup-node@v4
-  #        with:
-  #          node-version: '24'
-  #          cache: 'npm'
-  #          cache-dependency-path: 'frontend/package-lock.json'
-  #
-  #      - name: Create frontend .env file
-  #        run: |
-  #          echo "APP_ENV=${{ github.event.inputs.environment || 'production' }}" > frontend/.env
-  #
-  #      - name: Install frontend dependencies
-  #        working-directory: frontend
-  #        run: npm ci
-  #
-  #      - name: Build frontend
-  #        working-directory: frontend
-  #        run: npx expo export --clear
-  #
-  #      - name: Cache frontend build
-  #        uses: actions/cache@v4
-  #        with:
-  #          path: frontend/dist
-  #          key: ${{ steps.cache-key.outputs.key }}
+  build-frontend:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+    outputs:
+      cache-key: ${{ steps.cache-key.outputs.key }}
+
+    steps:
+      - name: Generate unique cache key
+        id: cache-key
+        run: echo "key=frontend-${{ github.sha }}-${{ github.run_id }}" >> $GITHUB_OUTPUT
+
+      - name: Checkout frontend repository
+        uses: actions/checkout@v4
+        with:
+          repository: hrsa/IceBreaker-frontend
+          path: 'frontend'
+          token: ${{ secrets.GH_FRONTEND_PAT }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
+
+      - name: Create frontend .env file
+        run: |
+          echo "APP_ENV=${{ github.event.inputs.environment || 'production' }}" > frontend/.env
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npx expo export --clear
+
+      - name: Cache frontend build
+        uses: actions/cache@v4
+        with:
+          path: frontend/dist
+          key: ${{ steps.cache-key.outputs.key }}
 
   build-backend:
     name: Build and Test Backend
     runs-on: ubuntu-latest
-    #    needs: build-frontend
+    needs: build-frontend
     outputs:
       api-image: ${{ env.DOCKER_HUB_USERNAME }}/icemelter-api:${{ env.VERSION }}
       nginx-image: ${{ env.DOCKER_HUB_USERNAME }}/icemelter-nginx:${{ env.VERSION }}
       nginx-no-ssl-image: ${{ env.DOCKER_HUB_USERNAME }}/icemelter-nginx-no-ssl:${{ env.VERSION }}
-    
+
     steps:
       - name: Checkout main repository
         uses: actions/checkout@v4
@@ -89,16 +89,16 @@ jobs:
           cache-dependency-path: 'backend/package-lock.json'
 
 
-      #      - name: Restore frontend build
-      #        uses: actions/cache@v4
-      #        with:
-      #          path: frontend/dist
-      #          key: ${{ needs.build-frontend.outputs.cache-key }}
+      - name: Restore frontend build
+        uses: actions/cache@v4
+        with:
+          path: frontend/dist
+          key: ${{ needs.build-frontend.outputs.cache-key }}
 
-      #      - name: Copy dist folder to backend
-      #        run: |
-      #          mkdir -p backend/dist
-      #          cp -r frontend/dist/* backend/dist/
+      - name: Copy dist folder to backend
+        run: |
+          mkdir -p backend/frontend/dist
+          cp -r frontend/dist/* backend/frontend/dist/
 
       - name: Create backend .env file
         working-directory: backend

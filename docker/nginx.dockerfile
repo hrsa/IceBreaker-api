@@ -16,8 +16,7 @@ RUN sed -i "s/user nginx/user '${USER}'/g" /etc/nginx/nginx.conf
 RUN rm /etc/nginx/conf.d/default.conf
 
 FROM base AS copy
-#COPY dist/ /usr/share/nginx/html/
-COPY assets/placeholder /usr/share/nginx/html/
+COPY frontend/dist/ /usr/share/nginx/html/
 
 FROM copy AS prod
 COPY docker/nginx-prod.conf /etc/nginx/conf.d/default.conf

@@ -8,7 +8,7 @@ export class EmailTemplatesService {
   private readonly appUrl: string;
   private readonly logoUrl: string;
   private readonly adminEmail: string;
-  private readonly primaryColor: string = '#4F86F7'; // Ice blue color
+  private readonly primaryColor: string = '#4F86F7';
   private readonly secondaryColor: string = '#333333';
   private readonly backgroundColor: string = '#f7f7f9';
 
