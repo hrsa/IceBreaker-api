@@ -60,7 +60,7 @@ export class AuthService {
     const passwordReset = this.resetRepository.create({ token, userId: user.id, expiresAt });
     await this.resetRepository.save(passwordReset);
 
-    const data = {resetLink: `https://${this.configService.get("HOST")}/auth/password/reset?token=${token}`} as PasswordResetData;
+    const data = {resetLink: `https://${this.configService.get("HOST")}/password_change?token=${token}`} as PasswordResetData;
     const event = new SendEmailEvent<"change-password">("change-password", user.email, data);
 
     this.eventEmitter.emit("send.email", event);
