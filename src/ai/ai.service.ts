@@ -127,7 +127,7 @@ export class AIService {
 
     const prompt = systemPrompt + cardsData;
     try {
-      const response = await this.openai.beta.chat.completions.parse({
+      const response = await this.openai.chat.completions.parse({
         model: "gpt-4.1-2025-04-14",
         messages: [
           { role: "system", content: prompt },
