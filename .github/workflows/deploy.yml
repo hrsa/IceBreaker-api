@@ -132,7 +132,17 @@ jobs:
           HELLO_GENERATION_PROMPT=${{ secrets.HELLO_GENERATION_PROMPT }}
           GAME_GENERATION_PROMPT=${{ secrets.GAME_GENERATION_PROMPT }}
           TRANSLATION_PROMPT=${{ secrets.TRANSLATION_PROMPT }}
-          OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}  
+          OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+          BACKUP_UPLOAD_PROVIDER=${{ secrets.BACKUP_UPLOAD_PROVIDER }}
+          BACKUP_UPLOAD_DIRECTORY=${{ secrets.BACKUP_UPLOAD_DIRECTORY }}
+          BACKUP_RETENTION_DAYS=${{ secrets.BACKUP_RETENTION_DAYS }}
+          GOOGLE_DRIVE_CREDENTIALS=${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}
+          GOOGLE_DRIVE_FOLDER_ID=${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
+          AWS_S3_BUCKET_NAME=${{ secrets.AWS_S3_BUCKET_NAME }}
+          AWS_S3_BASE_PREFIX=${{ secrets.AWS_S3_BASE_PREFIX }}
+          AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION=${{ secrets.AWS_REGION }}
           EOF
 
       - name: Create backend env.test file
@@ -168,6 +178,16 @@ jobs:
           GAME_GENERATION_PROMPT=${{ secrets.GAME_GENERATION_PROMPT }}
           TRANSLATION_PROMPT=${{ secrets.TRANSLATION_PROMPT }}
           OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+          BACKUP_UPLOAD_PROVIDER=${{ secrets.BACKUP_UPLOAD_PROVIDER }}
+          BACKUP_UPLOAD_DIRECTORY=${{ secrets.BACKUP_UPLOAD_DIRECTORY }}
+          BACKUP_RETENTION_DAYS=${{ secrets.BACKUP_RETENTION_DAYS }}
+          GOOGLE_DRIVE_CREDENTIALS=${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}
+          GOOGLE_DRIVE_FOLDER_ID=${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
+          AWS_S3_BUCKET_NAME=${{ secrets.AWS_S3_BUCKET_NAME }}
+          AWS_S3_BASE_PREFIX=${{ secrets.AWS_S3_BASE_PREFIX }}
+          AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION=${{ secrets.AWS_REGION }}
           EOF
 
       - name: Set up Docker Buildx
@@ -314,8 +334,27 @@ jobs:
           HELLO_GENERATION_PROMPT=${{ secrets.HELLO_GENERATION_PROMPT }}
           GAME_GENERATION_PROMPT=${{ secrets.GAME_GENERATION_PROMPT }}
           TRANSLATION_PROMPT=${{ secrets.TRANSLATION_PROMPT }}
-          OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}  
+          OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+          BACKUP_UPLOAD_PROVIDER=${{ secrets.BACKUP_UPLOAD_PROVIDER }}
+          BACKUP_UPLOAD_DIRECTORY=${{ secrets.BACKUP_UPLOAD_DIRECTORY }}
+          BACKUP_RETENTION_DAYS=${{ secrets.BACKUP_RETENTION_DAYS }}
+          GOOGLE_DRIVE_CREDENTIALS=${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}
+          GOOGLE_DRIVE_FOLDER_ID=${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
+          AWS_S3_BUCKET_NAME=${{ secrets.AWS_S3_BUCKET_NAME }}
+          AWS_S3_BASE_PREFIX=${{ secrets.AWS_S3_BASE_PREFIX }}
+          AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION=${{ secrets.AWS_REGION }}
           EOF
+
+      - name: Prepare backup script
+        run: |
+          cd backend
+          sed -i "s|{{BACKUP_UPLOAD_DIRECTORY}}|${{ secrets.BACKUP_UPLOAD_DIRECTORY }}|g" backup-and-upload.sh
+          sed -i "s|{{DB_USER}}|${{ secrets.DB_USER }}|g" backup-and-upload.sh
+          sed -i "s|{{DB_NAME}}|${{ secrets.DB_NAME }}|g" backup-and-upload.sh
+          chmod +x backup-and-upload.sh
+
 
       - name: Create an SSH key
         run: |
@@ -323,11 +362,12 @@ jobs:
           echo "${{ env.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-      - name: Copy docker-compose and .env files to the server
+      - name: Copy backup script, docker-compose and .env files to the server
         working-directory: backend
         run: |
           scp -o StrictHostKeyChecking=no .env ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }}:/var/www
           scp -o StrictHostKeyChecking=no docker-compose-prod.yml ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }}:/var/www
+          scp -o StrictHostKeyChecking=no backup-and-upload.sh ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }}:/var/www
 
       - name: Deploy to server
         uses: appleboy/ssh-action@master

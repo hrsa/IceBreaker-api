@@ -4,6 +4,8 @@ networks:
 volumes:
   postgres_data:
     driver: local
+  backup_data:
+    driver: local
   redis_data:
     driver: local
   certbot_letsencrypt_data:
@@ -108,6 +110,7 @@ services:
       - "127.0.0.1:3000:3000"
     volumes:
       - app_storage:/app/storage
+      - backup_data:/app/backups
       - logs:/app/logs
       - .env:/app/.env
     networks:
@@ -141,6 +144,7 @@ services:
       - icemelter_network
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - backup_data:/backups
 
   redis:
     image: redis:7.4.3
