@@ -18,6 +18,8 @@ import { RedisSessionModule } from "./redis/redis-session.module";
 import { EventEmitterModule } from "@nestjs/event-emitter";
 import { WebhooksModule } from "./webhooks/webhooks.module";
 import { EmailModule } from './email/email.module';
+import { BackupsModule } from './backups/backups.module';
+import { BackupCommand } from './commands/backup.command';
 
 @Module({
   imports: [
@@ -62,8 +64,9 @@ import { EmailModule } from './email/email.module';
     RedisSessionModule,
     WebhooksModule,
     EmailModule,
+    BackupsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, BackupCommand],
 })
 export class AppModule {}
