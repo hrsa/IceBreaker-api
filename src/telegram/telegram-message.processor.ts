@@ -2,7 +2,7 @@ import { Processor, WorkerHost } from "@nestjs/bullmq";
 import { Logger } from "@nestjs/common";
 import { InjectBot } from "nestjs-telegraf";
 import { Context, Telegraf } from "telegraf";
-import { RedisSessionService } from "../redis/redis-session.middleware";
+import { RedisSessionService } from "../redis-session/redis-session.middleware";
 import { Message } from "telegraf/typings/core/types/typegram";
 import { TelegramSession } from "./interfaces/telegram-session.interface";
 import { Job } from "bullmq";

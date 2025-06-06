@@ -14,12 +14,13 @@ import { AIModule } from "./ai/ai.module";
 import { TelegramModule } from "./telegram/telegram.module";
 import { AcceptLanguageResolver, HeaderResolver, I18nModule, QueryResolver } from "nestjs-i18n";
 import { join } from "path";
-import { RedisSessionModule } from "./redis/redis-session.module";
+import { RedisSessionModule } from "./redis-session/redis-session.module";
 import { EventEmitterModule } from "@nestjs/event-emitter";
 import { WebhooksModule } from "./webhooks/webhooks.module";
 import { EmailModule } from './email/email.module';
 import { BackupsModule } from './backups/backups.module';
 import { BackupCommand } from './commands/backup.command';
+import { RedisPubSubModule } from './redis-pub-sub/redis-pub-sub.module';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { BackupCommand } from './commands/backup.command';
     WebhooksModule,
     EmailModule,
     BackupsModule,
+    RedisPubSubModule,
   ],
   controllers: [AppController],
   providers: [AppService, BackupCommand],

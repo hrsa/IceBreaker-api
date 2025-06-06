@@ -14,7 +14,7 @@ import { AuthModule } from '../../src/auth/auth.module';
 import { SuggestionsModule } from '../../src/suggestions/suggestions.module';
 import { AIModule } from '../../src/ai/ai.module';
 import { MockTelegramModule } from './mocks/mock-telegram-module';
-import { RedisSessionModule } from '../../src/redis/redis-session.module';
+import { RedisSessionModule } from '../../src/redis-session/redis-session.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { WebhooksModule } from '../../src/webhooks/webhooks.module';
 import { testDataSourceOptions } from './test-database.config';

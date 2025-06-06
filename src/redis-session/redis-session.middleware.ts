@@ -10,7 +10,7 @@ import { UserCreditsUpdatedEvent } from "../users/events/user-credits-updated.ev
 
 @Injectable()
 export class RedisSessionService {
-  private redisClient: Redis;
+  private readonly redisClient: Redis;
   private readonly ttl: number;
   private readonly logger = new Logger(RedisSessionService.name);
 

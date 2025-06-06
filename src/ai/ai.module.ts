@@ -7,7 +7,7 @@ import { AIController } from "./ai.controller";
 import { LanguageUtilsModule } from "../common/utils/language-utils.module";
 import { CategoriesModule } from "../categories/categories.module";
 import { GameGenerationStoreService } from "./game-generation-store.service";
-import { RedisSessionModule } from "../redis/redis-session.module";
+import { RedisSessionModule } from "../redis-session/redis-session.module";
 
 @Module({
   imports: [ConfigModule, CardsModule, CategoriesModule, LanguageUtilsModule, RedisSessionModule],

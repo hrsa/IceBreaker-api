@@ -6,18 +6,20 @@ import { Suggestion } from "./entities/suggestion.entity";
 import { Repository } from "typeorm";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { TelegramMessageEvent } from "../telegram/events/telegram-message.event";
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class SuggestionsService {
   constructor(
     @InjectRepository(Suggestion)
     private suggestionsRepository: Repository<Suggestion>,
-    private eventEmitter: EventEmitter2
+    private eventEmitter: EventEmitter2,
+    private readonly configService: ConfigService
   ) {}
 
   create(createSuggestionDto: CreateSuggestionDto) {
     const suggestion = this.suggestionsRepository.create(createSuggestionDto);
-    this.eventEmitter.emit("telegram.message", new TelegramMessageEvent("50539361", "New suggestion: " + suggestion.question));
+    this.eventEmitter.emit("telegram.message", new TelegramMessageEvent(this.configService.getOrThrow<string>("ADMIN_TELEGRAM_ID"), "New suggestion: " + suggestion.question));
     return this.suggestionsRepository.save(suggestion);
   }
 

@@ -21,7 +21,7 @@ import { CardPreference, CardStatus } from "../card-preferences/entitites/card-p
 import { ConfigService } from "@nestjs/config";
 import { OnEvent } from "@nestjs/event-emitter";
 import { TelegramSession } from "./interfaces/telegram-session.interface";
-import { RedisSessionService } from "../redis/redis-session.middleware";
+import { RedisSessionService } from "../redis-session/redis-session.middleware";
 import { UserCreditsUpdatedEvent } from "../users/events/user-credits-updated.event";
 import { TelegramMessageEvent } from "./events/telegram-message.event";
 import { InjectQueue } from "@nestjs/bullmq";
