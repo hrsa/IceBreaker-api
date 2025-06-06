@@ -9,7 +9,7 @@ import { PasswordReset } from "./entities/password-reset.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ConfigService } from "@nestjs/config";
 import { EventEmitter2 } from "@nestjs/event-emitter";
-import { PasswordResetData, SendEmailEvent } from '../email/events/send-email.event';
+import { PasswordResetData, SendEmailEvent } from "../email/events/send-email.event";
 
 @Injectable()
 export class AuthService {
@@ -39,10 +39,7 @@ export class AuthService {
   }
 
   private generatePasswordResetToken(): string {
-    return this.jwtService.sign(
-      { timestamp: Date.now() },
-      { expiresIn: '24h', secret: this.configService.get('JWT_SECRET') }
-    );
+    return this.jwtService.sign({ timestamp: Date.now() }, { expiresIn: "24h", secret: this.configService.get("JWT_SECRET") });
   }
 
   async requestPasswordReset(email: string) {
@@ -60,7 +57,7 @@ export class AuthService {
     const passwordReset = this.resetRepository.create({ token, userId: user.id, expiresAt });
     await this.resetRepository.save(passwordReset);
 
-    const data = {resetLink: `https://${this.configService.get("HOST")}/password_change?token=${token}`} as PasswordResetData;
+    const data = { resetLink: `https://${this.configService.get("HOST")}/password_change?token=${token}` } as PasswordResetData;
     const event = new SendEmailEvent<"change-password">("change-password", user.email, data);
 
     this.eventEmitter.emit("send.email", event);
@@ -72,9 +69,9 @@ export class AuthService {
     });
 
     if (!resetRecord || resetRecord.expiresAt < new Date() || resetRecord.used) {
-      throw new UnauthorizedException('Invalid or expired reset token');
+      throw new UnauthorizedException("Invalid or expired reset token");
     }
-    await this.usersService.update(resetRecord.userId, {password: newPassword});
+    await this.usersService.update(resetRecord.userId, { password: newPassword });
 
     resetRecord.used = true;
     await this.resetRepository.save(resetRecord);

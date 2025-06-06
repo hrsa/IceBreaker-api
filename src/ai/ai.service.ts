@@ -5,12 +5,12 @@ import { z } from "zod";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { CategoriesService } from "../categories/categories.service";
 import { CardsService } from "../cards/cards.service";
-import { AppLanguage, languageMap } from '../common/constants/app-language.enum';
+import { AppLanguage, languageMap } from "../common/constants/app-language.enum";
 import { GameGenerationStoreService } from "./game-generation-store.service";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { GameGenerationCompletedEvent } from "./events/game-generation-completed.event";
-import * as path from 'node:path';
-import * as fs from 'node:fs';
+import * as path from "node:path";
+import * as fs from "node:fs";
 
 @Injectable()
 export class AIService {
@@ -31,7 +31,6 @@ export class AIService {
 
   async translateText(text: string, targetLanguage: string): Promise<string> {
     const systemPromptTemplate = Buffer.from(this.configService.getOrThrow<string>("TRANSLATION_PROMPT"), "base64").toString("ascii");
-
 
     const systemPrompt = systemPromptTemplate.replace("{{LANGUAGE}}", targetLanguage);
 
@@ -58,7 +57,6 @@ export class AIService {
   }
 
   async getGreeting(name: string, language: AppLanguage) {
-
     const promptTemplate = Buffer.from(this.configService.getOrThrow<string>("GREETING_PROMPT"), "base64").toString("ascii");
 
     let prompt = promptTemplate.replace("{{NAME}}", name);
@@ -70,8 +68,8 @@ export class AIService {
         {
           role: "system",
           content: prompt,
-        }
-      ]
+        },
+      ],
     });
     return response.choices[0].message.content;
   }
@@ -81,13 +79,13 @@ export class AIService {
 
     if (!input) {
       switch (language) {
-        case 'en':
+        case "en":
           input = `Hello, ${name}! It's been so long since we played!`;
           break;
-        case 'fr':
+        case "fr":
           input = `Salut, ${name}! Cela faisait si longtemps qu'on n'avait pas joué !`;
           break;
-        case 'it':
+        case "it":
           input = `Ciao, ${name}! È passato così tanto tempo da quando abbiamo giocato!`;
           break;
         default:

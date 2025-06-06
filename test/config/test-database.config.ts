@@ -1,6 +1,6 @@
 import { join } from "path";
 import * as dotenv from "dotenv";
-import { DataSourceOptions } from 'typeorm';
+import { DataSourceOptions } from "typeorm";
 
 dotenv.config({ path: ".env.test" });
 

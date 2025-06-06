@@ -2,8 +2,8 @@ import { Injectable, Logger } from "@nestjs/common";
 import { CleanupResult, CloudFile, UploadProvider, UploadResult } from "../interfaces/upload-provider.interface";
 import { DeleteObjectCommand, ListObjectsV2Command, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { ConfigService } from "@nestjs/config";
-import { createReadStream, statSync } from 'fs';
-import { basename } from 'path';
+import { createReadStream, statSync } from "fs";
+import { basename } from "path";
 
 @Injectable()
 export class S3Provider implements UploadProvider {
@@ -36,12 +36,12 @@ export class S3Provider implements UploadProvider {
   async upload(filePath: string, fileName?: string, remoteDirectory?: string): Promise<UploadResult> {
     try {
       if (!this.s3Client || !this.bucketName) {
-        throw new Error('S3 not properly configured');
+        throw new Error("S3 not properly configured");
       }
 
       let key = this.basePrefix;
       if (remoteDirectory) {
-        key += `/${remoteDirectory}`
+        key += `/${remoteDirectory}`;
       }
       key += `/${fileName || basename(filePath)}`;
       const fileStream = createReadStream(filePath);
@@ -53,10 +53,10 @@ export class S3Provider implements UploadProvider {
         Bucket: this.bucketName,
         Key: key,
         Body: fileStream,
-        ContentType: 'application/octet-stream',
+        ContentType: "application/octet-stream",
         Metadata: {
-          'upload-date': new Date().toISOString(),
-          'original-name': basename(filePath),
+          "upload-date": new Date().toISOString(),
+          "original-name": basename(filePath),
         },
       });
 
@@ -69,14 +69,14 @@ export class S3Provider implements UploadProvider {
         fileId: key,
         url: url,
         message: `Successfully uploaded to S3: ${key}`,
-        provider: 's3',
+        provider: "s3",
       };
     } catch (error) {
-      this.logger.error('S3 upload failed:', error.message);
+      this.logger.error("S3 upload failed:", error.message);
       return {
         success: false,
         message: `S3 upload failed: ${error.message}`,
-        provider: 's3',
+        provider: "s3",
       };
     }
   }
@@ -90,7 +90,7 @@ export class S3Provider implements UploadProvider {
       await this.s3Client.send(command);
       return true;
     } catch (error) {
-      this.logger.error('Failed to delete from S3:', error.message);
+      this.logger.error("Failed to delete from S3:", error.message);
       throw error;
     }
   }
@@ -110,7 +110,7 @@ export class S3Provider implements UploadProvider {
       const response = await this.s3Client.send(command);
 
       return (response.Contents || [])
-        .filter(obj => obj.Key!.includes('backup_'))
+        .filter(obj => obj.Key!.includes("backup_"))
         .map(obj => ({
           id: obj.Key!,
           name: basename(obj.Key!),
@@ -119,11 +119,10 @@ export class S3Provider implements UploadProvider {
           url: `https://${this.bucketName}.s3.amazonaws.com/${obj.Key}`,
         }));
     } catch (error) {
-      this.logger.error('Failed to list S3 files:', error.message);
+      this.logger.error("Failed to list S3 files:", error.message);
       return [];
     }
   }
-
 
   async cleanup(retentionDays: number, directory?: string): Promise<CleanupResult> {
     const result: CleanupResult = {
@@ -157,10 +156,12 @@ export class S3Provider implements UploadProvider {
         }
       }
 
-      this.logger.log(`S3 cleanup completed: deleted ${result.deletedCount} files, freed ${(result.totalSize! / 1024 / 1024).toFixed(2)} MB`);
+      this.logger.log(
+        `S3 cleanup completed: deleted ${result.deletedCount} files, freed ${(result.totalSize! / 1024 / 1024).toFixed(2)} MB`
+      );
       return result;
     } catch (error) {
-      this.logger.error('S3 cleanup failed:', error.message);
+      this.logger.error("S3 cleanup failed:", error.message);
       result.errors.push(`Cleanup failed: ${error.message}`);
       return result;
     }

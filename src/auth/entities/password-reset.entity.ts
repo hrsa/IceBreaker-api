@@ -12,8 +12,8 @@ export class PasswordReset {
   @Column()
   userId: string;
 
-  @ManyToOne(() => User, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-  @JoinColumn({ name: 'userId' })
+  @ManyToOne(() => User, { onDelete: "CASCADE", onUpdate: "CASCADE" })
+  @JoinColumn({ name: "userId" })
   user: User;
 
   @Column({ type: "timestamp" })

@@ -78,7 +78,6 @@ export class TestClientHelper {
     password: string;
     name: string;
   }): Promise<{ user: any; client: TestClientHelper }> {
-    // Create user
     const userResponse = await request(this.app).post("/users").send(userData);
 
     if (userResponse.status !== 201) {

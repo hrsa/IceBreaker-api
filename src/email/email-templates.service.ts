@@ -1,6 +1,5 @@
-// src/email/email-templates.service.ts
-import { ConfigService } from '@nestjs/config';
-import { Injectable } from '@nestjs/common';
+import { ConfigService } from "@nestjs/config";
+import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class EmailTemplatesService {
@@ -8,15 +7,15 @@ export class EmailTemplatesService {
   private readonly appUrl: string;
   private readonly logoUrl: string;
   private readonly adminEmail: string;
-  private readonly primaryColor: string = '#4F86F7';
-  private readonly secondaryColor: string = '#333333';
-  private readonly backgroundColor: string = '#f7f7f9';
+  private readonly primaryColor: string = "#4F86F7";
+  private readonly secondaryColor: string = "#333333";
+  private readonly backgroundColor: string = "#f7f7f9";
 
   constructor(private configService: ConfigService) {
-    this.defaultFrom = this.configService.get<string>('EMAIL_FROM') || 'Ice Melter <noreply@icemelter.app>';
-    this.appUrl = this.configService.get<string>('APP_URL') || 'https://icemelter.app';
-    this.logoUrl = this.configService.get<string>('LOGO_URL') || 'https://icemelter.app/logo.png';
-    this.adminEmail = this.configService.get<string>('ADMIN_EMAIL') || 'anton@anton.eco';
+    this.defaultFrom = this.configService.get<string>("EMAIL_FROM") || "Ice Melter <noreply@icemelter.app>";
+    this.appUrl = this.configService.get<string>("APP_URL") || "https://icemelter.app";
+    this.logoUrl = this.configService.get<string>("LOGO_URL") || "https://icemelter.app/logo.png";
+    this.adminEmail = this.configService.get<string>("ADMIN_EMAIL") || "anton@anton.eco";
   }
 
   private getBaseTemplate(content: string, title: string) {
@@ -159,14 +158,14 @@ export class EmailTemplatesService {
 
     return {
       from: this.defaultFrom,
-      subject: 'Reset Your IceMelter Password',
-      html: this.getBaseTemplate(content, 'Reset Your Password')
+      subject: "Reset Your IceMelter Password",
+      html: this.getBaseTemplate(content, "Reset Your Password"),
     };
   }
 
   getWelcomeTemplate(confirmLink: string, name?: string) {
     const content = `
-      <h1>${name ? `Welcome, ${name}!` : 'Welcome to Ice Melter!'}</h1>
+      <h1>${name ? `Welcome, ${name}!` : "Welcome to Ice Melter!"}</h1>
       <p>Thank you for joining Ice Melter. We're excited to have you on board!</p>
       <p>Ice Melter helps you break the ice and start conversations with confidence.</p>
       <p>Please confirm your email address by clicking the button below:</p>
@@ -176,8 +175,8 @@ export class EmailTemplatesService {
 
     return {
       from: this.defaultFrom,
-      subject: name ? `Welcome to Ice Melter, ${name}!` : 'Welcome to Ice Melter!',
-      html: this.getBaseTemplate(content, 'Welcome to Ice Melter')
+      subject: name ? `Welcome to Ice Melter, ${name}!` : "Welcome to Ice Melter!",
+      html: this.getBaseTemplate(content, "Welcome to Ice Melter"),
     };
   }
 
@@ -193,8 +192,8 @@ export class EmailTemplatesService {
 
     return {
       from: this.defaultFrom,
-      subject: 'Connect Your Telegram Account - Ice Melter',
-      html: this.getBaseTemplate(content, 'Connect Telegram - Ice Melter')
+      subject: "Connect Your Telegram Account - Ice Melter",
+      html: this.getBaseTemplate(content, "Connect Telegram - Ice Melter"),
     };
   }
 }

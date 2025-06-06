@@ -4,8 +4,8 @@ import { existsSync, mkdirSync } from "fs";
 import { CleanupResult, UploadProvider, UploadProviderType, UploadResult } from "./interfaces/upload-provider.interface";
 import { GoogleDriveProvider } from "./providers/google-drive.provider";
 import { S3Provider } from "./providers/s3.provider";
-import * as path from 'node:path';
-import { readdir, unlink } from 'node:fs/promises';
+import * as path from "node:path";
+import { readdir, unlink } from "node:fs/promises";
 
 @Injectable()
 export class BackupsService {
@@ -34,61 +34,59 @@ export class BackupsService {
   private getDefaultProvider(): UploadProviderType {
     return this.configService.get<UploadProviderType>("BACKUP_UPLOAD_PROVIDER", "google-drive");
   }
-  
+
   private async getBackupFiles(directory: string): Promise<string[]> {
     try {
       const files = await readdir(directory);
-      const backupFiles = files.filter((file) => file.endsWith(".sql") || file.endsWith(".sql.gz"));
+      const backupFiles = files.filter(file => file.endsWith(".sql") || file.endsWith(".sql.gz"));
       return backupFiles.map(file => path.join(directory, file));
     } catch (error) {
       this.logger.error("Failed to get backup files:", error.message);
       return [];
     }
-    
   }
 
   async bulkUpload(providerType?: UploadProviderType, remoteDirectory?: string): Promise<UploadResult[]> {
-      const files = await this.getBackupFiles(this.backupDir);
+    const files = await this.getBackupFiles(this.backupDir);
 
-      if (files.length === 0) {
-        this.logger.log("No backup files found");
-        return [];
-      }
-      
-      this.logger.log(`Uploading ${files.length} backup files...`);
+    if (files.length === 0) {
+      this.logger.log("No backup files found");
+      return [];
+    }
 
-      let providers: UploadProviderType[] = ["google-drive", "s3"];
-      if (providerType) {
-         providers = [providerType];
-      }
-      
-      const results: UploadResult[] = [];
-      for (const file of files) {
-          try {
-            for (const provider of providers) {
-              this.logger.log(`Uploading ${file} to ${provider}...`);
-              const result = await this.upload(file, path.basename(file), provider, remoteDirectory);
-              results.push(result);
+    this.logger.log(`Uploading ${files.length} backup files...`);
 
-              if (result.success) {
-                this.logger.log(`✅ Uploaded ${file} to ${provider}`);
-              } else {
-                this.logger.error(`❌ Failed to upload ${file} to ${provider}`);
-              }
-            }
-            await unlink(file);
-            this.logger.log(`🗑️ Deleted ${file}`);
-          } catch (error) {
-            const failureResult: UploadResult = {
-              success: false,
-              message: `Failed to upload ${file}: ${error.message}`,
-            };
-            results.push(failureResult);
-            this.logger.error(`❌ ${failureResult.message}`);
+    let providers: UploadProviderType[] = ["google-drive", "s3"];
+    if (providerType) {
+      providers = [providerType];
+    }
 
+    const results: UploadResult[] = [];
+    for (const file of files) {
+      try {
+        for (const provider of providers) {
+          this.logger.log(`Uploading ${file} to ${provider}...`);
+          const result = await this.upload(file, path.basename(file), provider, remoteDirectory);
+          results.push(result);
+
+          if (result.success) {
+            this.logger.log(`✅ Uploaded ${file} to ${provider}`);
+          } else {
+            this.logger.error(`❌ Failed to upload ${file} to ${provider}`);
           }
         }
-      return results;
+        await unlink(file);
+        this.logger.log(`🗑️ Deleted ${file}`);
+      } catch (error) {
+        const failureResult: UploadResult = {
+          success: false,
+          message: `Failed to upload ${file}: ${error.message}`,
+        };
+        results.push(failureResult);
+        this.logger.error(`❌ ${failureResult.message}`);
+      }
+    }
+    return results;
   }
 
   async upload(filePath: string, fileName: string, providerType?: UploadProviderType, remoteDirectory?: string): Promise<UploadResult> {

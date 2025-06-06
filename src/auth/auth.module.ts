@@ -7,8 +7,8 @@ import { PassportModule } from "@nestjs/passport";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { JwtStrategy } from "./strategies/jwt.strategy";
 import { LocalStrategy } from "./strategies/local.strategy";
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { PasswordReset } from './entities/password-reset.entity';
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { PasswordReset } from "./entities/password-reset.entity";
 
 @Module({
   imports: [

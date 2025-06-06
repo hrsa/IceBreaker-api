@@ -1,4 +1,3 @@
-// src/profiles/dto/profile-response.dto.ts
 import { ApiProperty } from "@nestjs/swagger";
 import { Exclude, Expose, Type } from "class-transformer";
 import { Profile } from "../entities/profile.entity";

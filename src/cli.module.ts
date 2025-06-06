@@ -1,9 +1,10 @@
 // src/cli.module.ts
-import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { BackupsModule } from './backups/backups.module';
-import { BackupCommand } from './commands/backup.command';
+import { Module } from "@nestjs/common";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { BackupsModule } from "./backups/backups.module";
+import { BackupCommand } from "./commands/backup.command";
+import { RedisPubSubModule } from "./redis-pub-sub/redis-pub-sub.module";
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { BackupCommand } from './commands/backup.command';
       }),
     }),
     BackupsModule,
+    RedisPubSubModule,
   ],
   providers: [BackupCommand],
 })

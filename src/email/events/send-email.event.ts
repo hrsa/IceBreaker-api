@@ -14,7 +14,7 @@ export interface ConnectTelegramData {
 
 export interface EmailDataMap {
   "change-password": PasswordResetData;
-  "welcome": WelcomeData;
+  welcome: WelcomeData;
   "connect-telegram": ConnectTelegramData;
 }
 

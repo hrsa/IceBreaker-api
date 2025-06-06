@@ -17,10 +17,10 @@ import { join } from "path";
 import { RedisSessionModule } from "./redis-session/redis-session.module";
 import { EventEmitterModule } from "@nestjs/event-emitter";
 import { WebhooksModule } from "./webhooks/webhooks.module";
-import { EmailModule } from './email/email.module';
-import { BackupsModule } from './backups/backups.module';
-import { BackupCommand } from './commands/backup.command';
-import { RedisPubSubModule } from './redis-pub-sub/redis-pub-sub.module';
+import { EmailModule } from "./email/email.module";
+import { BackupsModule } from "./backups/backups.module";
+import { BackupCommand } from "./commands/backup.command";
+import { RedisPubSubModule } from "./redis-pub-sub/redis-pub-sub.module";
 
 @Module({
   imports: [
