@@ -29,6 +29,7 @@ import { Queue } from "bullmq";
 import { GameReadyToPlayEvent } from "../ai/events/game-ready-to-play.event";
 import { AIService } from "../ai/ai.service";
 import * as fs from "node:fs";
+import { RedisPubSubService } from "../redis-pub-sub/redis-pub-sub.service";
 
 @Injectable()
 export class TelegramService {
@@ -37,6 +38,7 @@ export class TelegramService {
     @InjectQueue("telegram-messages") private telegramQueue: Queue,
     private readonly configService: ConfigService,
     private redisSessionService: RedisSessionService,
+    private redisPubSub: RedisPubSubService,
     private usersService: UsersService,
     private profilesService: ProfilesService,
     private categoriesService: CategoriesService,
@@ -52,6 +54,8 @@ export class TelegramService {
 
   async onModuleInit() {
     await this.setCommands();
+
+    await this.redisPubSub.subscribe("app-events", "telegram.message", this.handleRedisTelegramMessage.bind(this));
   }
 
   async setCommands(session?: TelegramSession) {
@@ -233,7 +237,7 @@ export class TelegramService {
     if (user) {
       const helloFilepath = await this.aiService.sayHello(user.name, ctx.session.language);
       const helloFile = fs.createReadStream(helloFilepath);
-      const voiceMessage = await this.bot.telegram.sendVoice(ctx.chat!.id, { source: helloFile });
+      const voiceMessage = await this.bot.telegram.sendVoice(ctx.chat.id, { source: helloFile });
       this.trackMessage(ctx.session, voiceMessage.message_id, "");
       fs.unlinkSync(helloFilepath);
     }
@@ -422,6 +426,26 @@ export class TelegramService {
         { delay: 1000 }
       );
     }
+  }
+
+  private async handleRedisTelegramMessage(event: TelegramMessageEvent): Promise<void> {
+    this.logger.debug(`Received telegram message event from Redis: ${event.telegramId}`);
+
+    if (!event.telegramId) {
+      return;
+    }
+
+    const session = await this.redisSessionService.getSession(event.telegramId);
+
+    await this.telegramQueue.add(
+      "send-message",
+      {
+        telegramId: event.telegramId,
+        text: event.messageText,
+        extra: event.extra,
+      },
+      { delay: 1000 }
+    );
   }
 
   async getRandomCard(dto: GetRandomCardDto, userId?: string) {

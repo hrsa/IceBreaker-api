@@ -2,6 +2,7 @@ import { CommandRunner } from "nest-commander";
 import { Command } from "nest-commander";
 import { BackupsService } from "../backups/backups.service";
 import { UploadProviderType } from "../backups/interfaces/upload-provider.interface";
+import { RedisPubSubService } from "../redis-pub-sub/redis-pub-sub.service";
 
 @Command({
   name: "backup",
@@ -16,6 +17,7 @@ import { UploadProviderType } from "../backups/interfaces/upload-provider.interf
 export class BackupCommand extends CommandRunner {
   constructor(
     private readonly backupsService: BackupsService,
+    private readonly redisPubSub: RedisPubSubService
   ) {
     super();
   }
@@ -28,16 +30,18 @@ export class BackupCommand extends CommandRunner {
         case "upload":
           await this.backupsService.bulkUpload(provider as UploadProviderType);
           console.log("✅ Upload complete");
+          await this.redisPubSub.adminTelegramNotification("Backup upload complete! 📔🗃️🗄️");
           break;
         case "cleanup":
           await this.backupsService.cleanupCloudBackups(parseInt(days), provider as UploadProviderType);
           console.log("✅ Cleanup complete");
+          await this.redisPubSub.adminTelegramNotification("Backup cleanup complete! 🧹🧼🧽");
           break;
         default:
           console.error("Error: Unknown action");
           console.log("Available actions:");
           console.log("  upload [provider] [directory]   - Upload all backup files");
-          console.log("  cleanup [provider] [days]       - Cleanup old backups (default: 7 days)");
+          console.log("  cleanup [provider] [days]       - Cleanup old backups (default: 60 days)");
           process.exit(1);
       }
     } catch (error) {

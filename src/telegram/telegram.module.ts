@@ -28,9 +28,11 @@ import { TelegramMessageProcessor } from "./telegram-message.processor";
 import { GameGenerationState } from "./states/game-generation.state";
 import { AIModule } from "../ai/ai.module";
 import { session } from "telegraf";
+import { RedisPubSubModule } from "../redis-pub-sub/redis-pub-sub.module";
 
 @Module({
   imports: [
+    RedisPubSubModule,
     TelegrafModule.forRootAsync({
       imports: [ConfigModule, RedisSessionModule],
       inject: [ConfigService, RedisSessionService],
