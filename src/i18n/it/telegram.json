@@ -123,5 +123,11 @@
     "no_telegram_id": "ID Telegram non impostato!",
     "no_card": "Nessuna carta selezionata.",
     "no_profile": "Nessun profilo selezionato."
+  },
+  "broadcast": {
+    "question": "Cosa vuoi che trasmetta?",
+    "message": "Ciao {name},\nEcco un messaggio dal creatore di IceMelter :\n\n{message}",
+    "error": "Errore di trasmissione: {error}. Riprova.",
+    "not_allowed": "Non puoi trasmettere messaggi perché non sei l'amministratore di IceMelter"
   }
 }

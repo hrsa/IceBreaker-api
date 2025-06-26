@@ -123,5 +123,11 @@
     "no_telegram_id": "Telegram ID is not set!",
     "no_card": "No card selected.",
     "no_profile": "No profile selected."
+  },
+  "broadcast": {
+    "question": "What do you want me to broadcast?",
+    "message": "Hello {name},\nI have a message from IceMelter's creator :\n\n{message}",
+    "error": "Broadcasting error: {error}. Please try again.",
+    "not_allowed": "You can't broadcast messages because you're not IceMelter administrator"
   }
 }

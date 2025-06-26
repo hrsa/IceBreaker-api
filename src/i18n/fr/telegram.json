@@ -123,5 +123,11 @@
     "no_telegram_id": "L'identifiant Telegram n'est pas défini !",
     "no_card": "Aucune carte sélectionnée.",
     "no_profile": "Aucun profil sélectionné."
+  },
+  "broadcast": {
+    "question": "Que veux-tu que je diffuse ?",
+    "message": "Bonjour {name},\nJ'ai un message du créateur d'IceMelter :\n\n{message}",
+    "error": "Erreur de diffusion: {error}. Veuillez réessayer.",
+    "not_allowed": "Tu ne peux pas diffuser de messages car tu n'es pas administrateur de IceMelter"
   }
 }
