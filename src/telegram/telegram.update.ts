@@ -97,6 +97,18 @@ export class TelegramUpdate {
     await this.stateFactory.getState(ctx).handle(ctx);
   }
 
+  @Command("broadcast")
+  async handleBroadcast(@Ctx() ctx: Context) {
+    await this.telegramService.deleteUserMessage(ctx);
+    const isAdmin = await this.telegramService.userIsAdmin(ctx);
+    if (!isAdmin) {
+      await this.telegramService.updateOrSendMessage(ctx, this.translate.t("telegram.broadcast.not_allowed", { lang: ctx.session.language }));
+      return;
+    }
+    ctx.session.step = "broadcast";
+    await this.stateFactory.getState(ctx).handle(ctx);
+  }
+
   @Command("delete_profile")
   async handleDeleteProfile(@Ctx() ctx: Context) {
     await this.telegramService.deleteUserMessage(ctx);

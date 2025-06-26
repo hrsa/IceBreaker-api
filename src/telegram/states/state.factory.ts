@@ -13,6 +13,7 @@ import { ProfileDeletionState } from "./profile-deletion.state";
 import { HelpState } from "./help.state";
 import { GameGenerationState } from "./game-generation.state";
 import { StepName } from "../interfaces/telegram-session.interface";
+import { BroadcastState } from './broadcast.state';
 
 @Injectable()
 export class StateFactory {
@@ -28,7 +29,8 @@ export class StateFactory {
     @Inject(forwardRef(() => SignupEmailState))
     private readonly signupEmailState: SignupEmailState,
     private readonly signupNameState: SignupNameState,
-    private readonly gameGenerationState: GameGenerationState
+    private readonly gameGenerationState: GameGenerationState,
+    private readonly broadcastState: BroadcastState,
   ) {}
 
   getState(ctx: Context): BotState {
@@ -67,6 +69,10 @@ export class StateFactory {
       return this.suggestionCreationState;
     }
 
+    if (ctx.session.step === "broadcast") {
+      return this.broadcastState;
+    }
+
     if (!ctx.session.selectedProfileId) {
       return this.profileSelectionState;
     }
@@ -100,6 +106,8 @@ export class StateFactory {
         return this.signupEmailState;
       case "game-generation":
         return this.gameGenerationState;
+      case "broadcast":
+        return this.broadcastState;
       default:
         return this.authenticationState;
     }

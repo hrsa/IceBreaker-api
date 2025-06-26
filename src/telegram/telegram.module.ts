@@ -29,6 +29,7 @@ import { GameGenerationState } from "./states/game-generation.state";
 import { AIModule } from "../ai/ai.module";
 import { session } from "telegraf";
 import { RedisPubSubModule } from "../redis-pub-sub/redis-pub-sub.module";
+import { BroadcastState } from './states/broadcast.state';
 
 @Module({
   imports: [
@@ -107,6 +108,7 @@ import { RedisPubSubModule } from "../redis-pub-sub/redis-pub-sub.module";
     SignupEmailState,
     SignupNameState,
     GameGenerationState,
+    BroadcastState,
     RedisSessionService,
     TelegramMessageProcessor,
   ],

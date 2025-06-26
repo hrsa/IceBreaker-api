@@ -12,7 +12,8 @@ export type StepName =
   | "suggestion-creation"
   | "signup-email"
   | "signup-name"
-  | "game-generation";
+  | "game-generation"
+  | "broadcast";
 
 export interface TelegramSession {
   language: AppLanguage;

@@ -228,6 +228,23 @@ export class TelegramService {
     ctx.session.botMessageIds = ctx.session.botMessageIds.slice(-1);
   }
 
+  async broadcastMessage(ctx: Context, text: string) {
+    const isAdmin = await this.userIsAdmin(ctx);
+    if (!isAdmin) {
+      return;
+    }
+    const users = await this.usersService.findAll();
+    for (const user of users) {
+      if (user.telegramId) {
+      const session = await this.redisSessionService.getSession(user.telegramId);
+      await this.sendNotificationToUserMessage(new TelegramMessageEvent(user.telegramId, this.translate.t("telegram.broadcast.message", {
+        args: { name: user.name, message: text },
+        lang: session?.language ?? "en",
+      })));
+      }
+    }
+  }
+
   async sayHello(ctx: Context) {
     if (!ctx.chat) {
       return;
@@ -241,6 +258,17 @@ export class TelegramService {
       this.trackMessage(ctx.session, voiceMessage.message_id, "");
       fs.unlinkSync(helloFilepath);
     }
+  }
+
+  async userIsAdmin(ctx: Context) {
+    if (!ctx.chat) {
+      return false;
+    }
+    const user = await this.usersService.findByTelegramId(ctx.chat.id.toString());
+    if (user) {
+      return user.isAdmin;
+    }
+    return false;
   }
 
   async registerNewUser(ctx: Context, name: string): Promise<void> {
