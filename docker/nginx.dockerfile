@@ -1,4 +1,4 @@
-FROM nginx:latest AS base
+FROM nginx:1.29.3 AS base
 
 ARG UID
 ARG GID
@@ -8,8 +8,8 @@ ENV UID=${UID}
 ENV GID=${GID}
 ENV USER=${USER}
 
-RUN addgroup --gid ${GID} --system ${USER}
-RUN adduser --system --home /home/${USER} --shell /bin/sh --uid ${UID} --ingroup ${USER} ${USER}
+RUN groupadd --system --gid ${GID} ${USER}
+RUN useradd --system --gid ${USER} --home /home/${USER} --shell /bin/sh --uid ${UID} ${USER}
 
 RUN sed -i "s/user nginx/user '${USER}'/g" /etc/nginx/nginx.conf
 
