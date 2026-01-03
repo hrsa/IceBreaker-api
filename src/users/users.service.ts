@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, Injectable, Logger, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { User } from "./entities/user.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -14,6 +14,7 @@ import { GameReadyToPlayEvent } from "../ai/events/game-ready-to-play.event";
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
@@ -150,7 +151,11 @@ export class UsersService {
 
   @OnEvent("donation.received")
   async onDonationReceived(event: DonationReceivedEvent) {
-    await this.addCredit(event.userId, event.email, event.amount);
+    try {
+      await this.addCredit(event.userId, event.email, event.amount);
+    } catch (e) {
+      this.logger.error(e);
+    }
   }
 
   @OnEvent("game.generation.completed")
