@@ -362,12 +362,14 @@ jobs:
           echo "${{ env.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-      - name: Copy backup script, docker-compose and .env files to the server
+      - name: Copy backup script, SSL renewal script, docker-compose and .env files to the server
         working-directory: backend
         run: |
+          chmod +x renew-ssl.sh
           scp -o StrictHostKeyChecking=no .env ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }}:/var/www
           scp -o StrictHostKeyChecking=no docker-compose-prod.yml ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }}:/var/www
           scp -o StrictHostKeyChecking=no backup-and-upload.sh ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }}:/var/www
+          scp -o StrictHostKeyChecking=no renew-ssl.sh ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }}:/var/www
 
       - name: Deploy to server
         uses: appleboy/ssh-action@master
@@ -381,25 +383,30 @@ jobs:
               cp docker-compose.yml docker-compose.yml.backup
             fi
             
+            chmod +x /var/www/backup-and-upload.sh
+            chmod +x /var/www/renew-ssl.sh
+
+            CRON_START="# BEGIN ICEMELTER MANAGED CRON"
+            CRON_END="# END ICEMELTER MANAGED CRON"
+
+            crontab -l 2>/dev/null | sed "/$CRON_START/,/$CRON_END/d" > /tmp/current-cron || true
+
+            cat >> /tmp/current-cron << EOF
+            $CRON_START
+            0 2 * * * /var/www/backup-and-upload.sh create > /var/log/backup.log 2>&1
+            0 3 30 * * /var/www/backup-and-upload.sh cleanup > /var/log/cleanup.log 2>&1
+            0 3 * * * /var/www/renew-ssl.sh >> /var/log/icemelter-certbot-renew.log 2>&1
+            $CRON_END
+            EOF
+
+            crontab /tmp/current-cron
+            rm -f /tmp/current-cron
+            
             docker compose down
             mv docker-compose-prod.yml docker-compose.yml
             docker system prune -a -f
             docker compose pull
             
-            mkdir -p /var/www/certbot_tracker
-            
-            CERTBOT_LAST_RUN_FILE="/var/www/certbot_tracker/last_run.txt"
-            CURRENT_DATE=$(date +%Y%m)
-            
-            if [ ! -f "$CERTBOT_LAST_RUN_FILE" ] || [ "$(cat $CERTBOT_LAST_RUN_FILE)" != "$CURRENT_DATE" ]; then
-              echo "Running certbot renewal (last run: $([ -f "$CERTBOT_LAST_RUN_FILE" ] && cat $CERTBOT_LAST_RUN_FILE || echo 'never'))"
-              docker compose run --rm certbot
-              echo "$CURRENT_DATE" > "$CERTBOT_LAST_RUN_FILE"
-            else
-              echo "Skipping certbot renewal, already run this month"
-            fi
-
-            docker compose down
             docker compose up -d nginx
             
             echo "Waiting for application to be healthy..."
