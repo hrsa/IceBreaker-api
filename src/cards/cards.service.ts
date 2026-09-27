@@ -105,12 +105,6 @@ export class CardsService {
       throw new NotFoundException("No accessible categories found");
     }
 
-    const query = this.cardsRepository
-      .createQueryBuilder("card")
-      .leftJoinAndSelect("card.category", "category")
-      .leftJoinAndSelect("card.profilePreferences", "cardPreference", "cardPreference.profileId = :profileId", { profileId })
-      .where("card.categoryId IN (:...validCategoryIds)", { validCategoryIds });
-
     const banStatuses = [CardStatus.BANNED];
     if (!includeArchived) {
       banStatuses.push(CardStatus.ARCHIVED);
@@ -119,25 +113,39 @@ export class CardsService {
       banStatuses.push(CardStatus.LOVED);
     }
 
-    query.andWhere(qb => {
-      const subQuery = qb
-        .subQuery()
-        .select("1")
-        .from(CardPreference, "cardPreference")
-        .where("cardPreference.cardId = card.id")
-        .andWhere("cardPreference.profileId = :profileId", { profileId })
-        .andWhere("cardPreference.status IN (:...banStatuses)", { banStatuses });
+    // First, get the random card IDs without relations to avoid DISTINCT + ORDER BY issue
+    const idQuery = this.cardsRepository
+      .createQueryBuilder("card")
+      .select("card.id")
+      .where("card.categoryId IN (:...validCategoryIds)", { validCategoryIds })
+      .andWhere(qb => {
+        const subQuery = qb
+          .subQuery()
+          .select("1")
+          .from(CardPreference, "cardPreference")
+          .where("cardPreference.cardId = card.id")
+          .andWhere("cardPreference.profileId = :profileId", { profileId })
+          .andWhere("cardPreference.status IN (:...banStatuses)", { banStatuses });
 
-      return `NOT EXISTS ${subQuery.getQuery()}`;
-    });
+        return `NOT EXISTS ${subQuery.getQuery()}`;
+      })
+      .orderBy("RANDOM()")
+      .limit(limit);
 
-    query.orderBy("RANDOM()").limit(limit);
+    const result = await idQuery.getMany();
+    const cardIds = result.map(r => r.id);
 
-    const cards = await query.getMany();
-
-    if (!cards || cards.length === 0) {
+    if (!cardIds || cardIds.length === 0) {
       throw new NotFoundException("No cards found matching the criteria");
     }
+
+    // Then fetch the full cards with relations
+    const cards = await this.cardsRepository
+      .createQueryBuilder("card")
+      .leftJoinAndSelect("card.category", "category")
+      .leftJoinAndSelect("card.profilePreferences", "cardPreference", "cardPreference.profileId = :profileId", { profileId })
+      .where("card.id IN (:...cardIds)", { cardIds })
+      .getMany();
 
     return cards.map(card => {
       if (card.profilePreferences && card.profilePreferences.length > 0) {
