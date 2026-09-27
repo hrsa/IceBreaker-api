@@ -1,4 +1,4 @@
-import { INestApplication } from "@nestjs/common";
+import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import * as dotenv from "dotenv";
 import { TestAppModule } from "./test-app.module";
@@ -16,6 +16,15 @@ export async function getTestApp(): Promise<INestApplication> {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    // Mirror the global pipes configured in src/main.ts so e2e tests
+    // exercise the same validation pipeline as production.
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      })
+    );
     await app.init();
   }
   return app;

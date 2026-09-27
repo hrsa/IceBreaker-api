@@ -1,4 +1,4 @@
-import { Injectable, Logger, UnauthorizedException } from "@nestjs/common";
+import { Injectable, Logger, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { UsersService } from "../users/users.service";
 import { User } from "../users/entities/user.entity";
@@ -43,7 +43,17 @@ export class AuthService {
   }
 
   async requestPasswordReset(email: string) {
-    const user = await this.usersService.findByEmail(email);
+    let user: User | null = null;
+    try {
+      user = await this.usersService.findByEmail(email);
+    } catch (error) {
+      // findByEmail throws NotFoundException for unknown emails; returning
+      // silently here keeps the response identical for known and unknown
+      // accounts and prevents email enumeration.
+      if (!(error instanceof NotFoundException)) {
+        throw error;
+      }
+    }
     if (!user) {
       this.logger.warn(`Password reset requested for non-existent user ${email}`);
       return;
