@@ -9,9 +9,11 @@ import { Category } from "../src/categories/entities/category.entity";
 import { Profile } from "../src/profiles/entities/profile.entity";
 import { User } from "../src/users/entities/user.entity";
 import { CardPreference, CardStatus } from "../src/card-preferences/entitites/card-preference.entity";
-import { AuthService } from "../src/auth/auth.service";
 import { ConfigService } from "@nestjs/config";
 import * as jwt from "jsonwebtoken";
+import { TestClientHelper } from "./helpers/test-client.helper";
+import { testUsers } from "./seeders/test-data.seeder";
+import { AppLanguage } from "../src/common/constants/app-language.enum";
 
 describe("CardsController (e2e)", () => {
   let app: INestApplication<App>;
@@ -334,6 +336,132 @@ describe("CardsController (e2e)", () => {
       // Note: hasOnlyLovedCardsLeft() does not account for includeArchived,
       // so the flag reflects only non-archived/non-loved availability.
       expect(typeof responseWithArchived.body.hasViewedAllCards).toBe("boolean");
+    });
+  });
+
+  describe("Cards CRUD (admin)", () => {
+    let client: TestClientHelper;
+    const admin = testUsers.admin;
+    const user = testUsers.user;
+    let crudCategoryId = "";
+    let createdCardId = "";
+
+    beforeAll(async () => {
+      client = new TestClientHelper(app.getHttpServer() as any);
+      // Admin-created category for the card CRUD tests
+      await client.actingAs(admin);
+      const categoryResponse = await client.post("/categories").send({
+        language: AppLanguage.ENGLISH,
+        name: "Card CRUD Category",
+        description: "For card CRUD tests",
+        isPublic: true,
+      });
+      crudCategoryId = categoryResponse.body.id;
+    });
+
+    it("lets an admin create a card", async () => {
+      await client.actingAs(admin);
+      const response = await client
+        .post("/cards")
+        .send({
+          question: "What is your favorite movie?",
+          language: AppLanguage.ENGLISH,
+          categoryId: crudCategoryId,
+        })
+        .expect(201);
+
+      expect(response.body.question_en).toBe("What is your favorite movie?");
+      expect(response.body.categoryId).toBe(crudCategoryId);
+      expect(response.body.id).toBeDefined();
+      createdCardId = response.body.id;
+    });
+
+    it("rejects card creation from a non-admin with 403", async () => {
+      await client.actingAs(user);
+      await client
+        .post("/cards")
+        .send({
+          question: "Forbidden question",
+          language: AppLanguage.ENGLISH,
+          categoryId: crudCategoryId,
+        })
+        .expect(403);
+    });
+
+    it("rejects card creation for a non-existent category with 404", async () => {
+      await client.actingAs(admin);
+      await client
+        .post("/cards")
+        .send({
+          question: "Orphan question",
+          language: AppLanguage.ENGLISH,
+          categoryId: "00000000-0000-0000-0000-000000000000",
+        })
+        .expect(404);
+    });
+
+    it("rejects an invalid payload with 400", async () => {
+      await client.actingAs(admin);
+      await client
+        .post("/cards")
+        .send({ question: "", language: "not-a-language", categoryId: "nope" })
+        .expect(400);
+    });
+
+    it("lets an admin list all cards", async () => {
+      await client.actingAs(admin);
+      const response = await client.get("/cards").expect(200);
+
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBeGreaterThan(0);
+      expect(response.body.some((card: any) => card.id === createdCardId)).toBe(true);
+    });
+
+    it("rejects listing all cards from a non-admin with 403", async () => {
+      await client.actingAs(user);
+      await client.get("/cards").expect(403);
+    });
+
+    it("returns a card by id for any authenticated user", async () => {
+      await client.actingAs(user);
+      const response = await client.get(`/cards/${createdCardId}`).expect(200);
+
+      expect(response.body.id).toBe(createdCardId);
+      expect(response.body.category).toBeDefined();
+    });
+
+    it("returns 404 for a non-existent card", async () => {
+      await client.actingAs(user);
+      await client.get("/cards/00000000-0000-0000-0000-000000000000").expect(404);
+    });
+
+    it("lets an admin update a card", async () => {
+      await client.actingAs(admin);
+      const response = await client
+        .patch(`/cards/${createdCardId}`)
+        .send({ question: "Updated question?", language: AppLanguage.ENGLISH })
+        .expect(200);
+
+      expect(response.body.question_en).toBe("Updated question?");
+    });
+
+    it("rejects card updates from a non-admin with 403", async () => {
+      await client.actingAs(user);
+      await client
+        .patch(`/cards/${createdCardId}`)
+        .send({ question: "Hacked?", language: AppLanguage.ENGLISH })
+        .expect(403);
+    });
+
+    it("rejects card deletion from a non-admin with 403", async () => {
+      await client.actingAs(user);
+      await client.delete(`/cards/${createdCardId}`).expect(403);
+    });
+
+    it("lets an admin delete a card", async () => {
+      await client.actingAs(admin);
+      await client.delete(`/cards/${createdCardId}`).expect(204);
+      await client.get(`/cards/${createdCardId}`).expect(404);
     });
   });
 });
