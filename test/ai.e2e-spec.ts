@@ -112,10 +112,7 @@ describe("AI API (e2e)", () => {
       await client.actingAs(admin);
       const me = await client.get("/users/me").expect(200);
 
-      const response = await client
-        .post("/ai/create-game")
-        .send({ description: "A game about space travel" })
-        .expect(201);
+      const response = await client.post("/ai/create-game").send({ description: "A game about space travel" }).expect(201);
 
       expect(response.body.requestId).toBeDefined();
       expect(response.body.status).toBe("processing");

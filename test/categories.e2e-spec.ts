@@ -1,7 +1,6 @@
 import { App } from "supertest/types";
 import { INestApplication } from "@nestjs/common";
 import { DataSource } from "typeorm";
-import * as request from "supertest";
 import { migrateAndSeed } from "./helpers/database.helper";
 import { getTestApp } from "./config/setup";
 import { TestClientHelper } from "./helpers/test-client.helper";
@@ -88,10 +87,7 @@ describe("Categories API (e2e)", () => {
 
     it("rejects an invalid payload with 400", async () => {
       await client.actingAs(admin);
-      await client
-        .post("/categories")
-        .send({ language: "en", name: "", description: "" })
-        .expect(400);
+      await client.post("/categories").send({ language: "en", name: "", description: "" }).expect(400);
     });
   });
 
@@ -185,18 +181,12 @@ describe("Categories API (e2e)", () => {
 
     it("rejects updates from a non-admin with 403", async () => {
       await client.actingAs(user);
-      await client
-        .patch(`/categories/${targetCategory.id}`)
-        .send({ language: "en", name: "Hacked Name" })
-        .expect(403);
+      await client.patch(`/categories/${targetCategory.id}`).send({ language: "en", name: "Hacked Name" }).expect(403);
     });
 
     it("returns 404 when updating a non-existent category", async () => {
       await client.actingAs(admin);
-      await client
-        .patch("/categories/00000000-0000-0000-0000-000000000000")
-        .send({ language: "en", name: "Ghost" })
-        .expect(404);
+      await client.patch("/categories/00000000-0000-0000-0000-000000000000").send({ language: "en", name: "Ghost" }).expect(404);
     });
   });
 

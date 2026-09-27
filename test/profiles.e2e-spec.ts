@@ -66,10 +66,7 @@ describe("Profiles API (e2e)", () => {
       adminId = await getCurrentUserId(admin);
       await client.actingAs(admin);
 
-      const response = await client
-        .post("/profiles")
-        .send({ name: "Admin-Made Profile", userId: userId })
-        .expect(201);
+      const response = await client.post("/profiles").send({ name: "Admin-Made Profile", userId: userId }).expect(201);
 
       expect(response.body.userId).toBe(userId);
       expect(response.body.name).toBe("Admin-Made Profile");
@@ -148,10 +145,7 @@ describe("Profiles API (e2e)", () => {
       const listResponse = await client.get("/profiles").expect(200);
       const profileId = listResponse.body[0].id;
 
-      const response = await client
-        .patch(`/profiles/${profileId}`)
-        .send({ name: "Renamed Profile" })
-        .expect(200);
+      const response = await client.patch(`/profiles/${profileId}`).send({ name: "Renamed Profile" }).expect(200);
 
       expect(response.body.name).toBe("Renamed Profile");
     });
@@ -161,10 +155,7 @@ describe("Profiles API (e2e)", () => {
       const listResponse = await client.get("/profiles").expect(200);
       const profileId = listResponse.body[0].id;
 
-      const response = await client
-        .patch(`/profiles/${profileId}`)
-        .send({ userId: "00000000-0000-0000-0000-000000000000" })
-        .expect(200);
+      const response = await client.patch(`/profiles/${profileId}`).send({ userId: "00000000-0000-0000-0000-000000000000" }).expect(200);
 
       expect(response.body.userId).toBe(userId);
     });
@@ -248,15 +239,11 @@ describe("Profiles API (e2e)", () => {
       const allResponse = await client.get(`/profiles/${profile.id}/card-preferences`).expect(200);
       expect(allResponse.body).toHaveLength(2);
 
-      const archivedResponse = await client
-        .get(`/profiles/${profile.id}/card-preferences?status=archived`)
-        .expect(200);
+      const archivedResponse = await client.get(`/profiles/${profile.id}/card-preferences?status=archived`).expect(200);
       expect(archivedResponse.body).toHaveLength(1);
       expect(archivedResponse.body[0].status).toBe(CardStatus.ARCHIVED);
 
-      const lovedResponse = await client
-        .get(`/profiles/${profile.id}/card-preferences?status=loved`)
-        .expect(200);
+      const lovedResponse = await client.get(`/profiles/${profile.id}/card-preferences?status=loved`).expect(200);
       expect(lovedResponse.body).toHaveLength(1);
       expect(lovedResponse.body[0].status).toBe(CardStatus.LOVED);
     });

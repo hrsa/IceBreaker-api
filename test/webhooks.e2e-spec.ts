@@ -1,11 +1,9 @@
 import { App } from "supertest/types";
 import { INestApplication } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import { DataSource } from "typeorm";
 import * as request from "supertest";
 import { migrateAndSeed } from "./helpers/database.helper";
 import { getTestApp } from "./config/setup";
-import { TestClientHelper } from "./helpers/test-client.helper";
 import { testUsers } from "./seeders/test-data.seeder";
 import { User } from "../src/users/entities/user.entity";
 
@@ -35,16 +33,12 @@ function kofiPayload(overrides: Record<string, unknown> = {}) {
 describe("Webhooks API (e2e)", () => {
   let app: INestApplication<App>;
   let api: App;
-  let client: TestClientHelper;
   let dataSource: DataSource;
-  let verificationToken: string;
 
   beforeAll(async () => {
     app = (await getTestApp()) as INestApplication<App>;
     api = app.getHttpServer();
-    client = new TestClientHelper(api);
     dataSource = app.get(DataSource);
-    verificationToken = app.get(ConfigService).getOrThrow("KOFI_VERIFICATION_TOKEN");
     await migrateAndSeed(app);
   }, 30000);
 
@@ -73,7 +67,7 @@ describe("Webhooks API (e2e)", () => {
     it("processes a valid donation and credits the user", async () => {
       const creditsBefore = await getCredits(testUsers.user.email);
 
-      const response = await request(api)
+      await request(api)
         .post("/webhooks/ko-fi")
         .send({ data: JSON.stringify(kofiPayload()) })
         .expect(200);
@@ -115,9 +109,7 @@ describe("Webhooks API (e2e)", () => {
 
       const response = await request(api)
         .post("/webhooks/ko-fi")
-        .send({
-          data: JSON.stringify(kofiPayload({ type: "Commission" })),
-        })
+        .send({ data: JSON.stringify(kofiPayload({ type: "Commission" })) })
         .expect(200);
 
       expect(response.body.success).toBe(true);
@@ -126,10 +118,7 @@ describe("Webhooks API (e2e)", () => {
     });
 
     it("returns an error for malformed JSON", async () => {
-      const response = await request(api)
-        .post("/webhooks/ko-fi")
-        .send({ data: "this is not json" })
-        .expect(200);
+      const response = await request(api).post("/webhooks/ko-fi").send({ data: "this is not json" }).expect(200);
 
       expect(response.body.success).toBe(false);
       expect(response.body.message).toContain("Error processing webhook");

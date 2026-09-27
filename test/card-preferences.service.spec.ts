@@ -87,9 +87,7 @@ describe("CardPreferencesService", () => {
       if (!result) throw new Error("Preference was not updated");
 
       expect(result.status).toBe(CardStatus.ARCHIVED);
-      expect(preferencesRepository.save).toHaveBeenCalledWith(
-        expect.objectContaining({ status: CardStatus.ARCHIVED })
-      );
+      expect(preferencesRepository.save).toHaveBeenCalledWith(expect.objectContaining({ status: CardStatus.ARCHIVED }));
     });
 
     it("deletes the preference by primary key on reactivation", async () => {
@@ -116,18 +114,18 @@ describe("CardPreferencesService", () => {
     it("validates the card exists before updating", async () => {
       cardsService.findOne.mockRejectedValue(new NotFoundException());
 
-      await expect(
-        service.updatePreference("missing-card", "profile-1", { status: CardStatus.BANNED } as any)
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.updatePreference("missing-card", "profile-1", { status: CardStatus.BANNED } as any)).rejects.toThrow(
+        NotFoundException
+      );
       expect(preferencesRepository.save).not.toHaveBeenCalled();
     });
 
     it("validates the profile exists before updating", async () => {
       profilesService.findOne.mockRejectedValue(new NotFoundException());
 
-      await expect(
-        service.updatePreference("card-1", "missing-profile", { status: CardStatus.BANNED } as any)
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.updatePreference("card-1", "missing-profile", { status: CardStatus.BANNED } as any)).rejects.toThrow(
+        NotFoundException
+      );
       expect(preferencesRepository.save).not.toHaveBeenCalled();
     });
   });
@@ -147,18 +145,13 @@ describe("CardPreferencesService", () => {
         lastInteractionAt: new Date(),
       });
 
-      const shortcut = (service[method as "archiveCard"] as unknown as (
-        cardId: string,
-        profileId: string
-      ) => unknown).bind(service);
+      const shortcut = (service[method as "archiveCard"] as unknown as (cardId: string, profileId: string) => unknown).bind(service);
       await shortcut("card-1", "profile-1");
 
       if (status === CardStatus.ACTIVE) {
         expect(preferencesRepository.delete).toHaveBeenCalledWith("pref-1");
       } else {
-        expect(preferencesRepository.save).toHaveBeenCalledWith(
-          expect.objectContaining({ status })
-        );
+        expect(preferencesRepository.save).toHaveBeenCalledWith(expect.objectContaining({ status }));
       }
     });
   });
@@ -211,9 +204,7 @@ describe("CardPreferencesService", () => {
       };
       preferencesRepository.createQueryBuilder.mockReturnValue(qb);
 
-      const getter = (service[method as "getActiveCardsForProfile"] as unknown as (
-        profileId: string
-      ) => unknown).bind(service);
+      const getter = (service[method as "getActiveCardsForProfile"] as unknown as (profileId: string) => unknown).bind(service);
       await getter("profile-1");
 
       expect(qb.andWhere).toHaveBeenCalledWith("preference.status = :status", { status });

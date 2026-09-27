@@ -47,19 +47,14 @@ describe("SuggestionsService", () => {
     it("notifies the admin via telegram about the new suggestion", () => {
       service.create({ userId: "u1", question: "A great idea?" } as any);
 
-      expect(eventEmitter.emit).toHaveBeenCalledWith(
-        "telegram.message",
-        expect.objectContaining({})
-      );
+      expect(eventEmitter.emit).toHaveBeenCalledWith("telegram.message", expect.objectContaining({}));
       expect(configService.getOrThrow).toHaveBeenCalledWith("ADMIN_TELEGRAM_ID");
     });
 
     it("saves the suggestion", async () => {
       await service.create({ userId: "u1", question: "Q?" } as any);
 
-      expect(suggestionsRepository.save).toHaveBeenCalledWith(
-        expect.objectContaining({ question: "Q?" })
-      );
+      expect(suggestionsRepository.save).toHaveBeenCalledWith(expect.objectContaining({ question: "Q?" }));
     });
   });
 
@@ -117,9 +112,7 @@ describe("SuggestionsService", () => {
       const result = await service.update("s1", { accepted: true } as any);
 
       expect(result.accepted).toBe(true);
-      expect(suggestionsRepository.save).toHaveBeenCalledWith(
-        expect.objectContaining({ accepted: true })
-      );
+      expect(suggestionsRepository.save).toHaveBeenCalledWith(expect.objectContaining({ accepted: true }));
     });
 
     it("throws NotFound for an unknown suggestion", async () => {

@@ -37,9 +37,9 @@ describe("UsersService", () => {
     it("rejects a duplicate email with BadRequest", async () => {
       usersRepository.findOne.mockResolvedValue({ id: "existing", email: "taken@test.net" });
 
-      await expect(
-        service.create({ email: "taken@test.net", password: "password", name: "N" } as any)
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.create({ email: "taken@test.net", password: "password", name: "N" } as any)).rejects.toThrow(
+        BadRequestException
+      );
       expect(usersRepository.save).not.toHaveBeenCalled();
     });
 
@@ -104,9 +104,7 @@ describe("UsersService", () => {
 
       expect(result.telegramId).toBe("123456");
       expect(result.secretPhrase).toBe("");
-      expect(usersRepository.save).toHaveBeenCalledWith(
-        expect.objectContaining({ telegramId: "123456", secretPhrase: "" })
-      );
+      expect(usersRepository.save).toHaveBeenCalledWith(expect.objectContaining({ telegramId: "123456", secretPhrase: "" }));
     });
   });
 
@@ -123,9 +121,7 @@ describe("UsersService", () => {
     it("propagates NotFound for an unknown user", async () => {
       usersRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.update("missing", { name: "X" } as any)).rejects.toThrow(
-        NotFoundException
-      );
+      await expect(service.update("missing", { name: "X" } as any)).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -139,35 +135,27 @@ describe("UsersService", () => {
         isActivated: true,
       });
 
-      await expect(service.validateUser("user@test.net", "correct-password")).resolves.toEqual(
-        expect.objectContaining({ id: "u1" })
-      );
+      await expect(service.validateUser("user@test.net", "correct-password")).resolves.toEqual(expect.objectContaining({ id: "u1" }));
     });
 
     it("rejects an unknown email with Unauthorized", async () => {
       usersRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.validateUser("ghost@test.net", "whatever")).rejects.toThrow(
-        UnauthorizedException
-      );
+      await expect(service.validateUser("ghost@test.net", "whatever")).rejects.toThrow(UnauthorizedException);
     });
 
     it("rejects a wrong password with Unauthorized", async () => {
       const password = await argon2.hash("correct-password");
       usersRepository.findOne.mockResolvedValue({ id: "u1", password, isActivated: true });
 
-      await expect(service.validateUser("user@test.net", "wrong-password")).rejects.toThrow(
-        UnauthorizedException
-      );
+      await expect(service.validateUser("user@test.net", "wrong-password")).rejects.toThrow(UnauthorizedException);
     });
 
     it("rejects a deactivated account with Unauthorized", async () => {
       const password = await argon2.hash("correct-password");
       usersRepository.findOne.mockResolvedValue({ id: "u1", password, isActivated: false });
 
-      await expect(service.validateUser("user@test.net", "correct-password")).rejects.toThrow(
-        UnauthorizedException
-      );
+      await expect(service.validateUser("user@test.net", "correct-password")).rejects.toThrow(UnauthorizedException);
     });
   });
 
@@ -192,9 +180,7 @@ describe("UsersService", () => {
     it("throws NotFound when neither id nor email matches", async () => {
       usersRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.addCredit(undefined, "ghost@test.net", 1)).rejects.toThrow(
-        NotFoundException
-      );
+      await expect(service.addCredit(undefined, "ghost@test.net", 1)).rejects.toThrow(NotFoundException);
     });
   });
 });

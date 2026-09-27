@@ -13,7 +13,6 @@ describe("Suggestions API (e2e)", () => {
   const admin = testUsers.admin;
   const user = testUsers.user;
   let userId = "";
-  let adminId = "";
   let userSuggestionId = "";
   let adminSuggestionId = "";
 
@@ -68,19 +67,13 @@ describe("Suggestions API (e2e)", () => {
 
     it("requires authentication", async () => {
       client.clearToken();
-      await client
-        .post("/suggestions")
-        .send({ userId, question: "Anonymous question?" })
-        .expect(401);
+      await client.post("/suggestions").send({ userId, question: "Anonymous question?" }).expect(401);
     });
   });
 
   describe("GET /suggestions", () => {
     it("creates an admin suggestion for ownership checks", async () => {
       await client.actingAs(admin);
-      const me = await client.get("/users/me").expect(200);
-      adminId = me.body.id;
-
       const response = await client
         .post("/suggestions")
         .send({ userId: "00000000-0000-0000-0000-000000000000", question: "Admin's own suggestion" })
@@ -135,20 +128,14 @@ describe("Suggestions API (e2e)", () => {
 
     it("lets an admin accept a suggestion", async () => {
       await client.actingAs(admin);
-      const response = await client
-        .patch(`/suggestions/${userSuggestionId}`)
-        .send({ accepted: true })
-        .expect(200);
+      const response = await client.patch(`/suggestions/${userSuggestionId}`).send({ accepted: true }).expect(200);
 
       expect(response.body.accepted).toBe(true);
     });
 
     it("returns 404 when updating a non-existent suggestion", async () => {
       await client.actingAs(admin);
-      await client
-        .patch("/suggestions/00000000-0000-0000-0000-000000000000")
-        .send({ accepted: true })
-        .expect(404);
+      await client.patch("/suggestions/00000000-0000-0000-0000-000000000000").send({ accepted: true }).expect(404);
     });
   });
 

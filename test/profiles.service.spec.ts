@@ -3,7 +3,7 @@ import { getRepositoryToken } from "@nestjs/typeorm";
 import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { ProfilesService } from "../src/profiles/profiles.service";
 import { Profile } from "../src/profiles/entities/profile.entity";
-import { CardPreference, CardStatus } from "../src/card-preferences/entitites/card-preference.entity";
+import { CardPreference } from "../src/card-preferences/entitites/card-preference.entity";
 
 describe("ProfilesService", () => {
   let service: ProfilesService;

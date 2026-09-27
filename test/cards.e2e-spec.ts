@@ -114,7 +114,7 @@ describe("CardsController (e2e)", () => {
     it("should return random cards without throwing DISTINCT + ORDER BY error", async () => {
       // This test specifically verifies the fix for:
       // QueryFailedError: for SELECT DISTINCT, ORDER BY expressions must appear in select list
-      
+
       const token = await generateTestToken(app, testUser.id);
       const response = await request(app.getHttpServer())
         .post("/cards/random")
@@ -189,7 +189,7 @@ describe("CardsController (e2e)", () => {
       } as Partial<CardPreference>);
 
       const token = await generateTestToken(app, testUser.id);
-      
+
       // Without includeArchived, the archived card should be excluded
       const responseWithoutArchived = await request(app.getHttpServer())
         .post("/cards/random")
@@ -232,7 +232,7 @@ describe("CardsController (e2e)", () => {
       } as Partial<CardPreference>);
 
       const token = await generateTestToken(app, testUser.id);
-      
+
       // Without includeLoved, the loved card should be excluded
       const responseWithoutLoved = await request(app.getHttpServer())
         .post("/cards/random")
@@ -252,7 +252,7 @@ describe("CardsController (e2e)", () => {
 
     it("should return different cards on multiple calls (randomness)", async () => {
       const token = await generateTestToken(app, testUser.id);
-      
+
       // Call the endpoint multiple times and verify we get different results
       const results: string[][] = [];
       for (let i = 0; i < 5; i++) {
@@ -273,14 +273,14 @@ describe("CardsController (e2e)", () => {
       // This is a probabilistic test - with enough calls, we should see different cards
       const allCardIds = results.flat();
       const uniqueCardIds = [...new Set(allCardIds)];
-      
+
       // We should see multiple different cards across the calls
       expect(uniqueCardIds.length).toBeGreaterThanOrEqual(2);
     });
 
     it("should handle limit parameter correctly", async () => {
       const token = await generateTestToken(app, testUser.id);
-      
+
       const response = await request(app.getHttpServer())
         .post("/cards/random")
         .set("Authorization", `Bearer ${token}`)
@@ -402,10 +402,7 @@ describe("CardsController (e2e)", () => {
 
     it("rejects an invalid payload with 400", async () => {
       await client.actingAs(admin);
-      await client
-        .post("/cards")
-        .send({ question: "", language: "not-a-language", categoryId: "nope" })
-        .expect(400);
+      await client.post("/cards").send({ question: "", language: "not-a-language", categoryId: "nope" }).expect(400);
     });
 
     it("lets an admin list all cards", async () => {
@@ -447,10 +444,7 @@ describe("CardsController (e2e)", () => {
 
     it("rejects card updates from a non-admin with 403", async () => {
       await client.actingAs(user);
-      await client
-        .patch(`/cards/${createdCardId}`)
-        .send({ question: "Hacked?", language: AppLanguage.ENGLISH })
-        .expect(403);
+      await client.patch(`/cards/${createdCardId}`).send({ question: "Hacked?", language: AppLanguage.ENGLISH }).expect(403);
     });
 
     it("rejects card deletion from a non-admin with 403", async () => {
@@ -470,7 +464,7 @@ describe("CardsController (e2e)", () => {
 async function generateTestToken(app: INestApplication, userId: string): Promise<string> {
   const configService = app.get(ConfigService);
   const secret = configService.get("JWT_SECRET") || "test-secret";
-  
+
   const payload = { id: userId, email: "test@example.com" };
   return jwt.sign(payload, secret, { expiresIn: "1h" });
 }

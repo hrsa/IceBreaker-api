@@ -59,9 +59,7 @@ describe("AuthService", () => {
 
       await service.requestPasswordReset("user@test.net");
 
-      expect(resetRepository.save).toHaveBeenCalledWith(
-        expect.objectContaining({ userId: "user-1", token: "signed-token" })
-      );
+      expect(resetRepository.save).toHaveBeenCalledWith(expect.objectContaining({ userId: "user-1", token: "signed-token" }));
       expect(eventEmitter.emit).toHaveBeenCalledWith("send.email", expect.anything());
     });
 
@@ -113,9 +111,7 @@ describe("AuthService", () => {
         expiresAt: new Date(Date.now() - 1000),
       });
 
-      await expect(service.resetPassword("expired-token", "pw")).rejects.toThrow(
-        UnauthorizedException
-      );
+      await expect(service.resetPassword("expired-token", "pw")).rejects.toThrow(UnauthorizedException);
       expect(usersService.update).not.toHaveBeenCalled();
     });
 
@@ -126,9 +122,7 @@ describe("AuthService", () => {
         expiresAt: new Date(Date.now() + 60 * 60 * 1000),
       });
 
-      await expect(service.resetPassword("used-token", "pw")).rejects.toThrow(
-        UnauthorizedException
-      );
+      await expect(service.resetPassword("used-token", "pw")).rejects.toThrow(UnauthorizedException);
       expect(usersService.update).not.toHaveBeenCalled();
     });
   });

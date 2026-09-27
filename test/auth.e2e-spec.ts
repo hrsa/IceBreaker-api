@@ -55,10 +55,7 @@ describe("Auth API (e2e)", () => {
     });
 
     it("rejects a missing name", async () => {
-      await request(api)
-        .post("/auth/register")
-        .send({ email: "noname@test.net", password: "validpassword" })
-        .expect(400);
+      await request(api).post("/auth/register").send({ email: "noname@test.net", password: "validpassword" }).expect(400);
     });
 
     it("rejects a duplicate email with 400", async () => {
@@ -76,17 +73,11 @@ describe("Auth API (e2e)", () => {
     });
 
     it("rejects a wrong password with 401", async () => {
-      await request(api)
-        .post("/auth/login")
-        .send({ email: user.email, password: "wrongpassword" })
-        .expect(401);
+      await request(api).post("/auth/login").send({ email: user.email, password: "wrongpassword" }).expect(401);
     });
 
     it("rejects a non-existent email with 401", async () => {
-      await request(api)
-        .post("/auth/login")
-        .send({ email: "ghost@test.net", password: "whatever123" })
-        .expect(401);
+      await request(api).post("/auth/login").send({ email: "ghost@test.net", password: "whatever123" }).expect(401);
     });
 
     it("rejects empty credentials with 401", async () => {
@@ -96,10 +87,7 @@ describe("Auth API (e2e)", () => {
 
   describe("POST /auth/password/forgot", () => {
     it("accepts a known email and creates a reset record", async () => {
-      const { body } = await request(api)
-        .post("/auth/password/forgot")
-        .send({ email: user.email })
-        .expect(200);
+      const { body } = await request(api).post("/auth/password/forgot").send({ email: user.email }).expect(200);
 
       expect(body.message).toContain("If you have an account");
 
@@ -116,15 +104,9 @@ describe("Auth API (e2e)", () => {
     });
 
     it("does not reveal whether an unknown email exists", async () => {
-      const knownResponse = await request(api)
-        .post("/auth/password/forgot")
-        .send({ email: user.email })
-        .expect(200);
+      const knownResponse = await request(api).post("/auth/password/forgot").send({ email: user.email }).expect(200);
 
-      const unknownResponse = await request(api)
-        .post("/auth/password/forgot")
-        .send({ email: "no-such-user@test.net" })
-        .expect(200);
+      const unknownResponse = await request(api).post("/auth/password/forgot").send({ email: "no-such-user@test.net" }).expect(200);
 
       expect(unknownResponse.body.message).toBe(knownResponse.body.message);
     });
@@ -144,36 +126,21 @@ describe("Auth API (e2e)", () => {
       if (!record) throw new Error("Password reset record was not created");
 
       const newPassword = "brand-new-password";
-      await request(api)
-        .post("/auth/password/reset")
-        .send({ token: record.token, password: newPassword })
-        .expect(200);
+      await request(api).post("/auth/password/reset").send({ token: record.token, password: newPassword }).expect(200);
 
       // Old password no longer works
-      await request(api)
-        .post("/auth/login")
-        .send({ email: user.email, password: user.password })
-        .expect(401);
+      await request(api).post("/auth/login").send({ email: user.email, password: user.password }).expect(401);
 
       // New password works
-      const loginResponse = await request(api)
-        .post("/auth/login")
-        .send({ email: user.email, password: newPassword })
-        .expect(200);
+      const loginResponse = await request(api).post("/auth/login").send({ email: user.email, password: newPassword }).expect(200);
       expect((loginResponse.body as TokenDto).accessToken).toBeDefined();
 
       // Token cannot be reused
-      await request(api)
-        .post("/auth/password/reset")
-        .send({ token: record.token, password: "another-password" })
-        .expect(401);
+      await request(api).post("/auth/password/reset").send({ token: record.token, password: "another-password" }).expect(401);
     });
 
     it("rejects an invalid token with 401", async () => {
-      await request(api)
-        .post("/auth/password/reset")
-        .send({ token: "invalid-token-value", password: "some-password" })
-        .expect(401);
+      await request(api).post("/auth/password/reset").send({ token: "invalid-token-value", password: "some-password" }).expect(401);
     });
   });
 });

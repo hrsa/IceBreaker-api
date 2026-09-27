@@ -1,11 +1,10 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
 import { NotFoundException } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { CardsService } from "../src/cards/cards.service";
 import { Card } from "../src/cards/entities/card.entity";
-import { CardPreference, CardStatus } from "../src/card-preferences/entitites/card-preference.entity";
+import { CardStatus } from "../src/card-preferences/entitites/card-preference.entity";
 import { CategoriesService } from "../src/categories/categories.service";
 import { LanguageUtilsService } from "../src/common/utils/language-utils.service";
 import { GetRandomCardDto } from "../src/cards/dto/get-random-card.dto";
@@ -100,10 +99,7 @@ describe("CardsService - getRandomCard", () => {
 
   it("uses a two-step query: random IDs first, then entities with relations", async () => {
     const { idQuery, entityQuery } = queryBuilderDefaults();
-    cardRepository.createQueryBuilder
-      .mockReset()
-      .mockReturnValueOnce(idQuery)
-      .mockReturnValueOnce(entityQuery);
+    cardRepository.createQueryBuilder.mockReset().mockReturnValueOnce(idQuery).mockReturnValueOnce(entityQuery);
 
     await service.getRandomCard(dto, "user-1");
 
@@ -116,10 +112,7 @@ describe("CardsService - getRandomCard", () => {
 
     // Step 2: fetch full entities with relations filtered by the selected IDs
     expect(entityQuery.leftJoinAndSelect).toHaveBeenCalledWith("card.category", "category");
-    expect(entityQuery.where).toHaveBeenCalledWith(
-      "card.id IN (:...cardIds)",
-      expect.objectContaining({ cardIds: ["card-1", "card-2"] })
-    );
+    expect(entityQuery.where).toHaveBeenCalledWith("card.id IN (:...cardIds)", expect.objectContaining({ cardIds: ["card-1", "card-2"] }));
     expect(entityQuery.orderBy).not.toHaveBeenCalledWith("RANDOM()");
   });
 
@@ -157,28 +150,20 @@ describe("CardsService - getRandomCard", () => {
     idQuery.getMany.mockResolvedValue([]);
     cardRepository.createQueryBuilder.mockReset().mockReturnValueOnce(idQuery);
 
-    await expect(service.getRandomCard(dto, "user-1")).rejects.toThrow(
-      new NotFoundException("No cards found matching the criteria")
-    );
+    await expect(service.getRandomCard(dto, "user-1")).rejects.toThrow(new NotFoundException("No cards found matching the criteria"));
   });
 
   it("validates requested categories before querying", async () => {
     const { idQuery, entityQuery } = queryBuilderDefaults();
-    cardRepository.createQueryBuilder
-      .mockReset()
-      .mockReturnValueOnce(idQuery)
-      .mockReturnValueOnce(entityQuery);
+    cardRepository.createQueryBuilder.mockReset().mockReturnValueOnce(idQuery).mockReturnValueOnce(entityQuery);
 
     const categoriesService = (service as any).categoriesService as CategoriesService;
     (categoriesService.findAll as jest.Mock).mockResolvedValue([]);
-    (categoriesService.findOne as jest.Mock).mockImplementation(
-      (id: string) => (id === "cat-ok" ? Promise.resolve({ id }) : Promise.reject(new Error()))
+    (categoriesService.findOne as jest.Mock).mockImplementation((id: string) =>
+      id === "cat-ok" ? Promise.resolve({ id }) : Promise.reject(new Error())
     );
 
-    const cards = await service.getRandomCard(
-      { ...dto, categoryIds: ["cat-ok", "cat-bad"] },
-      "user-1"
-    );
+    const cards = await service.getRandomCard({ ...dto, categoryIds: ["cat-ok", "cat-bad"] }, "user-1");
 
     expect(categoriesService.findOne).toHaveBeenCalledTimes(2);
     expect(cards).toHaveLength(2);

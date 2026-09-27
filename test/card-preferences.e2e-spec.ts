@@ -37,9 +37,7 @@ describe("Card Preferences API (e2e)", () => {
     const meResponse = await client.get("/users/me").expect(200);
     userId = meResponse.body.id;
 
-    const adminEntity = await dataSource
-      .getRepository(User)
-      .findOneByOrFail({ email: admin.email });
+    const adminEntity = await dataSource.getRepository(User).findOneByOrFail({ email: admin.email });
 
     const profileRepository = dataSource.getRepository(Profile);
     const categoryRepository = dataSource.getRepository(Category);
@@ -94,9 +92,7 @@ describe("Card Preferences API (e2e)", () => {
 
     it("filters by status", async () => {
       await client.actingAs(user);
-      const response = await client
-        .get(`/card-preferences?profileId=${testProfile.id}&status=archived`)
-        .expect(200);
+      const response = await client.get(`/card-preferences?profileId=${testProfile.id}&status=archived`).expect(200);
 
       expect(response.body).toHaveLength(1);
       expect(response.body[0].status).toBe(CardStatus.ARCHIVED);
@@ -115,9 +111,7 @@ describe("Card Preferences API (e2e)", () => {
 
     it("lets an admin read any profile's preferences", async () => {
       await client.actingAs(admin);
-      const response = await client
-        .get(`/card-preferences?profileId=${testProfile.id}`)
-        .expect(200);
+      const response = await client.get(`/card-preferences?profileId=${testProfile.id}`).expect(200);
 
       expect(response.body.length).toBeGreaterThan(0);
     });
@@ -199,15 +193,10 @@ describe("Card Preferences API (e2e)", () => {
 
     it("returns 204 when reactivating (status ACTIVE) removes the preference", async () => {
       await client.actingAs(user);
-      await client
-        .put(`/card-preferences/${testCards[2].id}/profile/${testProfile.id}`)
-        .send({ status: CardStatus.ACTIVE })
-        .expect(204);
+      await client.put(`/card-preferences/${testCards[2].id}/profile/${testProfile.id}`).send({ status: CardStatus.ACTIVE }).expect(204);
 
       // The banned preference is gone
-      const bannedResponse = await client
-        .get(`/card-preferences/banned?profileId=${testProfile.id}`)
-        .expect(200);
+      const bannedResponse = await client.get(`/card-preferences/banned?profileId=${testProfile.id}`).expect(200);
       expect(bannedResponse.body).toHaveLength(0);
     });
 
@@ -219,10 +208,7 @@ describe("Card Preferences API (e2e)", () => {
       } as Partial<Card>);
 
       await client.actingAs(user);
-      await client
-        .put(`/card-preferences/${card.id}/profile/${testProfile.id}`)
-        .send({ status: CardStatus.ACTIVE })
-        .expect(204);
+      await client.put(`/card-preferences/${card.id}/profile/${testProfile.id}`).send({ status: CardStatus.ACTIVE }).expect(204);
     });
 
     it("returns 404 for a non-existent card", async () => {
@@ -256,9 +242,7 @@ describe("Card Preferences API (e2e)", () => {
     it("archives a card", async () => {
       await client.actingAs(user);
       // POST endpoints use the NestJS default status code 201
-      const response = await client
-        .post(`/card-preferences/${testCards[3].id}/profile/${testProfile.id}/archive`)
-        .expect(201);
+      const response = await client.post(`/card-preferences/${testCards[3].id}/profile/${testProfile.id}/archive`).expect(201);
 
       expect(response.body.status).toBe(CardStatus.ARCHIVED);
     });
@@ -266,9 +250,7 @@ describe("Card Preferences API (e2e)", () => {
     it("bans a card", async () => {
       await client.actingAs(user);
       // POST endpoints use the NestJS default status code 201
-      const response = await client
-        .post(`/card-preferences/${testCards[3].id}/profile/${testProfile.id}/ban`)
-        .expect(201);
+      const response = await client.post(`/card-preferences/${testCards[3].id}/profile/${testProfile.id}/ban`).expect(201);
 
       expect(response.body.status).toBe(CardStatus.BANNED);
     });
@@ -276,30 +258,22 @@ describe("Card Preferences API (e2e)", () => {
     it("loves a card", async () => {
       await client.actingAs(user);
       // POST endpoints use the NestJS default status code 201
-      const response = await client
-        .post(`/card-preferences/${testCards[3].id}/profile/${testProfile.id}/love`)
-        .expect(201);
+      const response = await client.post(`/card-preferences/${testCards[3].id}/profile/${testProfile.id}/love`).expect(201);
 
       expect(response.body.status).toBe(CardStatus.LOVED);
     });
 
     it("reactivates a card with 204 and clears the preference", async () => {
       await client.actingAs(user);
-      await client
-        .post(`/card-preferences/${testCards[3].id}/profile/${testProfile.id}/reactivate`)
-        .expect(204);
+      await client.post(`/card-preferences/${testCards[3].id}/profile/${testProfile.id}/reactivate`).expect(204);
 
-      const lovedResponse = await client
-        .get(`/card-preferences/loved?profileId=${testProfile.id}`)
-        .expect(200);
+      const lovedResponse = await client.get(`/card-preferences/loved?profileId=${testProfile.id}`).expect(200);
       expect(lovedResponse.body).toHaveLength(0);
     });
 
     it("forbids acting on a foreign profile with 403", async () => {
       await client.actingAs(user);
-      await client
-        .post(`/card-preferences/${testCards[0].id}/profile/${foreignProfile.id}/archive`)
-        .expect(403);
+      await client.post(`/card-preferences/${testCards[0].id}/profile/${foreignProfile.id}/archive`).expect(403);
     });
   });
 });
