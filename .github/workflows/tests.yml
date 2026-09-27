@@ -1,0 +1,97 @@
+name: Tests
+
+on: [push, pull_request]
+
+# Note: lint is not part of CI yet - the repository has pre-existing
+# eslint errors on master that need a separate cleanup pass.
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npx jest
+
+  e2e-tests:
+    runs-on: ubuntu-latest
+
+    # E2E specs run against isolated service containers. The database is a
+    # throwaway CI container named test_icebreaker - it is never a local or
+    # production database.
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_icebreaker
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7.4.3
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run e2e tests
+        run: npm run test:e2e
+        env:
+          APP_ENV: testing
+          NODE_ENV: test
+
+          # Test database (throwaway CI container, NOT local/prod)
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+          DB_NAME: test_icebreaker
+
+          # Redis (throwaway CI container, no auth)
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
+
+          # Test-only secrets
+          JWT_SECRET: ci-test-secret
+          KOFI_VERIFICATION_TOKEN: ci-kofi-verification-token
+          ADMIN_TELEGRAM_ID: "12345678"
+
+          # Dummies for integrations that tests mock or do not call;
+          # AIService/OpenAI is overridden in test/ai.e2e-spec.ts
+          BUY_COFFEE_LINK: https://ko-fi.com/test
+          TELEGRAM_BOT_TOKEN: ci-dummy-telegram-token
+          OPENAI_API_KEY: ci-dummy-openai-key
+          OPENAI2_API_KEY: ci-dummy-openai-key
+          GAME_GENERATION_PROMPT: YWJjZA==
+          TRANSLATION_PROMPT: YWJjZA==
