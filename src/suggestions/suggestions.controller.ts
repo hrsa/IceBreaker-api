@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, ClassSerializerInterceptor } from "@nestjs/common";
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, ClassSerializerInterceptor, HttpCode, HttpStatus } from "@nestjs/common";
 import { SuggestionsService } from "./suggestions.service";
 import { CreateSuggestionDto } from "./dto/create-suggestion.dto";
 import { UpdateSuggestionDto } from "./dto/update-suggestion.dto";
@@ -70,12 +70,13 @@ export class SuggestionsController {
   }
 
   @Delete(":id")
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: "Delete a suggestion" })
   @UseGuards(AdminGuard)
   @ApiResponse({ status: 204, description: "Suggestion deleted successfully" })
   @ApiResponse({ status: 404, description: "Suggestion not found" })
   @ApiResponse({ status: 403, description: "Forbidden - Admin access required" })
-  remove(@Param("id") id: string) {
-    return this.suggestionsService.remove(id);
+  async remove(@Param("id") id: string): Promise<void> {
+    await this.suggestionsService.remove(id);
   }
 }
