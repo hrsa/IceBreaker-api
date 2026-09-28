@@ -1,3 +1,4 @@
+import { getErrorMessage } from "../common/utils/error.utils";
 import { CommandRunner } from "nest-commander";
 import { Command } from "nest-commander";
 import { BackupsService } from "../backups/backups.service";
@@ -45,7 +46,7 @@ export class BackupCommand extends CommandRunner {
           process.exit(1);
       }
     } catch (error) {
-      console.error(`❌ Error: ${error.message}`);
+      console.error(`❌ Error: ${getErrorMessage(error)}`);
       process.exit(1);
     }
     process.exit(0);

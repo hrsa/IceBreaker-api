@@ -10,7 +10,8 @@ export class LanguageUtilsService {
 
   getPropertyByLanguage(entity: EntityWithLanguageProperties, propertyPrefix: string, language: AppLanguage): string | null {
     const propertyName = `${propertyPrefix}_${language}`;
-    return entity[propertyName] || null;
+    const value = (entity as unknown as Record<string, unknown>)[propertyName];
+    return typeof value === "string" ? value : null;
   }
 
   mapPropertyToField(entity: EntityWithLanguageProperties, propertyPrefix: string, property: string, language: AppLanguage) {

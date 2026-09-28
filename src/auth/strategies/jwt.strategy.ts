@@ -17,7 +17,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: any): Promise<CurrentUserData> {
+  async validate(payload: JwtPayload): Promise<CurrentUserData> {
     try {
       const user = await this.usersService.findOne(payload.sub);
 
@@ -30,6 +30,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException("Invalid token");
     }
   }
+}
+
+interface JwtPayload {
+  sub: string;
+  email: string;
 }
 
 export interface CurrentUserData {

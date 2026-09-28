@@ -28,15 +28,6 @@ export default tseslint.config(
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-floating-promises': 'warn',
-      // The codebase predates type-safe linting; the unsafe-* family is kept
-      // as warnings so it stays visible without blocking CI. Tightening
-      // these to errors is a good follow-up cleanup.
-      '@typescript-eslint/no-unsafe-argument': 'warn',
-      '@typescript-eslint/no-unsafe-assignment': 'warn',
-      '@typescript-eslint/no-unsafe-call': 'warn',
-      '@typescript-eslint/no-unsafe-member-access': 'warn',
-      '@typescript-eslint/no-unsafe-return': 'warn',
-      '@typescript-eslint/no-unsafe-enum-comparison': 'warn',
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
@@ -47,11 +38,18 @@ export default tseslint.config(
     },
   },
   {
-    // Jest specs legitimately reference methods without binding (e.g. when
-    // asserting on mock calls); the rule is designed to be off in tests.
+    // Test specs: unbound-method is designed to be off for jest assertions,
+    // and the type-unsafe family is relaxed because supertest bodies and
+    // partial mocks are intentionally loose in tests. src/ enforces them.
     files: ['test/**/*.ts'],
     rules: {
       '@typescript-eslint/unbound-method': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/no-unsafe-enum-comparison': 'off',
     },
   },
 );

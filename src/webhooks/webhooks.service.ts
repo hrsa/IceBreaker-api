@@ -21,7 +21,7 @@ export class WebhooksService {
       return { success: false, message: "Invalid verification token" };
     }
 
-    switch (payload.type) {
+    switch (payload.type as KofiPaymentType) {
       case KofiPaymentType.DONATION:
       case KofiPaymentType.SUBSCRIPTION:
         return this.processDonation(payload);

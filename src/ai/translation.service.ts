@@ -1,5 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
+import { getErrorMessage } from "../common/utils/error.utils";
 import { CardsService } from "../cards/cards.service";
+import { UpdateCategoryDto } from "../categories/dto/update-category.dto";
 import { CategoriesService } from "../categories/categories.service";
 import { AIService } from "./ai.service";
 import { Card } from "../cards/entities/card.entity";
@@ -48,7 +50,7 @@ export class TranslationService {
         const updatedCard = await this.translateCard(card, sourceLanguage, targetLanguages);
         updatedCards.push(updatedCard);
       } catch (e) {
-        this.logger.error(`Failed to translate card ${card.id}: ${e.message}`);
+        this.logger.error(`Failed to translate card ${card.id}: ${getErrorMessage(e)}`);
       }
     }
     return {
@@ -96,7 +98,7 @@ export class TranslationService {
         this.logger.log(`Successfully translated card ${card.id} to ${targetLang}`);
         await this.cardsService.update(card.id, updateDto);
       } catch (error) {
-        this.logger.error(`Failed to translate card ${card.id} to ${targetLang}: ${error.message}`);
+        this.logger.error(`Failed to translate card ${card.id} to ${targetLang}: ${getErrorMessage(error)}`);
         throw new Error(`Failed to update card ${card.id}`, { cause: error });
       }
     }
@@ -201,10 +203,11 @@ export class TranslationService {
 
         const translatedText = await this.AIService.translateText(sourceText, languageMap[targetLang]);
 
-        const updateDto: any = {
+        const updateDto: UpdateCategoryDto = {
           language: targetLang,
+          name: propertyPrefix === "name" ? translatedText : undefined,
+          description: propertyPrefix === "description" ? translatedText : undefined,
         };
-        updateDto[propertyPrefix] = translatedText;
 
         const updatedCategory = await this.categoriesService.update(category.id, updateDto);
 
@@ -214,7 +217,7 @@ export class TranslationService {
 
         this.logger.log(`Successfully translated category ${category.id} ${propertyPrefix} to ${targetLang}`);
       } catch (error) {
-        this.logger.error(`Failed to translate category ${category.id} ${propertyPrefix} to ${targetLang}: ${error.message}`);
+        this.logger.error(`Failed to translate category ${category.id} ${propertyPrefix} to ${targetLang}: ${getErrorMessage(error)}`);
       }
     }
   }

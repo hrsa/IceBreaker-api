@@ -20,7 +20,10 @@ export class GoogleDriveProvider implements UploadProvider {
 
   private initializeGoogleDrive() {
     try {
-      const credentials = JSON.parse(this.configService.get<string>("GOOGLE_DRIVE_CREDENTIALS", "{}")) as { client_email: string; private_key: string };
+      const credentials = JSON.parse(this.configService.get<string>("GOOGLE_DRIVE_CREDENTIALS", "{}")) as {
+        client_email: string;
+        private_key: string;
+      };
 
       const auth = new google.auth.GoogleAuth({ credentials, scopes: ["https://www.googleapis.com/auth/drive"] });
       this.drive = google.drive({ version: "v3", auth });

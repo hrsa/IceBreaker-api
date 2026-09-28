@@ -3,6 +3,7 @@ import { AppModule } from "./app.module";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { ValidationPipe } from "@nestjs/common";
 import { getBotToken } from "nestjs-telegraf";
+import { Context, Telegraf } from "telegraf";
 import { join } from "path";
 import { NestExpressApplication } from "@nestjs/platform-express";
 
@@ -20,8 +21,8 @@ async function bootstrap() {
   });
 
   app.enableCors();
-  const bot = app.get(getBotToken());
-  app.use(bot.webhookCallback(process.env.TELEGRAM_BOT_HOOK_PATH, "/tg-webhook"));
+  const bot = app.get<Telegraf<Context>>(getBotToken());
+  app.use(bot.webhookCallback(process.env.TELEGRAM_BOT_HOOK_PATH));
 
   const config = new DocumentBuilder()
     .setTitle("IceMelter API")

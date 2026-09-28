@@ -1,4 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
+import { getErrorMessage, getErrorStack } from "../common/utils/error.utils";
 import OpenAI from "openai";
 import { ConfigService } from "@nestjs/config";
 import { z } from "zod";
@@ -51,8 +52,8 @@ export class AIService {
       });
       return response.choices[0].message.content!.trim();
     } catch (error) {
-      this.logger.error(`Translation error: ${error.message}`, error.stack);
-      throw new Error(`Failed to translate text: ${error.message}`, { cause: error });
+      this.logger.error(`Translation error: ${getErrorMessage(error)}`, getErrorStack(error));
+      throw new Error(`Failed to translate text: ${getErrorMessage(error)}`, { cause: error });
     }
   }
 
@@ -79,13 +80,13 @@ export class AIService {
 
     if (!input) {
       switch (language) {
-        case "en":
+        case AppLanguage.ENGLISH:
           input = `Hello, ${name}! It's been so long since we played!`;
           break;
-        case "fr":
+        case AppLanguage.FRENCH:
           input = `Salut, ${name}! Cela faisait si longtemps qu'on n'avait pas joué !`;
           break;
-        case "it":
+        case AppLanguage.ITALIAN:
           input = `Ciao, ${name}! È passato così tanto tempo da quando abbiamo giocato!`;
           break;
         default:
@@ -136,7 +137,7 @@ export class AIService {
       this.logger.log(`Generated game: ${JSON.stringify(response.choices[0].message.parsed)}`);
       return response.choices[0].message.parsed;
     } catch (e) {
-      throw new Error(e.message, { cause: e });
+      throw new Error(getErrorMessage(e), { cause: e });
     }
   }
 
