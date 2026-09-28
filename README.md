@@ -37,6 +37,8 @@ The application provides conversation starters, icebreaker questions, and intera
 - `npm run build` - Build the application
 - `npm run start:dev` - Run in development mode with hot reload
 - `npm run start:prod` - Run in production mode
+- `npm run lint` - Check code style and lint rules
+- `npm run lint:fix` - Fix lint and formatting issues automatically
 - `npm run test` - Run unit tests
 - `npm run test:e2e` - Run e2e tests (see Testing section)
 - `npm run migration:generate -- ./src/migrations/MigrationName` - Generate a new migration
@@ -113,10 +115,9 @@ Notes:
 
 ### CI
 
-`.github/workflows/tests.yml` runs the unit tests standalone and the e2e tests
-against throwaway `postgres`/`redis` service containers (`test_icebreaker`
-database) on every push and pull request. Lint is not part of CI yet due to
-pre-existing eslint errors on the default branch.
+`.github/workflows/tests.yml` runs lint, the unit tests standalone and the e2e
+tests against throwaway `postgres`/`redis` service containers (`test_icebreaker`
+database) on every push and pull request.
 
 ## Project Structure
 
