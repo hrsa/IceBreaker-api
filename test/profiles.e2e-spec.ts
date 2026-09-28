@@ -217,8 +217,8 @@ describe("Profiles API (e2e)", () => {
       } as Partial<Category>);
 
       const cards = await cardRepository.save([
-        { question_en: "Pref question 1", categoryId: category.id } as Partial<Card>,
-        { question_en: "Pref question 2", categoryId: category.id } as Partial<Card>,
+        { question_en: "Pref question 1", categoryId: category.id },
+        { question_en: "Pref question 2", categoryId: category.id },
       ]);
 
       await preferenceRepository.save([
@@ -226,12 +226,12 @@ describe("Profiles API (e2e)", () => {
           profileId: profile.id,
           cardId: cards[0].id,
           status: CardStatus.ARCHIVED,
-        } as Partial<CardPreference>,
+        },
         {
           profileId: profile.id,
           cardId: cards[1].id,
           status: CardStatus.LOVED,
-        } as Partial<CardPreference>,
+        },
       ]);
 
       await client.actingAs(user);

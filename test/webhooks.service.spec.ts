@@ -34,63 +34,53 @@ describe("WebhooksService", () => {
     eventEmitter = { emit: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        WebhooksService,
-        { provide: ConfigService, useValue: configService },
-        { provide: EventEmitter2, useValue: eventEmitter },
-      ],
+      providers: [WebhooksService, { provide: ConfigService, useValue: configService }, { provide: EventEmitter2, useValue: eventEmitter }],
     }).compile();
 
     service = module.get<WebhooksService>(WebhooksService);
   });
 
   describe("processKofiWebhook", () => {
-    it("emits donation.received with the parsed amount and email for donations", async () => {
-      await service.processKofiWebhook(validPayload);
+    it("emits donation.received with the parsed amount and email for donations", () => {
+      service.processKofiWebhook(validPayload);
 
-      expect(eventEmitter.emit).toHaveBeenCalledWith(
-        "donation.received",
-        expect.objectContaining({ amount: 5, email: "donor@test.net" })
-      );
+      expect(eventEmitter.emit).toHaveBeenCalledWith("donation.received", expect.objectContaining({ amount: 5, email: "donor@test.net" }));
     });
 
-    it("treats subscription payments like donations", async () => {
-      await service.processKofiWebhook({
+    it("treats subscription payments like donations", () => {
+      service.processKofiWebhook({
         ...validPayload,
         type: KofiPaymentType.SUBSCRIPTION,
         amount: "12",
       });
 
-      expect(eventEmitter.emit).toHaveBeenCalledWith(
-        "donation.received",
-        expect.objectContaining({ amount: 12 })
-      );
+      expect(eventEmitter.emit).toHaveBeenCalledWith("donation.received", expect.objectContaining({ amount: 12 }));
     });
 
-    it("rejects a forged verification token without emitting", async () => {
-      const result = (await service.processKofiWebhook({
+    it("rejects a forged verification token without emitting", () => {
+      const result = service.processKofiWebhook({
         ...validPayload,
         verification_token: "forged",
-      })) as { success: boolean; message: string };
+      }) as { success: boolean; message: string };
 
       expect(result.success).toBe(false);
       expect(result.message).toContain("Invalid verification token");
       expect(eventEmitter.emit).not.toHaveBeenCalled();
     });
 
-    it("acknowledges unhandled payment types without emitting", async () => {
-      const result = (await service.processKofiWebhook({
+    it("acknowledges unhandled payment types without emitting", () => {
+      const result = service.processKofiWebhook({
         ...validPayload,
         type: KofiPaymentType.COMMISSION,
-      })) as { success: boolean; message: string };
+      }) as { success: boolean; message: string };
 
       expect(result.success).toBe(true);
       expect(result.message).toContain("not handled");
       expect(eventEmitter.emit).not.toHaveBeenCalled();
     });
 
-    it("reads the verification token from config", async () => {
-      await service.processKofiWebhook(validPayload);
+    it("reads the verification token from config", () => {
+      service.processKofiWebhook(validPayload);
 
       expect(configService.getOrThrow).toHaveBeenCalledWith("KOFI_VERIFICATION_TOKEN");
     });

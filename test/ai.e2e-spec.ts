@@ -23,18 +23,18 @@ describe("AI API (e2e)", () => {
     })
       .overrideProvider(AIService)
       .useValue({
-        createCustomGame: async (description: string, userId: string) => ({
+        createCustomGame: (description: string, userId: string) => ({
           requestId: "3f2504e0-4f89-11d3-9a0c-0305e82c3301",
           status: "processing",
           message: "Game generation started. Check status in half a minute.",
           echo: { description, userId },
         }),
-        translateText: async (text: string) => `translated: ${text}`,
-        getGreeting: async () => "Hello",
+        translateText: (text: string) => `translated: ${text}`,
+        getGreeting: () => "Hello",
       })
       .compile();
 
-    app = moduleFixture.createNestApplication() as INestApplication<App>;
+    app = moduleFixture.createNestApplication();
     app.useGlobalPipes(
       new ValidationPipe({
         whitelist: true,

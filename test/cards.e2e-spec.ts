@@ -46,7 +46,7 @@ describe("CardsController (e2e)", () => {
         secretPhrase: "test secret",
       } as Partial<User>);
     }
-    testUser = userRecord as User;
+    testUser = userRecord;
 
     // Get or create profile
     let profileRecord: Profile | null = await profileRepository.findOne({ where: { userId: testUser.id } });
@@ -57,7 +57,7 @@ describe("CardsController (e2e)", () => {
         name: "Test Profile",
       } as Partial<Profile>);
     }
-    testProfile = profileRecord as Profile;
+    testProfile = profileRecord;
 
     // Get or create category
     let categoryRecord: Category | null = await categoryRepository.findOne({ where: { name_en: "Category 1" } });
@@ -74,7 +74,7 @@ describe("CardsController (e2e)", () => {
         isPublic: true,
       } as Partial<Category>);
     }
-    testCategory = categoryRecord as Category;
+    testCategory = categoryRecord;
 
     // Create test cards
     testCards = await cardRepository.save([
@@ -82,27 +82,27 @@ describe("CardsController (e2e)", () => {
         question_en: "Test question 1",
         categoryId: testCategory.id,
         category: testCategory,
-      } as Partial<Card>,
+      },
       {
         question_en: "Test question 2",
         categoryId: testCategory.id,
         category: testCategory,
-      } as Partial<Card>,
+      },
       {
         question_en: "Test question 3",
         categoryId: testCategory.id,
         category: testCategory,
-      } as Partial<Card>,
+      },
       {
         question_en: "Test question 4",
         categoryId: testCategory.id,
         category: testCategory,
-      } as Partial<Card>,
+      },
       {
         question_en: "Test question 5",
         categoryId: testCategory.id,
         category: testCategory,
-      } as Partial<Card>,
+      },
     ] as Partial<Card>[]);
   }, 60000);
 
@@ -115,7 +115,7 @@ describe("CardsController (e2e)", () => {
       // This test specifically verifies the fix for:
       // QueryFailedError: for SELECT DISTINCT, ORDER BY expressions must appear in select list
 
-      const token = await generateTestToken(app, testUser.id);
+      const token = generateTestToken(app, testUser.id);
       const response = await request(app.getHttpServer())
         .post("/cards/random")
         .set("Authorization", `Bearer ${token}`)
@@ -162,10 +162,10 @@ describe("CardsController (e2e)", () => {
           question_en: "Test question from category 2",
           categoryId: secondCategory.id,
           category: secondCategory,
-        } as Partial<Card>,
+        },
       ]);
 
-      const token = await generateTestToken(app, testUser.id);
+      const token = generateTestToken(app, testUser.id);
       const response = await request(app.getHttpServer())
         .post("/cards/random")
         .set("Authorization", `Bearer ${token}`)
@@ -188,7 +188,7 @@ describe("CardsController (e2e)", () => {
         status: CardStatus.ARCHIVED,
       } as Partial<CardPreference>);
 
-      const token = await generateTestToken(app, testUser.id);
+      const token = generateTestToken(app, testUser.id);
 
       // Without includeArchived, the archived card should be excluded
       const responseWithoutArchived = await request(app.getHttpServer())
@@ -231,7 +231,7 @@ describe("CardsController (e2e)", () => {
         status: CardStatus.LOVED,
       } as Partial<CardPreference>);
 
-      const token = await generateTestToken(app, testUser.id);
+      const token = generateTestToken(app, testUser.id);
 
       // Without includeLoved, the loved card should be excluded
       const responseWithoutLoved = await request(app.getHttpServer())
@@ -251,7 +251,7 @@ describe("CardsController (e2e)", () => {
     });
 
     it("should return different cards on multiple calls (randomness)", async () => {
-      const token = await generateTestToken(app, testUser.id);
+      const token = generateTestToken(app, testUser.id);
 
       // Call the endpoint multiple times and verify we get different results
       const results: string[][] = [];
@@ -279,7 +279,7 @@ describe("CardsController (e2e)", () => {
     });
 
     it("should handle limit parameter correctly", async () => {
-      const token = await generateTestToken(app, testUser.id);
+      const token = generateTestToken(app, testUser.id);
 
       const response = await request(app.getHttpServer())
         .post("/cards/random")
@@ -305,7 +305,7 @@ describe("CardsController (e2e)", () => {
         } as Partial<CardPreference>);
       }
 
-      const token = await generateTestToken(app, testUser.id);
+      const token = generateTestToken(app, testUser.id);
 
       // When all cards are archived and we're not including archived,
       // there are no cards left, so the API returns 404 (NotFoundException)
@@ -347,7 +347,7 @@ describe("CardsController (e2e)", () => {
     let createdCardId = "";
 
     beforeAll(async () => {
-      client = new TestClientHelper(app.getHttpServer() as any);
+      client = new TestClientHelper(app.getHttpServer());
       // Admin-created category for the card CRUD tests
       await client.actingAs(admin);
       const categoryResponse = await client.post("/categories").send({
@@ -461,7 +461,7 @@ describe("CardsController (e2e)", () => {
 });
 
 // Helper function to generate JWT token for testing
-async function generateTestToken(app: INestApplication, userId: string): Promise<string> {
+function generateTestToken(app: INestApplication, userId: string): string {
   const configService = app.get(ConfigService);
   const secret = configService.get("JWT_SECRET") || "test-secret";
 

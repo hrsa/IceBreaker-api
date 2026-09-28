@@ -231,9 +231,9 @@ describe("Categories API (e2e)", () => {
       } as Partial<Category>);
 
       await cardRepository.save([
-        { question_en: "Count question 1", categoryId: category.id } as Partial<Card>,
-        { question_en: "Count question 2", categoryId: category.id } as Partial<Card>,
-        { question_en: "Count question 3", categoryId: category.id } as Partial<Card>,
+        { question_en: "Count question 1", categoryId: category.id },
+        { question_en: "Count question 2", categoryId: category.id },
+        { question_en: "Count question 3", categoryId: category.id },
       ]);
 
       await client.actingAs(user);

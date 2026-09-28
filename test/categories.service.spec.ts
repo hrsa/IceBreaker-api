@@ -40,7 +40,7 @@ describe("CategoriesService", () => {
 
   describe("create", () => {
     it("maps name and description into language-specific fields", async () => {
-      await service.create({ language: AppLanguage.ENGLISH, name: "Fun", description: "Fun questions", isPublic: true } as any, "user-1");
+      await service.create({ language: AppLanguage.ENGLISH, name: "Fun", description: "Fun questions", isPublic: true }, "user-1");
 
       expect(languageUtilsService.mapPropertyToField).toHaveBeenCalledWith(expect.anything(), "name", "Fun", AppLanguage.ENGLISH);
       expect(languageUtilsService.mapPropertyToField).toHaveBeenCalledWith(
@@ -52,20 +52,20 @@ describe("CategoriesService", () => {
     });
 
     it("assigns the owner only for private categories", async () => {
-      await service.create({ language: AppLanguage.ENGLISH, name: "Private", description: "d", isPublic: false } as any, "user-1");
+      await service.create({ language: AppLanguage.ENGLISH, name: "Private", description: "d", isPublic: false }, "user-1");
 
       expect(repository.save).toHaveBeenCalledWith(expect.objectContaining({ userId: "user-1", isPublic: false }));
     });
 
     it("does not assign an owner for public categories", async () => {
-      await service.create({ language: AppLanguage.ENGLISH, name: "Public", description: "d", isPublic: true } as any, "user-1");
+      await service.create({ language: AppLanguage.ENGLISH, name: "Public", description: "d", isPublic: true }, "user-1");
 
       expect(repository.save).toHaveBeenCalledWith(expect.objectContaining({ isPublic: true }));
       expect(repository.save).not.toHaveBeenCalledWith(expect.objectContaining({ userId: "user-1" }));
     });
 
     it("emits the category.created event", async () => {
-      await service.create({ language: AppLanguage.ENGLISH, name: "N", description: "d", isPublic: true } as any);
+      await service.create({ language: AppLanguage.ENGLISH, name: "N", description: "d", isPublic: true });
 
       expect(eventEmitter.emit).toHaveBeenCalledWith("category.created", expect.anything());
     });
@@ -139,7 +139,7 @@ describe("CategoriesService", () => {
     it("maps the new name when a language is provided", async () => {
       repository.findOne.mockResolvedValue({ id: "cat-1", name_en: "Old" });
 
-      await service.update("cat-1", { name: "New", language: AppLanguage.ENGLISH } as any);
+      await service.update("cat-1", { name: "New", language: AppLanguage.ENGLISH });
 
       expect(languageUtilsService.mapPropertyToField).toHaveBeenCalledWith(
         expect.objectContaining({ id: "cat-1" }),

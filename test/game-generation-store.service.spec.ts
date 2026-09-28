@@ -103,9 +103,7 @@ describe("GameGenerationStoreService", () => {
     it("does nothing for an unknown request id", async () => {
       // The service logs an error for unknown tasks; spy on the logger to
       // keep the test output clean and assert the log line.
-      const loggerError = jest
-        .spyOn((service as any).logger, "error")
-        .mockImplementation(jest.fn());
+      const loggerError = jest.spyOn((service as any).logger, "error").mockImplementation(jest.fn());
       redis.get.mockResolvedValue(null);
 
       await service.updateTaskStatus("missing", "completed");

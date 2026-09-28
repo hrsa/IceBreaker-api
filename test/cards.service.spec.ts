@@ -165,7 +165,7 @@ describe("CardsService - getRandomCard", () => {
 
     const cards = await service.getRandomCard({ ...dto, categoryIds: ["cat-ok", "cat-bad"] }, "user-1");
 
-    expect(categoriesService.findOne).toHaveBeenCalledTimes(2);
+    expect(categoriesService.findOne as jest.Mock).toHaveBeenCalledTimes(2);
     expect(cards).toHaveLength(2);
     expect(idQuery.where).toHaveBeenCalledWith(
       "card.categoryId IN (:...validCategoryIds)",

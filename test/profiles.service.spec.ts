@@ -36,7 +36,7 @@ describe("ProfilesService", () => {
     it("creates and saves the profile", async () => {
       const dto = { name: "Friends", userId: "user-1" };
 
-      const result = await service.create(dto as any);
+      const result = await service.create(dto);
 
       expect(profilesRepository.create).toHaveBeenCalledWith(dto);
       expect(result).toEqual(dto);
@@ -96,7 +96,7 @@ describe("ProfilesService", () => {
     it("merges the dto into the profile and saves", async () => {
       profilesRepository.findOne.mockResolvedValue({ id: "p1", name: "Old", userId: "user-1" });
 
-      const result = await service.update("p1", "user-1", { name: "New" } as any);
+      const result = await service.update("p1", "user-1", { name: "New" });
 
       expect(result.name).toBe("New");
       expect(profilesRepository.save).toHaveBeenCalledWith(expect.objectContaining({ id: "p1" }));

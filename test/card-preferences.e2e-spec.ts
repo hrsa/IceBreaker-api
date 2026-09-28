@@ -60,19 +60,19 @@ describe("Card Preferences API (e2e)", () => {
     } as Partial<Category>);
 
     testCards = await cardRepository.save([
-      { question_en: "Preference card 1", categoryId: category.id } as Partial<Card>,
-      { question_en: "Preference card 2", categoryId: category.id } as Partial<Card>,
-      { question_en: "Preference card 3", categoryId: category.id } as Partial<Card>,
-      { question_en: "Preference card 4", categoryId: category.id } as Partial<Card>,
+      { question_en: "Preference card 1", categoryId: category.id },
+      { question_en: "Preference card 2", categoryId: category.id },
+      { question_en: "Preference card 3", categoryId: category.id },
+      { question_en: "Preference card 4", categoryId: category.id },
     ]);
 
     // Seed preferences in every status for the filter tests
     const preferenceRepository = dataSource.getRepository(CardPreference);
     await preferenceRepository.save([
-      { profileId: testProfile.id, cardId: testCards[0].id, status: CardStatus.ACTIVE } as Partial<CardPreference>,
-      { profileId: testProfile.id, cardId: testCards[1].id, status: CardStatus.ARCHIVED } as Partial<CardPreference>,
-      { profileId: testProfile.id, cardId: testCards[2].id, status: CardStatus.BANNED } as Partial<CardPreference>,
-      { profileId: testProfile.id, cardId: testCards[3].id, status: CardStatus.LOVED } as Partial<CardPreference>,
+      { profileId: testProfile.id, cardId: testCards[0].id, status: CardStatus.ACTIVE },
+      { profileId: testProfile.id, cardId: testCards[1].id, status: CardStatus.ARCHIVED },
+      { profileId: testProfile.id, cardId: testCards[2].id, status: CardStatus.BANNED },
+      { profileId: testProfile.id, cardId: testCards[3].id, status: CardStatus.LOVED },
     ]);
   }, 30000);
 

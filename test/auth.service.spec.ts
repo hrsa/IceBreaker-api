@@ -45,8 +45,8 @@ describe("AuthService", () => {
   });
 
   describe("login", () => {
-    it("signs a jwt with the user id and email", async () => {
-      const result = await service.login({ id: "user-1", email: "user@test.net" } as any);
+    it("signs a jwt with the user id and email", () => {
+      const result = service.login({ id: "user-1", email: "user@test.net" } as any);
 
       expect(jwtService.sign).toHaveBeenCalledWith({ sub: "user-1", email: "user@test.net" });
       expect(result.accessToken).toBe("signed-token");

@@ -44,8 +44,8 @@ describe("SuggestionsService", () => {
   });
 
   describe("create", () => {
-    it("notifies the admin via telegram about the new suggestion", () => {
-      service.create({ userId: "u1", question: "A great idea?" } as any);
+    it("notifies the admin via telegram about the new suggestion", async () => {
+      await service.create({ userId: "u1", question: "A great idea?" } as any);
 
       expect(eventEmitter.emit).toHaveBeenCalledWith("telegram.message", expect.objectContaining({}));
       expect(configService.getOrThrow).toHaveBeenCalledWith("ADMIN_TELEGRAM_ID");
@@ -109,7 +109,7 @@ describe("SuggestionsService", () => {
     it("merges the dto into the suggestion", async () => {
       suggestionsRepository.findOneBy.mockResolvedValue({ id: "s1", accepted: false });
 
-      const result = await service.update("s1", { accepted: true } as any);
+      const result = await service.update("s1", { accepted: true });
 
       expect(result.accepted).toBe(true);
       expect(suggestionsRepository.save).toHaveBeenCalledWith(expect.objectContaining({ accepted: true }));

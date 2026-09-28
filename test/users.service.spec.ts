@@ -112,7 +112,7 @@ describe("UsersService", () => {
     it("hashes a new password before merging", async () => {
       usersRepository.findOne.mockResolvedValue({ id: "u1", password: "old-hash" });
 
-      const result = await service.update("u1", { password: "new-plaintext" } as any);
+      const result = await service.update("u1", { password: "new-plaintext" });
 
       expect(result.password).not.toBe("new-plaintext");
       expect(result.password).not.toBe("old-hash");

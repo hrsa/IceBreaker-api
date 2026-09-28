@@ -47,7 +47,7 @@ describe("CardPreferencesService", () => {
 
       const result = await service.updatePreference("card-1", "profile-1", {
         status: CardStatus.ARCHIVED,
-      } as any);
+      });
       if (!result) throw new Error("Preference was not created");
 
       expect(preferencesRepository.create).toHaveBeenCalledWith({
@@ -63,7 +63,7 @@ describe("CardPreferencesService", () => {
 
       const result = await service.updatePreference("card-1", "profile-1", {
         status: CardStatus.ACTIVE,
-      } as any);
+      });
 
       expect(result).toBeNull();
       expect(preferencesRepository.create).not.toHaveBeenCalled();
@@ -83,7 +83,7 @@ describe("CardPreferencesService", () => {
 
       const result = await service.updatePreference("card-1", "profile-1", {
         status: CardStatus.ARCHIVED,
-      } as any);
+      });
       if (!result) throw new Error("Preference was not updated");
 
       expect(result.status).toBe(CardStatus.ARCHIVED);
@@ -104,7 +104,7 @@ describe("CardPreferencesService", () => {
 
       const result = await service.updatePreference("card-1", "profile-1", {
         status: CardStatus.ACTIVE,
-      } as any);
+      });
 
       expect(result).toBeNull();
       expect(preferencesRepository.delete).toHaveBeenCalledWith("pref-1");
