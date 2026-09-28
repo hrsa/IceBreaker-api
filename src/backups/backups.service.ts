@@ -5,6 +5,7 @@ import { CleanupResult, UploadProvider, UploadProviderType, UploadResult } from 
 import { GoogleDriveProvider } from "./providers/google-drive.provider";
 import { S3Provider } from "./providers/s3.provider";
 import * as path from "node:path";
+import { getErrorMessage } from "../common/utils/error.utils";
 import { readdir, unlink } from "node:fs/promises";
 
 @Injectable()
@@ -41,7 +42,7 @@ export class BackupsService {
       const backupFiles = files.filter(file => file.endsWith(".sql") || file.endsWith(".sql.gz"));
       return backupFiles.map(file => path.join(directory, file));
     } catch (error) {
-      this.logger.error("Failed to get backup files:", error.message);
+      this.logger.error("Failed to get backup files:", getErrorMessage(error));
       return [];
     }
   }
@@ -80,7 +81,7 @@ export class BackupsService {
       } catch (error) {
         const failureResult: UploadResult = {
           success: false,
-          message: `Failed to upload ${file}: ${error.message}`,
+          message: `Failed to upload ${file}: ${getErrorMessage(error)}`,
         };
         results.push(failureResult);
         this.logger.error(`❌ ${failureResult.message}`);
@@ -119,7 +120,7 @@ export class BackupsService {
             deletedCount: 0,
             totalSize: 0,
             deletedFiles: [],
-            errors: [`Cleanup failed for ${provider}: ${error.message}`],
+            errors: [`Cleanup failed for ${provider}: ${getErrorMessage(error)}`],
             provider,
           });
         }

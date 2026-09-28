@@ -1,14 +1,16 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { CleanupResult, CloudFile, UploadProvider, UploadResult } from "../interfaces/upload-provider.interface";
 import { ConfigService } from "@nestjs/config";
-import { google } from "googleapis";
+import { google, drive_v3 } from "googleapis";
+
 import { basename } from "path";
 import { createReadStream, statSync } from "fs";
+import { getErrorMessage, getErrorStack } from "../../common/utils/error.utils";
 
 @Injectable()
 export class GoogleDriveProvider implements UploadProvider {
   private readonly logger = new Logger(GoogleDriveProvider.name);
-  private drive: any;
+  private drive?: drive_v3.Drive;
   private baseFolderId: string;
 
   constructor(private configService: ConfigService) {
@@ -18,13 +20,13 @@ export class GoogleDriveProvider implements UploadProvider {
 
   private initializeGoogleDrive() {
     try {
-      const credentials = JSON.parse(this.configService.get<string>("GOOGLE_DRIVE_CREDENTIALS", "{}"));
+      const credentials = JSON.parse(this.configService.get<string>("GOOGLE_DRIVE_CREDENTIALS", "{}")) as { client_email: string; private_key: string };
 
       const auth = new google.auth.GoogleAuth({ credentials, scopes: ["https://www.googleapis.com/auth/drive"] });
       this.drive = google.drive({ version: "v3", auth });
       this.logger.log("Google Drive initialized");
     } catch (error) {
-      this.logger.error("Google Drive initialization failed", error.stack);
+      this.logger.error("Google Drive initialization failed", getErrorStack(error));
     }
   }
 
@@ -53,39 +55,48 @@ export class GoogleDriveProvider implements UploadProvider {
       );
 
       const response = await this.drive.files.create({
-        resource: fileMetadata,
+        requestBody: fileMetadata,
         media: media,
         fields: "id,name,webViewLink",
       });
 
       return {
         success: true,
-        fileId: response.data.id,
-        url: response.data.webViewLink,
+        fileId: response.data.id ?? undefined,
+        url: response.data.webViewLink ?? undefined,
         message: `Successfully uploaded to Google Drive: ${response.data.name}`,
         provider: "google-drive",
       };
     } catch (e) {
-      this.logger.error(`Failed to upload file ${fileName} to Google Drive: ${e.message}`, e.stack);
+      const message = getErrorMessage(e);
+      this.logger.error(`Failed to upload file ${fileName} to Google Drive: ${message}`, getErrorStack(e));
       return {
         success: false,
-        message: `Failed to upload file ${fileName} to Google Drive: ${e.message}`,
+        message: `Failed to upload file ${fileName} to Google Drive: ${message}`,
         provider: "google-drive",
       };
     }
   }
 
   async delete(fileId: string): Promise<boolean> {
+    if (!this.drive) {
+      throw new Error("Google Drive not initialized");
+    }
     try {
       await this.drive.files.delete({ fileId });
       return true;
     } catch (error) {
-      this.logger.error("Failed to delete from Google Drive:", error.message);
+      this.logger.error("Failed to delete from Google Drive:", getErrorMessage(error));
       throw error;
     }
   }
 
   async list(directory?: string): Promise<CloudFile[]> {
+    if (!this.drive) {
+      this.logger.error("Failed to list Google Drive files: Google Drive not initialized");
+      return [];
+    }
+
     try {
       if (directory) {
         this.baseFolderId = await this.getOrCreateFolder(directory || "backups");
@@ -98,14 +109,14 @@ export class GoogleDriveProvider implements UploadProvider {
       });
 
       return (response.data.files || []).map(file => ({
-        id: file.id,
-        name: file.name,
-        createdAt: new Date(file.createdTime),
-        size: parseInt(file.size) || 0,
-        url: file.webViewLink,
+        id: file.id || "",
+        name: file.name || "",
+        createdAt: new Date(file.createdTime || Date.now()),
+        size: parseInt(file.size || "0") || 0,
+        url: file.webViewLink ?? undefined,
       }));
     } catch (error) {
-      this.logger.error("Failed to list Google Drive files:", error.message);
+      this.logger.error("Failed to list Google Drive files:", getErrorMessage(error));
       return [];
     }
   }
@@ -135,7 +146,7 @@ export class GoogleDriveProvider implements UploadProvider {
             result.deletedFiles.push(file.name);
             this.logger.log(`Deleted old backup from Google Drive: ${file.name}`);
           } catch (error) {
-            const errorMsg = `Failed to delete ${file.name}: ${error.message}`;
+            const errorMsg = `Failed to delete ${file.name}: ${getErrorMessage(error)}`;
             result.errors.push(errorMsg);
             this.logger.error(errorMsg);
           }
@@ -147,13 +158,16 @@ export class GoogleDriveProvider implements UploadProvider {
       );
       return result;
     } catch (error) {
-      this.logger.error("Google Drive cleanup failed:", error.message);
-      result.errors.push(`Cleanup failed: ${error.message}`);
+      this.logger.error("Google Drive cleanup failed:", getErrorMessage(error));
+      result.errors.push(`Cleanup failed: ${getErrorMessage(error)}`);
       return result;
     }
   }
 
   private async getOrCreateFolder(folderName: string): Promise<string> {
+    if (!this.drive) {
+      return this.baseFolderId;
+    }
     if (!folderName || folderName === "/") {
       return this.baseFolderId;
     }
@@ -165,7 +179,7 @@ export class GoogleDriveProvider implements UploadProvider {
       });
 
       if (response.data.files && response.data.files.length > 0) {
-        return response.data.files[0].id;
+        return response.data.files[0].id ?? this.baseFolderId;
       }
 
       const folderMetadata = {
@@ -175,14 +189,14 @@ export class GoogleDriveProvider implements UploadProvider {
       };
 
       const folder = await this.drive.files.create({
-        resource: folderMetadata,
+        requestBody: folderMetadata,
         fields: "id",
       });
 
       this.logger.log(`Created Google Drive folder: ${folderName}`);
-      return folder.data.id;
+      return folder.data.id ?? this.baseFolderId;
     } catch (error) {
-      this.logger.error(`Failed to get/create folder ${folderName}:`, error.message);
+      this.logger.error(`Failed to get/create folder ${folderName}:`, getErrorMessage(error));
       return this.baseFolderId;
     }
   }

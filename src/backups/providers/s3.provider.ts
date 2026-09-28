@@ -3,6 +3,7 @@ import { CleanupResult, CloudFile, UploadProvider, UploadResult } from "../inter
 import { DeleteObjectCommand, ListObjectsV2Command, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { ConfigService } from "@nestjs/config";
 import { createReadStream, statSync } from "fs";
+import { getErrorMessage } from "../../common/utils/error.utils";
 import { basename } from "path";
 
 @Injectable()
@@ -29,7 +30,7 @@ export class S3Provider implements UploadProvider {
       });
       this.logger.log("S3 client initialized successfully");
     } catch (error) {
-      this.logger.error("Failed to initialize S3:", error.message);
+      this.logger.error("Failed to initialize S3:", getErrorMessage(error));
     }
   }
 
@@ -72,10 +73,10 @@ export class S3Provider implements UploadProvider {
         provider: "s3",
       };
     } catch (error) {
-      this.logger.error("S3 upload failed:", error.message);
+      this.logger.error("S3 upload failed:", getErrorMessage(error));
       return {
         success: false,
-        message: `S3 upload failed: ${error.message}`,
+        message: `S3 upload failed: ${getErrorMessage(error)}`,
         provider: "s3",
       };
     }
@@ -90,7 +91,7 @@ export class S3Provider implements UploadProvider {
       await this.s3Client.send(command);
       return true;
     } catch (error) {
-      this.logger.error("Failed to delete from S3:", error.message);
+      this.logger.error("Failed to delete from S3:", getErrorMessage(error));
       throw error;
     }
   }
@@ -119,7 +120,7 @@ export class S3Provider implements UploadProvider {
           url: `https://${this.bucketName}.s3.amazonaws.com/${obj.Key}`,
         }));
     } catch (error) {
-      this.logger.error("Failed to list S3 files:", error.message);
+      this.logger.error("Failed to list S3 files:", getErrorMessage(error));
       return [];
     }
   }
@@ -149,7 +150,7 @@ export class S3Provider implements UploadProvider {
             result.deletedFiles.push(file.name);
             this.logger.log(`Deleted old backup from S3: ${file.name}`);
           } catch (error) {
-            const errorMsg = `Failed to delete ${file.name}: ${error.message}`;
+            const errorMsg = `Failed to delete ${file.name}: ${getErrorMessage(error)}`;
             result.errors.push(errorMsg);
             this.logger.error(errorMsg);
           }
@@ -161,8 +162,8 @@ export class S3Provider implements UploadProvider {
       );
       return result;
     } catch (error) {
-      this.logger.error("S3 cleanup failed:", error.message);
-      result.errors.push(`Cleanup failed: ${error.message}`);
+      this.logger.error("S3 cleanup failed:", getErrorMessage(error));
+      result.errors.push(`Cleanup failed: ${getErrorMessage(error)}`);
       return result;
     }
   }
