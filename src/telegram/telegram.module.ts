@@ -29,7 +29,7 @@ import { GameGenerationState } from "./states/game-generation.state";
 import { AIModule } from "../ai/ai.module";
 import { session } from "telegraf";
 import { RedisPubSubModule } from "../redis-pub-sub/redis-pub-sub.module";
-import { BroadcastState } from './states/broadcast.state';
+import { BroadcastState } from "./states/broadcast.state";
 
 @Module({
   imports: [
@@ -72,7 +72,7 @@ import { BroadcastState } from './states/broadcast.state';
     BullModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         connection: {
           host: configService.getOrThrow("REDIS_HOST"),
           port: configService.getOrThrow<number>("REDIS_PORT"),

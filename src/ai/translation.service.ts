@@ -97,7 +97,7 @@ export class TranslationService {
         await this.cardsService.update(card.id, updateDto);
       } catch (error) {
         this.logger.error(`Failed to translate card ${card.id} to ${targetLang}: ${error.message}`);
-        throw new Error(`Failed to update card ${card.id}`);
+        throw new Error(`Failed to update card ${card.id}`, { cause: error });
       }
     }
 

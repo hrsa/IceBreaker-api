@@ -13,10 +13,7 @@ export class BroadcastState implements BotState {
 
   async handle(ctx: Context): Promise<void> {
     ctx.session.step = "broadcast";
-    await this.telegramService.updateOrSendMessage(
-      ctx,
-      this.translate.t("telegram.broadcast.question", { lang: ctx.session.language })
-    );
+    await this.telegramService.updateOrSendMessage(ctx, this.translate.t("telegram.broadcast.question", { lang: ctx.session.language }));
   }
 
   async next(ctx: Context): Promise<void> {
@@ -37,10 +34,7 @@ export class BroadcastState implements BotState {
       if (ctx.chat) {
         await this.telegramService.safeDeleteMessage(ctx.chat.id, ctx.message.message_id);
       }
-      await this.telegramService.updateOrSendMessage(
-        ctx,
-        "✅✅✅"
-      );
+      await this.telegramService.updateOrSendMessage(ctx, "✅✅✅");
       await this.telegramService.broadcastMessage(ctx, broadcastMessage);
       ctx.session.step = "card-retrieval";
     } catch (error) {

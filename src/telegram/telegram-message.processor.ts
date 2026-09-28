@@ -29,7 +29,7 @@ export class TelegramMessageProcessor extends WorkerHost {
 
   async process(job: Job<{ telegramId: string | number; text: string; extra?: any }>) {
     switch (job.name) {
-      case "send-message":
+      case "send-message": {
         const { telegramId, text, extra } = job.data;
         this.logger.debug(`Processing message job for ${telegramId}: ${text}`);
 
@@ -43,6 +43,7 @@ export class TelegramMessageProcessor extends WorkerHost {
           this.logger.error(`Failed to send message to ${telegramId}: ${error.message}`);
           throw error;
         }
+      }
     }
   }
 }

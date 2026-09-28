@@ -94,7 +94,9 @@ export class CardsService {
         try {
           await this.categoriesService.findOne(categoryId, userId);
           validCategoryIds.push(categoryId);
-        } catch (error) {}
+        } catch {
+          // Category not accessible for this user - skip it
+        }
       }
     } else {
       const publicCategories = await this.categoriesService.findAll(userId);

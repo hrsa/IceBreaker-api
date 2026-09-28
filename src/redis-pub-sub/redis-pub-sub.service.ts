@@ -9,7 +9,7 @@ export class RedisPubSubService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(RedisPubSubService.name);
   private publisher: Redis;
   private subscriber: Redis;
-  private eventHandlers = new Map<string, (data: any) => void>();
+  private eventHandlers = new Map<string, (data: any) => void | Promise<void>>();
   private subscribedChannels = new Set<string>();
 
   constructor(private readonly configService: ConfigService) {
@@ -54,12 +54,12 @@ export class RedisPubSubService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  async subscribe(channel: string, eventType: string, handler: (data: any) => Promise<void>): Promise<void> {
+  subscribe(channel: string, eventType: string, handler: (data: any) => Promise<void>): void {
     const key = `${channel}:${eventType}`;
     this.eventHandlers.set(key, handler);
 
     if (!this.subscribedChannels.has(channel)) {
-      await this.subscriber.subscribe(channel);
+      this.subscriber.subscribe(channel);
       this.subscribedChannels.add(channel);
       this.logger.log(`Subscribed to Redis channel: ${channel}`);
     }

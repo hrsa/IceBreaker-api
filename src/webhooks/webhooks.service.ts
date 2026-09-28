@@ -13,7 +13,7 @@ export class WebhooksService {
     private eventEmitter: EventEmitter2
   ) {}
 
-  async processKofiWebhook(payload: KofiWebhookPayload) {
+  processKofiWebhook(payload: KofiWebhookPayload) {
     this.logger.log(`Processing Ko-fi webhook: ${payload.type} from ${payload.from_name}`);
 
     if (payload.verification_token !== this.configService.getOrThrow("KOFI_VERIFICATION_TOKEN")) {

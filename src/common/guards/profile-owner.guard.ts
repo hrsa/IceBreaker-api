@@ -22,7 +22,7 @@ export class ProfileOwnerGuard implements CanActivate {
     try {
       await this.profilesService.findOne(profileId, user.id, user.isAdmin);
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }

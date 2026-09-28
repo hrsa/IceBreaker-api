@@ -18,7 +18,7 @@ import { PasswordReset } from "./entities/password-reset.entity";
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         secret: configService.getOrThrow<string>("JWT_SECRET"),
         signOptions: { expiresIn: "7d" },
       }),

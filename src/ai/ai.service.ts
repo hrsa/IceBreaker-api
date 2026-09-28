@@ -52,7 +52,7 @@ export class AIService {
       return response.choices[0].message.content!.trim();
     } catch (error) {
       this.logger.error(`Translation error: ${error.message}`, error.stack);
-      throw new Error(`Failed to translate text: ${error.message}`);
+      throw new Error(`Failed to translate text: ${error.message}`, { cause: error });
     }
   }
 
@@ -133,17 +133,19 @@ export class AIService {
         ],
         response_format: zodResponseFormat(Game, "game"),
       });
-      this.logger.log(`Generated game: ${response.choices[0].message.parsed}`);
+      this.logger.log(`Generated game: ${JSON.stringify(response.choices[0].message.parsed)}`);
       return response.choices[0].message.parsed;
     } catch (e) {
-      throw new Error(e.message);
+      throw new Error(e.message, { cause: e });
     }
   }
 
   async createCustomGame(description: string, userId: string) {
     const requestId = await this.gameGenerationStore.createTask(userId, description);
 
-    this.generateGame(requestId, description, userId);
+    // Intentionally fire-and-forget: the generation runs in the background
+    // and reports failures through the game generation store.
+    void this.generateGame(requestId, description, userId);
 
     return {
       requestId,
@@ -165,7 +167,7 @@ export class AIService {
         !generationData.name_en ||
         !generationData.description_en
       ) {
-        this.logger.error(`Failed to generate new game for ${requestId}: ${generationData}`);
+        this.logger.error(`Failed to generate new game for ${requestId}: ${JSON.stringify(generationData)}`);
         await this.gameGenerationStore.updateTaskStatus(requestId, "failed", {
           generationData: JSON.stringify(generationData),
           error: "Failed to generate new game",

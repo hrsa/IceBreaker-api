@@ -55,7 +55,7 @@ export class TelegramService {
   async onModuleInit() {
     await this.setCommands();
 
-    await this.redisPubSub.subscribe("app-events", "telegram.message", this.handleRedisTelegramMessage.bind(this));
+    this.redisPubSub.subscribe("app-events", "telegram.message", this.handleRedisTelegramMessage.bind(this));
   }
 
   async setCommands(session?: TelegramSession) {
@@ -236,11 +236,16 @@ export class TelegramService {
     const users = await this.usersService.findAll();
     for (const user of users) {
       if (user.telegramId) {
-      const session = await this.redisSessionService.getSession(user.telegramId);
-      await this.sendNotificationToUserMessage(new TelegramMessageEvent(user.telegramId, this.translate.t("telegram.broadcast.message", {
-        args: { name: user.name, message: text },
-        lang: session?.language ?? "en",
-      })));
+        const session = await this.redisSessionService.getSession(user.telegramId);
+        await this.sendNotificationToUserMessage(
+          new TelegramMessageEvent(
+            user.telegramId,
+            this.translate.t("telegram.broadcast.message", {
+              args: { name: user.name, message: text },
+              lang: session?.language ?? "en",
+            })
+          )
+        );
       }
     }
   }
@@ -293,7 +298,7 @@ export class TelegramService {
         return this.welcomeUser(ctx, user.name);
       }
     } catch (error) {
-      throw new Error("Error creating user: " + error.message);
+      throw new Error("Error creating user: " + error.message, { cause: error });
     }
   }
 
@@ -314,7 +319,7 @@ export class TelegramService {
         ctx.session.email = user.email;
         return this.welcomeUser(ctx, user.name);
       }
-    } catch (e) {
+    } catch {
       throw new Error(this.translate.t("telegram.authentication.invalid_secret_phrase", { lang: ctx.session.language }));
     }
   }
@@ -462,8 +467,6 @@ export class TelegramService {
     if (!event.telegramId) {
       return;
     }
-
-    const session = await this.redisSessionService.getSession(event.telegramId);
 
     await this.telegramQueue.add(
       "send-message",

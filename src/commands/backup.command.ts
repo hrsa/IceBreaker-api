@@ -22,7 +22,7 @@ export class BackupCommand extends CommandRunner {
     super();
   }
 
-  async run(inputs: string[], options?: Record<string, string>): Promise<void> {
+  async run(inputs: string[], _options?: Record<string, string>): Promise<void> {
     const [action, provider, days] = inputs;
 
     try {

@@ -1,4 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, ClassSerializerInterceptor, HttpCode, HttpStatus } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  UseInterceptors,
+  ClassSerializerInterceptor,
+  HttpCode,
+  HttpStatus,
+} from "@nestjs/common";
 import { SuggestionsService } from "./suggestions.service";
 import { CreateSuggestionDto } from "./dto/create-suggestion.dto";
 import { UpdateSuggestionDto } from "./dto/update-suggestion.dto";

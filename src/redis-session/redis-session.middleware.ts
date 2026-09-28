@@ -55,7 +55,9 @@ export class RedisSessionService {
             ctx.session.credits = user.credits;
             this.logger.debug(`Found user with Telegram ID: ${telegramId}`);
           }
-        } catch (e) {}
+        } catch {
+          // User lookup failed - continue without credits
+        }
         this.logger.warn(`No user found with Telegram ID: ${telegramId}`);
       }
 
@@ -94,7 +96,7 @@ export class RedisSessionService {
 
   async getSession(chatId: string | number | undefined): Promise<TelegramSession> {
     if (!chatId) {
-      return { language: AppLanguage.ENGLISH } as TelegramSession;
+      return { language: AppLanguage.ENGLISH };
     }
     const key = `session:${chatId}`;
     const sessionData = await this.redisClient.get(key);
@@ -103,7 +105,7 @@ export class RedisSessionService {
       return JSON.parse(sessionData) as TelegramSession;
     }
 
-    return { language: AppLanguage.ENGLISH } as TelegramSession;
+    return { language: AppLanguage.ENGLISH };
   }
 
   async saveSession(chatId: string | number | undefined, session: TelegramSession): Promise<void> {

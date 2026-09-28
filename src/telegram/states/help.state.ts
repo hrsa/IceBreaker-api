@@ -44,5 +44,5 @@ export class HelpState implements BotState {
     );
   }
 
-  async next(ctx: Context): Promise<void> {}
+  async next(_ctx: Context): Promise<void> {}
 }

@@ -64,14 +64,14 @@ export class GoogleDriveProvider implements UploadProvider {
         url: response.data.webViewLink,
         message: `Successfully uploaded to Google Drive: ${response.data.name}`,
         provider: "google-drive",
-      } as UploadResult;
+      };
     } catch (e) {
       this.logger.error(`Failed to upload file ${fileName} to Google Drive: ${e.message}`, e.stack);
       return {
         success: false,
         message: `Failed to upload file ${fileName} to Google Drive: ${e.message}`,
         provider: "google-drive",
-      } as UploadResult;
+      };
     }
   }
 

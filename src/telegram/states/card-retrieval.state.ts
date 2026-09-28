@@ -27,7 +27,7 @@ export class CardRetrievalState implements BotState {
     await this.getRandomCard(ctx, useExistingCard);
   }
 
-  async next(ctx: Context): Promise<void> {
+  async next(_ctx: Context): Promise<void> {
     // Not needed for this state as it's handled by actions
   }
 

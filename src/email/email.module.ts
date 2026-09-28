@@ -9,7 +9,7 @@ import { EmailTemplatesService } from "./email-templates.service";
     ConfigModule,
     ResendModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         apiKey: configService.get("RESEND_API_KEY", ""),
       }),
     }) as DynamicModule,

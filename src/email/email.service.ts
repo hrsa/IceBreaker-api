@@ -16,10 +16,11 @@ export class EmailService {
   @OnEvent("send.email")
   async handleSendEmailEvent(event: SendEmailEvent<EmailType>) {
     switch (event.type) {
-      case "change-password":
+      case "change-password": {
         const { resetLink } = event.data as PasswordResetData;
         await this.sendEmail(event.email, this.templates.getPasswordResetTemplate(resetLink));
         break;
+      }
       default:
         this.logger.warn(`Unhandled email type ${event.type} being sent to ${event.email}`);
         break;
