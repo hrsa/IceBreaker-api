@@ -5,6 +5,8 @@ import { Context, Telegraf } from "telegraf";
 import { RedisSessionService } from "../redis-session/redis-session.middleware";
 import { Message } from "telegraf/typings/core/types/typegram";
 import { TelegramSession } from "./interfaces/telegram-session.interface";
+import { TelegrafExtra } from "./types";
+import { getErrorMessage } from "../common/utils/error.utils";
 import { Job } from "bullmq";
 
 @Processor("telegram-messages")
@@ -27,7 +29,7 @@ export class TelegramMessageProcessor extends WorkerHost {
     session.lastMessageText = message.text;
   }
 
-  async process(job: Job<{ telegramId: string | number; text: string; extra?: any }>) {
+  async process(job: Job<{ telegramId: string | number; text: string; extra?: TelegrafExtra }>) {
     switch (job.name) {
       case "send-message": {
         const { telegramId, text, extra } = job.data;
@@ -40,7 +42,7 @@ export class TelegramMessageProcessor extends WorkerHost {
           await this.redisSessionService.saveSession(telegramId, session);
           return { success: true, messageId: message.message_id };
         } catch (error) {
-          this.logger.error(`Failed to send message to ${telegramId}: ${error.message}`);
+          this.logger.error(`Failed to send message to ${telegramId}: ${getErrorMessage(error)}`);
           throw error;
         }
       }

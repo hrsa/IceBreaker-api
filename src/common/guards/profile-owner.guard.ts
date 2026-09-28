@@ -1,12 +1,19 @@
 import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from "@nestjs/common";
 import { ProfilesService } from "../../profiles/profiles.service";
+import { CurrentUserData } from "../../auth/strategies/jwt.strategy";
+
+interface RequestWithProfileParam {
+  user?: CurrentUserData;
+  query: { profileId?: string };
+  params?: { profileId?: string };
+}
 
 @Injectable()
 export class ProfileOwnerGuard implements CanActivate {
   constructor(private profilesService: ProfilesService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<RequestWithProfileParam>();
     const user = request.user;
 
     if (!user) {

@@ -1,3 +1,5 @@
+import { getErrorMessage } from "../../common/utils/error.utils";
+
 import { Injectable } from "@nestjs/common";
 import { Context } from "telegraf";
 import { TelegramService } from "../telegram.service";
@@ -35,7 +37,7 @@ export class SignupNameState implements BotState {
     try {
       await this.telegramService.registerNewUser(ctx, name);
     } catch (e) {
-      await this.telegramService.updateOrSendMessage(ctx, e.message);
+      await this.telegramService.updateOrSendMessage(ctx, getErrorMessage(e));
     }
   }
 }

@@ -1,5 +1,5 @@
-export interface PubSubEvent {
+export interface PubSubEvent<T = unknown> {
   type: string;
-  data: any;
+  data: T;
   timestamp: number;
 }

@@ -1,5 +1,6 @@
 import { InjectBot } from "nestjs-telegraf";
 import { Context, Markup, Telegraf } from "telegraf";
+import { TelegrafExtra, EditExtra, ReplyResult, CallbackButton } from "./types";
 import { Injectable, Logger } from "@nestjs/common";
 import { UsersService } from "../users/users.service";
 import { ProfilesService } from "../profiles/profiles.service";
@@ -24,6 +25,7 @@ import { TelegramSession } from "./interfaces/telegram-session.interface";
 import { RedisSessionService } from "../redis-session/redis-session.middleware";
 import { UserCreditsUpdatedEvent } from "../users/events/user-credits-updated.event";
 import { TelegramMessageEvent } from "./events/telegram-message.event";
+import { getErrorMessage } from "../common/utils/error.utils";
 import { InjectQueue } from "@nestjs/bullmq";
 import { Queue } from "bullmq";
 import { GameReadyToPlayEvent } from "../ai/events/game-ready-to-play.event";
@@ -55,7 +57,7 @@ export class TelegramService {
   async onModuleInit() {
     await this.setCommands();
 
-    this.redisPubSub.subscribe("app-events", "telegram.message", this.handleRedisTelegramMessage.bind(this));
+    this.redisPubSub.subscribe<TelegramMessageEvent>("app-events", "telegram.message", data => this.handleRedisTelegramMessage(data));
   }
 
   async setCommands(session?: TelegramSession) {
@@ -122,7 +124,7 @@ export class TelegramService {
     }
   }
 
-  async replyAndSave(ctx: Context, text: string, extra?: any) {
+  async replyAndSave(ctx: Context, text: string, extra?: TelegrafExtra) {
     const sentMsg = await ctx.reply(text, extra);
     if ("message_id" in sentMsg) {
       this.trackMessage(ctx.session, sentMsg.message_id, text);
@@ -143,7 +145,7 @@ export class TelegramService {
     }
   }
 
-  async updateOrSendMessage(ctx: Context, text: string, extra?: any) {
+  async updateOrSendMessage(ctx: Context, text: string, extra?: TelegrafExtra) {
     this.initMessageIds(ctx.session);
     try {
       if (await this.tryUpdateExistingMessage(ctx, text, extra)) {
@@ -157,7 +159,7 @@ export class TelegramService {
     }
   }
 
-  private async tryUpdateExistingMessage(ctx: Context, text: string, extra?: any): Promise<boolean> {
+  private async tryUpdateExistingMessage(ctx: Context, text: string, extra?: TelegrafExtra): Promise<boolean> {
     if (!ctx.session.botMessageIds) {
       this.logger.debug("Skipping update - no message ids");
       return false;
@@ -170,7 +172,7 @@ export class TelegramService {
     const latestMessageId = ctx.session.botMessageIds[ctx.session.botMessageIds.length - 1];
 
     try {
-      await ctx.telegram.editMessageText(ctx.chat!.id, latestMessageId, undefined, text, extra);
+      await ctx.telegram.editMessageText(ctx.chat!.id, latestMessageId, undefined, text, extra as EditExtra);
       ctx.session.lastMessageText = text;
 
       if (ctx.session.botMessageIds.length > 1) {
@@ -184,7 +186,7 @@ export class TelegramService {
     }
   }
 
-  private async sendNewMessage(ctx: Context, text: string, extra?: any): Promise<any> {
+  private async sendNewMessage(ctx: Context, text: string, extra?: TelegrafExtra): Promise<ReplyResult> {
     const sentMsg = await ctx.reply(text, extra);
 
     if ("message_id" in sentMsg) {
@@ -198,7 +200,7 @@ export class TelegramService {
     return sentMsg;
   }
 
-  private async recoverAndSendMessage(ctx: Context, text: string, extra?: any): Promise<any> {
+  private async recoverAndSendMessage(ctx: Context, text: string, extra?: TelegrafExtra): Promise<ReplyResult | null> {
     this.resetMessageTracking(ctx.session);
 
     try {
@@ -298,7 +300,7 @@ export class TelegramService {
         return this.welcomeUser(ctx, user.name);
       }
     } catch (error) {
-      throw new Error("Error creating user: " + error.message, { cause: error });
+      throw new Error("Error creating user: " + getErrorMessage(error), { cause: error });
     }
   }
 
@@ -585,7 +587,7 @@ export class TelegramService {
     const loveCard = Markup.button.callback("❤️", "card:love");
     const unLoveCard = Markup.button.callback("💔", "card:reactivate");
     const getPreviousCard = Markup.button.callback("⏪", "card:undo");
-    const cardActions: any[] = [];
+    const cardActions: CallbackButton[] = [];
 
     if (hasPreviousCard) {
       cardActions.push(getPreviousCard);

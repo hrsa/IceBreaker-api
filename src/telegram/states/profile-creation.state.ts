@@ -1,3 +1,5 @@
+import { getErrorMessage } from "../../common/utils/error.utils";
+
 import { Injectable } from "@nestjs/common";
 import { Context } from "telegraf";
 import { TelegramService } from "../telegram.service";
@@ -63,7 +65,7 @@ export class ProfileCreationState implements BotState {
       await this.telegramService.updateOrSendMessage(
         ctx,
         this.translate.t("telegram.profile.creation.error", {
-          args: { message: error.message },
+          args: { message: getErrorMessage(error) },
           lang: ctx.session.language,
         })
       );
