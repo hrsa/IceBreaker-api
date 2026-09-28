@@ -74,7 +74,7 @@ For a quick, disposable local setup:
 docker run -d --name icebreaker-test-db -p 5433:5432 \
   -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres \
   -e POSTGRES_DB=test_icebreaker postgres:17
-docker run -d --name icebreaker-test-redis -p 6380:6379 redis:7.4.3
+docker run -d --name icebreaker-test-redis -p 6380:6379 redis:7.4.3 --requirepass redis
 
 DB_HOST=localhost DB_PORT=5433 REDIS_HOST=localhost REDIS_PORT=6380 npm run test:e2e
 
