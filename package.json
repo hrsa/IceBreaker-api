@@ -49,7 +49,7 @@
     "ioredis": "^5.11.1",
     "nest-commander": "^3.21.0",
     "nestjs-i18n": "^10.8.5",
-    "nestjs-resend": "^1.1.0",
+    "nestjs-resend": "github:hrsa/nestjs-resend#build/nestjs-12-dist",
     "nestjs-telegraf": "github:hrsa/nestjs-telegraf#build/nestjs-12-dist",
     "openai": "^7.27.0",
     "passport": "^0.7.0",
