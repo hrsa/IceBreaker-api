@@ -69,3 +69,4 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Plans and documentation (keep local only)
 /plans
+*.tsbuildinfo

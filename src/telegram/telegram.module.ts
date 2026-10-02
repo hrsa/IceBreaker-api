@@ -74,10 +74,10 @@ import { BroadcastState } from "./states/broadcast.state";
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         connection: {
-          host: configService.getOrThrow("REDIS_HOST"),
+          host: configService.getOrThrow<string>("REDIS_HOST"),
           port: configService.getOrThrow<number>("REDIS_PORT"),
-          password: configService.getOrThrow("REDIS_PASSWORD"),
-          db: configService.getOrThrow("REDIS_DB", 0),
+          password: configService.getOrThrow<string>("REDIS_PASSWORD"),
+          db: configService.getOrThrow<number>("REDIS_DB", 0),
         },
       }),
     }),
