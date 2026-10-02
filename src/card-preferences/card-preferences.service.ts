@@ -34,7 +34,7 @@ export class CardPreferencesService {
   async findOne(cardId: string, profileId: string): Promise<CardPreference> {
     const preference = await this.preferencesRepository.findOne({
       where: { cardId, profileId },
-      relations: ["card", "card.category"],
+      relations: { card: { category: true } },
     });
 
     if (!preference) {

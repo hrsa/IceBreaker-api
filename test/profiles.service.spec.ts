@@ -65,7 +65,7 @@ describe("ProfilesService", () => {
 
       expect(profilesRepository.findOne).toHaveBeenCalledWith({
         where: { id: "p1" },
-        relations: ["cardPreferences", "cardPreferences.card"],
+        relations: { cardPreferences: { card: true } },
       });
       expect(result.id).toBe("p1");
     });

@@ -108,7 +108,7 @@ describe("CategoriesService", () => {
 
       expect(repository.findOne).toHaveBeenCalledWith({
         where: [{ id: "cat-1" }],
-        relations: ["cards"],
+        relations: { cards: true },
       });
       expect(result.id).toBe("cat-1");
     });
@@ -123,7 +123,7 @@ describe("CategoriesService", () => {
           { id: "cat-1", isPublic: true },
           { id: "cat-1", userId: "user-1", isPublic: false },
         ],
-        relations: ["cards"],
+        relations: { cards: true },
       });
       expect(result.id).toBe("cat-1");
     });

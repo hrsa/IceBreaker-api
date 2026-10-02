@@ -68,7 +68,7 @@ export class CategoriesService {
 
     const category = await this.categoriesRepository.findOne({
       where: whereCondition,
-      relations: ["cards"],
+      relations: { cards: true },
     });
 
     if (!category) {
@@ -99,7 +99,7 @@ export class CategoriesService {
   async getCardsCount(id: string): Promise<number> {
     const category = await this.categoriesRepository.findOne({
       where: { id },
-      relations: ["cards"],
+      relations: { cards: true },
     });
 
     if (!category) {

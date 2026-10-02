@@ -47,7 +47,7 @@ export class CardsService {
   async findOne(id: string): Promise<Card> {
     const card = await this.cardsRepository.findOne({
       where: { id },
-      relations: ["category"],
+      relations: { category: true },
     });
 
     if (!card) {

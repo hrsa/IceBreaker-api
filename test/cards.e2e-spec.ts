@@ -465,6 +465,6 @@ function generateTestToken(app: INestApplication, userId: string): string {
   const configService = app.get(ConfigService);
   const secret = configService.get("JWT_SECRET") || "test-secret";
 
-  const payload = { id: userId, email: "test@example.com" };
+  const payload = { sub: userId, email: "test@example.com" };
   return jwt.sign(payload, secret, { expiresIn: "1h" });
 }

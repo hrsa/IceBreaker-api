@@ -51,7 +51,7 @@ export class UsersService {
   async findOne(id: string): Promise<User> {
     const user = await this.usersRepository.findOne({
       where: { id },
-      relations: ["profiles"],
+      relations: { profiles: true },
     });
 
     if (!user) {
@@ -164,7 +164,7 @@ export class UsersService {
     await this.spendCredit(userId, undefined, 1);
     const user = await this.usersRepository.findOne({
       where: { id: userId },
-      relations: ["privateCategories"],
+      relations: { privateCategories: true },
     });
     if (!user) {
       throw new NotFoundException(`User with ID "${userId}" not found`);

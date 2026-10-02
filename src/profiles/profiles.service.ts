@@ -30,7 +30,7 @@ export class ProfilesService {
   async findOne(id: string, userId?: string, isAdmin = false): Promise<Profile> {
     const profile = await this.profilesRepository.findOne({
       where: { id },
-      relations: ["cardPreferences", "cardPreferences.card"],
+      relations: { cardPreferences: { card: true } },
     });
 
     if (!profile) {
