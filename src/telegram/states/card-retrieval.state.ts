@@ -30,7 +30,7 @@ export class CardRetrievalState implements BotState {
   }
 
   async next(_ctx: Context): Promise<void> {
-    // Not needed for this state as it's handled by actions
+    // handled by actions
   }
 
   async getRandomCard(ctx: Context, useExistingCard: boolean = false): Promise<void> {

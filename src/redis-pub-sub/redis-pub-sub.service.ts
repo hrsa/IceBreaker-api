@@ -58,7 +58,6 @@ export class RedisPubSubService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  /** Subscribe a typed handler; the payload is cast to T on delivery. */
   subscribe<T>(channel: string, eventType: string, handler: (data: T) => Promise<void>): void {
     const key = `${channel}:${eventType}`;
     this.eventHandlers.set(key, data => handler(data as T));

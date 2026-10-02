@@ -51,8 +51,7 @@ describe("Webhooks API (e2e)", () => {
     return user.credits;
   }
 
-  // The donation event handler is async and not awaited by the webhook
-  // response, so credits may settle shortly after the HTTP call returns.
+  // donation handler is async: poll briefly for credits to settle
   async function waitForCredits(email: string, expected: number, timeoutMs = 3000): Promise<number> {
     const deadline = Date.now() + timeoutMs;
     let credits = await getCredits(email);
@@ -139,7 +138,6 @@ describe("Webhooks API (e2e)", () => {
         })
         .expect(200);
 
-      // The handler logs the missing user; the webhook still succeeds.
       expect(response.body).toBeDefined();
     });
   });

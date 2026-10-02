@@ -56,7 +56,7 @@ export class RedisSessionService {
             this.logger.debug(`Found user with Telegram ID: ${telegramId}`);
           }
         } catch {
-          // User lookup failed - continue without credits
+          // lookup failed - continue without credits
         }
         this.logger.warn(`No user found with Telegram ID: ${telegramId}`);
       }

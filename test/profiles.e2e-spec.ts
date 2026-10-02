@@ -199,7 +199,6 @@ describe("Profiles API (e2e)", () => {
 
   describe("GET /profiles/:id/card-preferences", () => {
     it("returns the profile's card preferences, filtered by status", async () => {
-      // Set up a profile with cards and preferences in different states
       const profileRepository = dataSource.getRepository(Profile);
       const categoryRepository = dataSource.getRepository(Category);
       const cardRepository = dataSource.getRepository(Card);

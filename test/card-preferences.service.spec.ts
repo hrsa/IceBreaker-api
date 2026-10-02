@@ -71,8 +71,6 @@ describe("CardPreferencesService", () => {
     });
 
     it("updates the status of an existing preference", async () => {
-      // Regression: the old implementation never assigned the new status,
-      // so transitioning a loved card to archived kept it loved.
       preferencesRepository.findOne.mockResolvedValue({
         id: "pref-1",
         cardId: "card-1",
@@ -91,8 +89,6 @@ describe("CardPreferencesService", () => {
     });
 
     it("deletes the preference by primary key on reactivation", async () => {
-      // Regression: delete(entity) built a WHERE clause from every column,
-      // and microsecond-precision timestamps silently deleted 0 rows.
       const existing = {
         id: "pref-1",
         cardId: "card-1",

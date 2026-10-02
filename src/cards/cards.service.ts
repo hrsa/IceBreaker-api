@@ -95,7 +95,7 @@ export class CardsService {
           await this.categoriesService.findOne(categoryId, userId);
           validCategoryIds.push(categoryId);
         } catch {
-          // Category not accessible for this user - skip it
+          // not accessible - skip
         }
       }
     } else {
@@ -115,7 +115,7 @@ export class CardsService {
       banStatuses.push(CardStatus.LOVED);
     }
 
-    // First, get the random card IDs without relations to avoid DISTINCT + ORDER BY issue
+    // Random IDs first (no joins), then fetch by IDs: avoids DISTINCT + ORDER BY RANDOM()
     const idQuery = this.cardsRepository
       .createQueryBuilder("card")
       .select("card.id")
@@ -141,7 +141,6 @@ export class CardsService {
       throw new NotFoundException("No cards found matching the criteria");
     }
 
-    // Then fetch the full cards with relations
     const cards = await this.cardsRepository
       .createQueryBuilder("card")
       .leftJoinAndSelect("card.category", "category")

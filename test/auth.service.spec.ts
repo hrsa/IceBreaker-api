@@ -64,8 +64,6 @@ describe("AuthService", () => {
     });
 
     it("returns silently for an unknown email without leaking existence", async () => {
-      // Regression: findByEmail throws NotFoundException, which used to
-      // propagate and reveal which emails are registered.
       usersService.findByEmail.mockRejectedValue(new NotFoundException("User with email not found"));
 
       await expect(service.requestPasswordReset("ghost@test.net")).resolves.toBeUndefined();

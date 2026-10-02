@@ -103,14 +103,12 @@ describe("CardsService - getRandomCard", () => {
 
     await service.getRandomCard(dto, "user-1");
 
-    // Step 1: fetch only IDs ordered randomly (no joins -> no DISTINCT in ORDER BY)
     expect(cardRepository.createQueryBuilder).toHaveBeenCalledTimes(2);
     expect(idQuery.select).toHaveBeenCalledWith("card.id");
     expect(idQuery.orderBy).toHaveBeenCalledWith("RANDOM()");
     expect(idQuery.limit).toHaveBeenCalledWith(3);
     expect(idQuery.leftJoinAndSelect).not.toHaveBeenCalled();
 
-    // Step 2: fetch full entities with relations filtered by the selected IDs
     expect(entityQuery.leftJoinAndSelect).toHaveBeenCalledWith("card.category", "category");
     expect(entityQuery.where).toHaveBeenCalledWith("card.id IN (:...cardIds)", expect.objectContaining({ cardIds: ["card-1", "card-2"] }));
     expect(entityQuery.orderBy).not.toHaveBeenCalledWith("RANDOM()");

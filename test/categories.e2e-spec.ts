@@ -39,7 +39,6 @@ describe("Categories API (e2e)", () => {
         isPublic: true,
       });
 
-      // The controller returns CategoryResponseDto (201 by default)
       expect(response.status).toBe(201);
       expect(response.body.name_en).toBe("E2E Public Category");
       expect(response.body.isPublic).toBe(true);

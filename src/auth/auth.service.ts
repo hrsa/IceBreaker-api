@@ -47,9 +47,7 @@ export class AuthService {
     try {
       user = await this.usersService.findByEmail(email);
     } catch (error) {
-      // findByEmail throws NotFoundException for unknown emails; returning
-      // silently here keeps the response identical for known and unknown
-      // accounts and prevents email enumeration.
+      // Same response for unknown emails - prevents account enumeration.
       if (!(error instanceof NotFoundException)) {
         throw error;
       }

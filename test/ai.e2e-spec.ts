@@ -16,8 +16,7 @@ describe("AI API (e2e)", () => {
   const user = testUsers.user;
 
   beforeAll(async () => {
-    // Dedicated app with AIService mocked: the real service calls the
-    // OpenAI API, which must not happen from tests.
+    // dedicated app: AIService mocked so tests never call OpenAI
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [TestAppModule],
     })
@@ -89,8 +88,6 @@ describe("AI API (e2e)", () => {
       await client.actingAs(admin);
       const response = await client.get("/ai/translate/cards?limit=10").expect(200);
 
-      // The seeded database has no cards, so nothing to translate and no
-      // OpenAI calls are made.
       expect(response.body.processed).toBe(0);
       expect(response.body.updated).toEqual([]);
     });
@@ -101,7 +98,6 @@ describe("AI API (e2e)", () => {
       await client.actingAs(admin);
       const response = await client.get("/ai/translate/categories?limit=10").expect(200);
 
-      // Seeder categories are created with all languages filled in.
       expect(response.body.processed).toBe(0);
       expect(response.body.updated).toEqual([]);
     });
@@ -117,7 +113,6 @@ describe("AI API (e2e)", () => {
       expect(response.body.requestId).toBeDefined();
       expect(response.body.status).toBe("processing");
       expect(response.body.message).toContain("Game generation started");
-      // The service receives the description and the requesting user
       expect(response.body.echo.description).toBe("A game about space travel");
       expect(response.body.echo.userId).toBe(me.body.id);
     });

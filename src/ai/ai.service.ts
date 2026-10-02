@@ -144,8 +144,6 @@ export class AIService {
   async createCustomGame(description: string, userId: string) {
     const requestId = await this.gameGenerationStore.createTask(userId, description);
 
-    // Intentionally fire-and-forget: the generation runs in the background
-    // and reports failures through the game generation store.
     void this.generateGame(requestId, description, userId);
 
     return {

@@ -33,14 +33,11 @@ describe("Suggestions API (e2e)", () => {
       const me = await client.get("/users/me").expect(200);
       userId = me.body.id;
 
-      // Note: the POST response DTO (SuggestionResponseDto) does not expose
-      // userId or accepted; ownership is verified via GET /suggestions/:id,
-      // which returns the raw entity.
+      // POST response DTO hides userId/accepted; verify ownership via GET
       const response = await client
         .post("/suggestions")
         .send({
-          // userId in the body is overwritten by the controller with the
-          // current user's id, but it must still pass UUID validation.
+          // controller overwrites this, but it must pass UUID validation
           userId: "00000000-0000-0000-0000-000000000000",
           question: "What is your favorite childhood memory?",
         })
@@ -86,7 +83,6 @@ describe("Suggestions API (e2e)", () => {
       const response = await client.get("/suggestions").expect(200);
 
       expect(response.body.length).toBeGreaterThan(0);
-      // The list endpoint joins the user relation; ownership lives on user.id
       response.body.forEach((suggestion: any) => {
         expect(suggestion.user.id).toBe(userId);
       });

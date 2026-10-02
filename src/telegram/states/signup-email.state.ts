@@ -48,7 +48,7 @@ export class SignupEmailState implements BotState {
         return;
       }
     } catch {
-      // Email already in use or lookup failed - proceed with signup
+      // already in use - proceed
     }
     ctx.session.email = email;
     ctx.session.step = "signup-name";

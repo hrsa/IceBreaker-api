@@ -62,10 +62,6 @@ export class CardPreferencesService {
     }
 
     if (updateDto.status === CardStatus.ACTIVE) {
-      // Delete by primary key: passing the entity makes TypeORM build a WHERE
-      // clause from every column, and lastInteractionAt round-trips through
-      // Postgres with microsecond truncation, silently deleting 0 rows for
-      // preferences whose timestamp came from the CURRENT_TIMESTAMP default.
       await this.preferencesRepository.delete(preference.id);
       return null;
     }

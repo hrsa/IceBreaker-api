@@ -112,9 +112,6 @@ describe("CardsController (e2e)", () => {
 
   describe("POST /cards/random", () => {
     it("should return random cards without throwing DISTINCT + ORDER BY error", async () => {
-      // This test specifically verifies the fix for:
-      // QueryFailedError: for SELECT DISTINCT, ORDER BY expressions must appear in select list
-
       const token = generateTestToken(app, testUser.id);
       const response = await request(app.getHttpServer())
         .post("/cards/random")
@@ -223,7 +220,6 @@ describe("CardsController (e2e)", () => {
     });
 
     it("should handle includeLoved flag", async () => {
-      // Create a card preference with loved status
       const cardPreferenceRepository = dataSource.getRepository(CardPreference);
       await cardPreferenceRepository.save({
         profileId: testProfile.id,
@@ -233,7 +229,6 @@ describe("CardsController (e2e)", () => {
 
       const token = generateTestToken(app, testUser.id);
 
-      // Without includeLoved, the loved card should be excluded
       const responseWithoutLoved = await request(app.getHttpServer())
         .post("/cards/random")
         .set("Authorization", `Bearer ${token}`)
@@ -245,7 +240,6 @@ describe("CardsController (e2e)", () => {
         })
         .expect(200);
 
-      // The loved card should not be in the results
       const lovedCardIds = responseWithoutLoved.body.cards.map((c: any) => c.id);
       expect(lovedCardIds).not.toContain(testCards[1].id);
     });
@@ -253,7 +247,6 @@ describe("CardsController (e2e)", () => {
     it("should return different cards on multiple calls (randomness)", async () => {
       const token = generateTestToken(app, testUser.id);
 
-      // Call the endpoint multiple times and verify we get different results
       const results: string[][] = [];
       for (let i = 0; i < 5; i++) {
         const response = await request(app.getHttpServer())
@@ -269,12 +262,9 @@ describe("CardsController (e2e)", () => {
         results.push(response.body.cards.map((c: any) => c.id));
       }
 
-      // With 5 test cards and limit of 3, we should get some variation
-      // This is a probabilistic test - with enough calls, we should see different cards
       const allCardIds = results.flat();
       const uniqueCardIds = [...new Set(allCardIds)];
 
-      // We should see multiple different cards across the calls
       expect(uniqueCardIds.length).toBeGreaterThanOrEqual(2);
     });
 
@@ -295,7 +285,6 @@ describe("CardsController (e2e)", () => {
     });
 
     it("should return hasViewedAllCards flag correctly", async () => {
-      // Archive all cards for this profile
       const cardPreferenceRepository = dataSource.getRepository(CardPreference);
       for (const card of testCards) {
         await cardPreferenceRepository.save({
@@ -307,8 +296,6 @@ describe("CardsController (e2e)", () => {
 
       const token = generateTestToken(app, testUser.id);
 
-      // When all cards are archived and we're not including archived,
-      // there are no cards left, so the API returns 404 (NotFoundException)
       await request(app.getHttpServer())
         .post("/cards/random")
         .set("Authorization", `Bearer ${token}`)
@@ -320,7 +307,6 @@ describe("CardsController (e2e)", () => {
         })
         .expect(404);
 
-      // With includeArchived, the cards are available again
       const responseWithArchived = await request(app.getHttpServer())
         .post("/cards/random")
         .set("Authorization", `Bearer ${token}`)
@@ -333,8 +319,7 @@ describe("CardsController (e2e)", () => {
         .expect(200);
 
       expect(responseWithArchived.body.cards.length).toBeGreaterThan(0);
-      // Note: hasOnlyLovedCardsLeft() does not account for includeArchived,
-      // so the flag reflects only non-archived/non-loved availability.
+      // hasOnlyLovedCardsLeft() ignores includeArchived
       expect(typeof responseWithArchived.body.hasViewedAllCards).toBe("boolean");
     });
   });
@@ -348,7 +333,6 @@ describe("CardsController (e2e)", () => {
 
     beforeAll(async () => {
       client = new TestClientHelper(app.getHttpServer());
-      // Admin-created category for the card CRUD tests
       await client.actingAs(admin);
       const categoryResponse = await client.post("/categories").send({
         language: AppLanguage.ENGLISH,
@@ -460,7 +444,6 @@ describe("CardsController (e2e)", () => {
   });
 });
 
-// Helper function to generate JWT token for testing
 function generateTestToken(app: INestApplication, userId: string): string {
   const configService = app.get(ConfigService);
   const secret = configService.get("JWT_SECRET") || "test-secret";
