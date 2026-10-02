@@ -16,11 +16,11 @@
     "backup:upload": "node dist/cli backup upload",
     "backup:cleanup": "node dist/cli backup cleanup",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
+    "test:cov": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:e2e": "NODE_OPTIONS=--experimental-vm-modules jest --config ./test/jest-e2e.json",
     "typeorm": "typeorm-ts-node-commonjs",
     "migration:generate": "npm run typeorm -- -d ./src/dataSource.ts migration:generate",
     "migration:run": "npm run typeorm -- -d ./src/dataSource.ts migration:run",
@@ -30,16 +30,16 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1145.0",
-    "@nestjs/bullmq": "^11.0.5",
-    "@nestjs/common": "^11.2.7",
-    "@nestjs/config": "^4.0.4",
-    "@nestjs/core": "^11.2.7",
-    "@nestjs/event-emitter": "^3.1.0",
-    "@nestjs/jwt": "^11.0.2",
-    "@nestjs/passport": "^11.0.5",
-    "@nestjs/platform-express": "^11.2.7",
-    "@nestjs/swagger": "^11.4.7",
-    "@nestjs/typeorm": "^11.0.3",
+    "@nestjs/bullmq": "^12.0.0",
+    "@nestjs/common": "^12.1.2",
+    "@nestjs/config": "^12.0.1",
+    "@nestjs/core": "^12.1.2",
+    "@nestjs/event-emitter": "^12.0.1",
+    "@nestjs/jwt": "^12.0.2",
+    "@nestjs/passport": "^12.0.0",
+    "@nestjs/platform-express": "^12.1.2",
+    "@nestjs/swagger": "^12.0.2",
+    "@nestjs/typeorm": "^12.0.2",
     "@telegraf/session": "^2.0.0-beta.7",
     "argon2": "^0.45.1",
     "bullmq": "^5.81.5",
@@ -50,7 +50,7 @@
     "nest-commander": "^3.21.0",
     "nestjs-i18n": "^10.8.5",
     "nestjs-resend": "^1.1.0",
-    "nestjs-telegraf": "^2.9.1",
+    "nestjs-telegraf": "github:hrsa/nestjs-telegraf#build/nestjs-12-dist",
     "openai": "^7.27.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
@@ -67,9 +67,9 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.7",
     "@eslint/js": "^10.0.1",
-    "@nestjs/cli": "^11.0.24",
-    "@nestjs/schematics": "^11.1.0",
-    "@nestjs/testing": "^11.2.7",
+    "@nestjs/cli": "^12.0.8",
+    "@nestjs/schematics": "^12.0.6",
+    "@nestjs/testing": "^12.1.2",
     "@swc/cli": "^0.8.1",
     "@swc/core": "^1.16.13",
     "@types/express": "^5.0.6",
@@ -92,7 +92,7 @@
     "ts-loader": "^9.6.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "typescript-eslint": "^8.71.0"
   },
   "jest": {
@@ -110,7 +110,7 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "transformIgnorePatterns": [
-      "node_modules/(?!random-words)"
+      "node_modules/"
     ],
     "collectCoverageFrom": [
       "src/**/*.(t|j)s"

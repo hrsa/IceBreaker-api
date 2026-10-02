@@ -42,6 +42,7 @@ import { RedisPubSubModule } from "./redis-pub-sub/redis-pub-sub.module";
       }),
     }),
     I18nModule.forRootAsync({
+      imports: [ConfigModule],
       useFactory: () => ({
         fallbackLanguage: "en",
 

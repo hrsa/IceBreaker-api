@@ -1,7 +1,7 @@
 import { App } from "supertest/types";
 import { INestApplication } from "@nestjs/common";
 import { DataSource } from "typeorm";
-import * as request from "supertest";
+import request from "supertest";
 import { migrateAndSeed } from "./helpers/database.helper";
 import { getTestApp } from "./config/setup";
 import { PasswordReset } from "../src/auth/entities/password-reset.entity";

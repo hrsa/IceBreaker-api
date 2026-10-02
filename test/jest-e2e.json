@@ -11,7 +11,7 @@
     "^.+\\.(t|j)s$": "ts-jest"
   },
   "transformIgnorePatterns": [
-    "node_modules/(?!random-words)"
+    "node_modules/"
   ],
   "setupFilesAfterEnv": [
     "./config/jest-e2e-setup.ts"

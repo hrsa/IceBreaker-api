@@ -1,5 +1,5 @@
 import { INestApplication } from "@nestjs/common";
-import * as request from "supertest";
+import request from "supertest";
 import { App } from "supertest/types";
 import { migrateAndSeed } from "./helpers/database.helper";
 import { getTestApp } from "./config/setup";

@@ -5,6 +5,7 @@ import { getTestApp } from "./config/setup";
 import { UserResponseDto } from "../src/users/dto/user-response.dto";
 import { TestClientHelper } from "./helpers/test-client.helper";
 import { plainToInstance } from "class-transformer";
+import { getErrorMessage } from "../src/common/utils/error.utils";
 import { testUsers } from "./seeders/test-data.seeder";
 import { TokenDto } from "../src/auth/dto/token.dto";
 
@@ -189,7 +190,7 @@ describe("Users API (e2e)", () => {
       await client.actingAs(user);
       fail("Authentication should have failed but succeeded");
     } catch (error) {
-      expect(error.message).toContain("Failed to authenticate: 401");
+      expect(getErrorMessage(error)).toContain("Failed to authenticate: 401");
     }
   });
 
@@ -205,7 +206,7 @@ describe("Users API (e2e)", () => {
       await client.actingAs(user);
       fail("Authentication should have failed but succeeded");
     } catch (error) {
-      expect(error.message).toContain("Failed to authenticate: 401");
+      expect(getErrorMessage(error)).toContain("Failed to authenticate: 401");
     }
   });
 });

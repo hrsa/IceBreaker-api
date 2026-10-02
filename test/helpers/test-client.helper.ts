@@ -1,4 +1,4 @@
-import * as request from "supertest";
+import request from "supertest";
 import { App } from "supertest/types";
 import { Test } from "supertest";
 import { TokenDto } from "../../src/auth/dto/token.dto";

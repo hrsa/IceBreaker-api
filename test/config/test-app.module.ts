@@ -27,6 +27,7 @@ import { testDataSourceOptions } from "./test-database.config";
     }),
     TypeOrmModule.forRoot(testDataSourceOptions),
     I18nModule.forRootAsync({
+      imports: [ConfigModule],
       useFactory: () => ({
         fallbackLanguage: "en",
         loaderOptions: {
