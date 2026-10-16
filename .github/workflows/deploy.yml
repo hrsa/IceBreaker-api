@@ -214,6 +214,16 @@ jobs:
         run: |
           npm i
 
+      - name: Install musl resolver binding for in-container tests
+        working-directory: backend
+        # jest-resolve (jest 30.5+) delegates to the native unrs-resolver;
+        # npm i on the glibc runner installs only the gnu binding, but the
+        # e2e suite runs inside the alpine (musl) api container via the
+        # .:/app mount, so the musl binding must be present too.
+        run: |
+          UNRS_VERSION=$(node -p "require('./package-lock.json').packages['node_modules/unrs-resolver'].version")
+          npm i --no-save --force @unrs/resolver-binding-linux-x64-musl@$UNRS_VERSION
+
       - name: Run tests
         working-directory: backend
         run: |

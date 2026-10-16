@@ -1,4 +1,4 @@
-FROM node:24.0-alpine AS dev
+FROM node:24-alpine AS dev
 
 WORKDIR /app
 RUN apk add --no-cache curl nano ffmpeg
