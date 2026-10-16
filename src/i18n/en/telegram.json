@@ -118,6 +118,7 @@
     "success": "Thank you for your suggestion! I'll let you know when the question is added."
   },
   "errors": {
+    "greeting_failed": "Sorry, I couldn't send you a voice greeting right now. Please try again in a moment.",
     "message_not_found": "No message found in context",
     "update_error": "Error updating message:",
     "no_telegram_id": "Telegram ID is not set!",

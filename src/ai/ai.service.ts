@@ -12,6 +12,23 @@ import { EventEmitter2 } from "@nestjs/event-emitter";
 import { GameGenerationCompletedEvent } from "./events/game-generation-completed.event";
 import * as path from "node:path";
 import * as fs from "node:fs";
+import * as os from "node:os";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
+import { OpenAIRealtimeWebSocket } from "openai/realtime/websocket";
+
+const execFileAsync = promisify(execFile);
+
+export class GreetingSynthesisError extends Error {
+  constructor(
+    message: string,
+    public readonly greetingText: string,
+    options?: ErrorOptions
+  ) {
+    super(message, options);
+    this.name = "GreetingSynthesisError";
+  }
+}
 
 @Injectable()
 export class AIService {
@@ -37,7 +54,8 @@ export class AIService {
 
     try {
       const response = await this.openai.chat.completions.create({
-        model: "gpt-4.1-2025-04-14",
+        model: "gpt-6-luna",
+        reasoning_effort: "none",
         messages: [
           {
             role: "system",
@@ -64,7 +82,7 @@ export class AIService {
     prompt = prompt.replace("{{LANGUAGE}}", languageMap[language]);
 
     const response = await this.openai.chat.completions.create({
-      model: "o4-mini-2025-04-16",
+      model: "gpt-6.1-sol",
       messages: [
         {
           role: "system",
@@ -75,7 +93,7 @@ export class AIService {
     return response.choices[0].message.content;
   }
 
-  async sayHello(name: string, language: AppLanguage) {
+  async sayHello(name: string, language: AppLanguage): Promise<string> {
     let input = await this.getGreeting(name, language);
 
     if (!input) {
@@ -98,18 +116,105 @@ export class AIService {
     let instructions = Buffer.from(this.configService.getOrThrow<string>("HELLO_GENERATION_PROMPT"), "base64").toString("ascii");
     instructions = instructions.replace("{{NAME}}", name);
 
+    try {
+      const provider = this.configService.get<string>("AI_TTS_PROVIDER") ?? "realtime";
+      const audioBuffer =
+        provider === "speech-api"
+          ? await this.synthesizeSpeechLegacy(input, instructions)
+          : await this.synthesizeSpeech(input, instructions);
+
+      const filename = `Hello-${name}-${Date.now()}.ogg`;
+      const tempFilePath = path.join(`/app/storage/${filename}`);
+      fs.writeFileSync(tempFilePath, audioBuffer);
+      return tempFilePath;
+    } catch (error) {
+      throw new GreetingSynthesisError(`Failed to synthesize greeting audio for ${name}: ${getErrorMessage(error)}`, input, {
+        cause: error,
+      });
+    }
+  }
+
+  private async synthesizeSpeechLegacy(input: string, instructions: string): Promise<Buffer> {
     const response = await this.openai.audio.speech.create({
       model: "gpt-4o-mini-tts",
       voice: "sage",
       input,
       instructions,
     });
+    return Buffer.from(await response.arrayBuffer());
+  }
 
-    const audioBuffer = Buffer.from(await response.arrayBuffer());
-    const filename = `Hello-${name}-${Date.now()}.ogg`;
-    const tempFilePath = path.join(`/app/storage/${filename}`);
-    fs.writeFileSync(tempFilePath, audioBuffer);
-    return tempFilePath;
+  private async synthesizeSpeech(text: string, instructions: string): Promise<Buffer> {
+    const socket = new OpenAIRealtimeWebSocket({ model: "gpt-realtime-2.1-mini" }, this.openai);
+    try {
+      const pcm = await new Promise<Buffer>((resolve, reject) => {
+        const chunks: Buffer[] = [];
+        const timeout = setTimeout(() => {
+          reject(new Error("Realtime TTS synthesis timed out after 30 seconds"));
+        }, 30_000);
+
+        socket.on("error", error => {
+          clearTimeout(timeout);
+          reject(error);
+        });
+
+        socket.on("session.created", () => {
+          socket.send({
+            type: "session.update",
+            session: {
+              type: "realtime",
+              instructions,
+              output_modalities: ["audio"],
+              audio: {
+                output: {
+                  voice: "sage",
+                  format: { type: "audio/pcm", rate: 24000 },
+                },
+              },
+            },
+          });
+          socket.send({
+            type: "conversation.item.create",
+            item: {
+              type: "message",
+              role: "user",
+              content: [{ type: "input_text", text }],
+            },
+          });
+          socket.send({ type: "response.create" });
+        });
+
+        socket.on("response.output_audio.delta", event => {
+          chunks.push(Buffer.from(event.delta, "base64"));
+        });
+
+        socket.on("response.done", event => {
+          clearTimeout(timeout);
+          if (event.response.status && event.response.status !== "completed") {
+            reject(new Error(`Realtime TTS response finished with status: ${event.response.status}`));
+            return;
+          }
+          resolve(Buffer.concat(chunks));
+        });
+      });
+      return await this.encodePcmToOgg(pcm);
+    } finally {
+      socket.close();
+    }
+  }
+
+  private async encodePcmToOgg(pcm: Buffer): Promise<Buffer> {
+    const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const pcmPath = path.join(os.tmpdir(), `hello-${id}.pcm`);
+    const oggPath = path.join(os.tmpdir(), `hello-${id}.ogg`);
+    try {
+      fs.writeFileSync(pcmPath, pcm);
+      await execFileAsync("ffmpeg", ["-y", "-f", "s16le", "-ar", "24000", "-ac", "1", "-i", pcmPath, "-c:a", "libopus", oggPath]);
+      return fs.readFileSync(oggPath);
+    } finally {
+      fs.rmSync(pcmPath, { force: true });
+      fs.rmSync(oggPath, { force: true });
+    }
   }
 
   private async generateNewGameData(description: string, cardsData: string) {
@@ -127,7 +232,7 @@ export class AIService {
     const prompt = systemPrompt + cardsData;
     try {
       const response = await this.openai.chat.completions.parse({
-        model: "gpt-4.1-2025-04-14",
+        model: "gpt-6.1-sol",
         messages: [
           { role: "system", content: prompt },
           { role: "user", content: description },

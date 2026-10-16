@@ -118,6 +118,7 @@
     "success": "Grazie per il tuo suggerimento! Ti informerò quando la domanda sarà aggiunta."
   },
   "errors": {
+    "greeting_failed": "Mi dispiace, non sono riuscito a inviarti un saluto vocale ora. Riprova tra un momento.",
     "message_not_found": "Nessun messaggio trovato nel contesto",
     "update_error": "Errore durante l'aggiornamento del messaggio:",
     "no_telegram_id": "ID Telegram non impostato!",

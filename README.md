@@ -31,6 +31,7 @@ The application provides conversation starters, icebreaker questions, and intera
 - Telegram Bot Token (from BotFather)
 - Public domain with SSL for webhook (or ngrok for development)
 - OpenAI API key (for AI features)
+- ffmpeg (for voice greeting encoding; included in the docker image, required on the host for local non-docker development)
 
 ## Available Scripts
 

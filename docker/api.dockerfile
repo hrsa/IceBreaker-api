@@ -1,7 +1,7 @@
 FROM node:24.0-alpine AS dev
 
 WORKDIR /app
-RUN apk add --no-cache curl nano
+RUN apk add --no-cache curl nano ffmpeg
 
 CMD ["npm", "run", "start:debug"]
 
@@ -18,7 +18,7 @@ ENV USER=${USER}
 ENV GROUP=${GROUP}
 
 WORKDIR /app
-RUN apk add --no-cache curl nano
+RUN apk add --no-cache curl nano ffmpeg
 
 
 COPY package*.json ./

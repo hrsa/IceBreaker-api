@@ -25,11 +25,11 @@ import { TelegramSession } from "./interfaces/telegram-session.interface";
 import { RedisSessionService } from "../redis-session/redis-session.middleware";
 import { UserCreditsUpdatedEvent } from "../users/events/user-credits-updated.event";
 import { TelegramMessageEvent } from "./events/telegram-message.event";
-import { getErrorMessage } from "../common/utils/error.utils";
+import { getErrorMessage, getErrorStack } from "../common/utils/error.utils";
 import { InjectQueue } from "@nestjs/bullmq";
 import { Queue } from "bullmq";
 import { GameReadyToPlayEvent } from "../ai/events/game-ready-to-play.event";
-import { AIService } from "../ai/ai.service";
+import { AIService, GreetingSynthesisError } from "../ai/ai.service";
 import * as fs from "node:fs";
 import { RedisPubSubService } from "../redis-pub-sub/redis-pub-sub.service";
 
@@ -258,12 +258,24 @@ export class TelegramService {
     }
     await this.deleteUserMessage(ctx);
     const user = await this.usersService.findByTelegramId(ctx.chat.id.toString());
-    if (user) {
-      const helloFilepath = await this.aiService.sayHello(user.name, ctx.session.language);
+    if (!user) {
+      return;
+    }
+
+    let helloFilepath: string | undefined;
+    try {
+      helloFilepath = await this.aiService.sayHello(user.name, ctx.session.language);
       const helloFile = fs.createReadStream(helloFilepath);
       const voiceMessage = await this.bot.telegram.sendVoice(ctx.chat.id, { source: helloFile });
       this.trackMessage(ctx.session, voiceMessage.message_id, "");
-      fs.unlinkSync(helloFilepath);
+    } catch (error) {
+      this.logger.error(`Failed to send voice greeting: ${getErrorMessage(error)}`, getErrorStack(error));
+      const greetingText = error instanceof GreetingSynthesisError ? error.greetingText : undefined;
+      await ctx.reply(greetingText ?? this.translate.t("telegram.errors.greeting_failed", { lang: ctx.session.language }));
+    } finally {
+      if (helloFilepath && fs.existsSync(helloFilepath)) {
+        fs.unlinkSync(helloFilepath);
+      }
     }
   }
 
