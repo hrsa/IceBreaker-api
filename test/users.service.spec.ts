@@ -116,6 +116,15 @@ describe("UsersService", () => {
 
       expect(result.password).not.toBe("new-plaintext");
       expect(result.password).not.toBe("old-hash");
+      expect(eventEmitter.emit).toHaveBeenCalledWith("user.password.changed", "u1");
+    });
+
+    it("does not emit a password change for a profile-only update", async () => {
+      usersRepository.findOne.mockResolvedValue({ id: "u1", password: "old-hash" });
+
+      await service.update("u1", { name: "New Name" });
+
+      expect(eventEmitter.emit).not.toHaveBeenCalledWith("user.password.changed", "u1");
     });
 
     it("propagates NotFound for an unknown user", async () => {

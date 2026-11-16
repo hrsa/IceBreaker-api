@@ -114,6 +114,8 @@ export class UsersService {
 
     if (updateUserDto.password) {
       updateUserDto.password = await argon2.hash(updateUserDto.password);
+      // Ends every other session issued for this user (refresh tokens revocation).
+      this.eventEmitter.emit("user.password.changed", id);
     }
 
     this.usersRepository.merge(user, updateUserDto);

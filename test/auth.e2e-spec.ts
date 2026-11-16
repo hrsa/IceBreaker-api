@@ -72,6 +72,14 @@ describe("Auth API (e2e)", () => {
       expect(typeof accessToken).toBe("string");
     });
 
+    it("returns a refresh token alongside the access token", async () => {
+      const { body } = await request(api).post("/auth/login").send(user).expect(200);
+      const { refreshToken } = body as TokenDto;
+
+      expect(typeof refreshToken).toBe("string");
+      expect(refreshToken.length).toBeGreaterThan(30);
+    });
+
     it("rejects a wrong password with 401", async () => {
       await request(api).post("/auth/login").send({ email: user.email, password: "wrongpassword" }).expect(401);
     });
@@ -82,6 +90,56 @@ describe("Auth API (e2e)", () => {
 
     it("rejects empty credentials with 401", async () => {
       await request(api).post("/auth/login").send({}).expect(401);
+    });
+  });
+
+  describe("POST /auth/refresh", () => {
+    it("issues a rotated token pair for a valid refresh token", async () => {
+      const login = await request(api).post("/auth/login").send(user).expect(200);
+
+      const oldRefreshToken = (login.body as TokenDto).refreshToken;
+      const response = await request(api).post("/auth/refresh").send({ refreshToken: oldRefreshToken }).expect(200);
+
+      const { accessToken, refreshToken } = response.body as TokenDto;
+      expect(typeof accessToken).toBe("string");
+      expect(typeof refreshToken).toBe("string");
+      expect(refreshToken).not.toBe(oldRefreshToken);
+    });
+
+    it("rejects an already-rotated refresh token and revokes its family", async () => {
+      const login = await request(api).post("/auth/login").send(user).expect(200);
+      const oldRefreshToken = (login.body as TokenDto).refreshToken;
+
+      const first = await request(api).post("/auth/refresh").send({ refreshToken: oldRefreshToken }).expect(200);
+      const rotatedToken = (first.body as TokenDto).refreshToken;
+
+      // Replaying the original token is treated as theft: 401...
+      await request(api).post("/auth/refresh").send({ refreshToken: oldRefreshToken }).expect(401);
+
+      // ...and the whole family is revoked, so the legitimately rotated token dies too.
+      await request(api).post("/auth/refresh").send({ refreshToken: rotatedToken }).expect(401);
+    });
+
+    it("rejects an unknown refresh token with 401", async () => {
+      await request(api).post("/auth/refresh").send({ refreshToken: "not-a-real-token" }).expect(401);
+    });
+
+    it("rejects a missing refresh token with 400", async () => {
+      await request(api).post("/auth/refresh").send({}).expect(400);
+    });
+  });
+
+  describe("POST /auth/logout", () => {
+    it("revokes the session family and is idempotent", async () => {
+      const login = await request(api).post("/auth/login").send(user).expect(200);
+      const { refreshToken } = login.body as TokenDto;
+
+      await request(api).post("/auth/logout").send({ refreshToken }).expect(200);
+      await request(api).post("/auth/refresh").send({ refreshToken }).expect(401);
+
+      // Logout for an already-revoked (or unknown) token stays a 200.
+      await request(api).post("/auth/logout").send({ refreshToken }).expect(200);
+      await request(api).post("/auth/logout").send({ refreshToken: "unknown-token" }).expect(200);
     });
   });
 
