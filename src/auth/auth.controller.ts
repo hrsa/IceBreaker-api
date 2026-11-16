@@ -7,6 +7,7 @@ import { CreateUserDto } from "../users/dto/create-user.dto";
 import { UsersService } from "../users/users.service";
 import { UserResponseDto } from "../users/dto/user-response.dto";
 import { TokenDto } from "./dto/token.dto";
+import { RefreshTokenDto } from "./dto/refresh-token.dto";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { CurrentUserData } from "./strategies/jwt.strategy";
 
@@ -35,8 +36,28 @@ export class AuthController {
   @ApiBody({ type: LoginDto })
   @ApiResponse({ status: 200, description: "Login successful", type: TokenDto })
   @ApiResponse({ status: 401, description: "Unauthorized" })
-  login(@CurrentUser() user: CurrentUserData): TokenDto {
+  async login(@CurrentUser() user: CurrentUserData): Promise<TokenDto> {
     return this.authService.login(user);
+  }
+
+  @Post("refresh")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Exchange a refresh token for a new token pair" })
+  @ApiBody({ type: RefreshTokenDto })
+  @ApiResponse({ status: 200, description: "New token pair issued", type: TokenDto })
+  @ApiResponse({ status: 401, description: "Invalid, expired or revoked refresh token" })
+  async refresh(@Body() body: RefreshTokenDto): Promise<TokenDto> {
+    return this.authService.refresh(body.refreshToken);
+  }
+
+  @Post("logout")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Revoke the session family of a refresh token" })
+  @ApiBody({ type: RefreshTokenDto })
+  @ApiResponse({ status: 200, description: "Logout successful" })
+  async logout(@Body() body: RefreshTokenDto): Promise<{ message: string }> {
+    await this.authService.logout(body.refreshToken);
+    return { message: "Logged out" };
   }
 
   @Post("password/forgot")

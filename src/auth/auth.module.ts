@@ -9,10 +9,11 @@ import { JwtStrategy } from "./strategies/jwt.strategy";
 import { LocalStrategy } from "./strategies/local.strategy";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { PasswordReset } from "./entities/password-reset.entity";
+import { RefreshToken } from "./entities/refresh-token.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([PasswordReset]),
+    TypeOrmModule.forFeature([PasswordReset, RefreshToken]),
     UsersModule,
     PassportModule,
     JwtModule.registerAsync({

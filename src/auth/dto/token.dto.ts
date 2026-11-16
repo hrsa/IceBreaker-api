@@ -6,4 +6,10 @@ export class TokenDto {
     description: "JWT access token",
   })
   accessToken: string;
+
+  @ApiProperty({
+    example: "dBU0Z4qX1L2hpfJ8c9OQbC7...",
+    description: "Opaque refresh token; rotate by calling /auth/refresh",
+  })
+  refreshToken: string;
 }
