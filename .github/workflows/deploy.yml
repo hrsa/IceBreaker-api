@@ -440,6 +440,6 @@ jobs:
               exit 1
             else
               echo "Application is healthy!"
-              docker compose exec api npm run migration:runprod
+              docker compose exec api npm run migration:runprod || { echo "Database migration failed, deploy aborted"; exit 1; }
               find /var/www -name "docker-compose.yml.backup*" -type f -mtime +7 -delete
             fi
