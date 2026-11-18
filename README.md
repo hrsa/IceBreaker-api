@@ -30,8 +30,7 @@ The application provides conversation starters, icebreaker questions, and intera
 - Redis
 - Telegram Bot Token (from BotFather)
 - Public domain with SSL for webhook (or ngrok for development)
-- OpenAI API key (for AI features)
-- ffmpeg (for voice greeting encoding; included in the docker image, required on the host for local non-docker development)
+- Mistral API key (for AI features)
 
 ## Available Scripts
 
@@ -56,7 +55,7 @@ The project has two test suites:
 npm run test
 ```
 
-No external services are required: all repositories, Redis, OpenAI and Telegram
+No external services are required: all repositories, Redis, Mistral and Telegram
 integrations are mocked. Use `npx jest test/<file>.spec.ts` to run a single suite.
 
 ### E2E tests
@@ -100,8 +99,8 @@ REDIS_PORT=6380
 JWT_SECRET=<any test secret>
 KOFI_VERIFICATION_TOKEN=<any test token>
 ADMIN_TELEGRAM_ID=<any id>
-# Dummies are fine: tests mock OpenAI and Telegram
-OPENAI_API_KEY=dummy
+# Dummies are fine: tests mock Mistral and Telegram
+MISTRAL_API_KEY=dummy
 TELEGRAM_BOT_TOKEN=dummy
 GAME_GENERATION_PROMPT=YWJjZA==
 TRANSLATION_PROMPT=YWJjZA==

@@ -105,10 +105,10 @@ jobs:
           ADMIN_TELEGRAM_ID: "12345678"
 
           # Dummies for integrations that tests mock or do not call;
-          # AIService/OpenAI is overridden in test/ai.e2e-spec.ts
+          # AIService/Mistral is overridden in test/ai.e2e-spec.ts
           BUY_COFFEE_LINK: https://ko-fi.com/test
           TELEGRAM_BOT_TOKEN: ci-dummy-telegram-token
-          OPENAI_API_KEY: ci-dummy-openai-key
+          MISTRAL_API_KEY: ci-dummy-mistral-key
           OPENAI2_API_KEY: ci-dummy-openai-key
           GAME_GENERATION_PROMPT: YWJjZA==
           TRANSLATION_PROMPT: YWJjZA==

@@ -1,9 +1,6 @@
-import { EventEmitter } from "node:events";
-import { execFile } from "node:child_process";
 import * as fs from "node:fs";
 import { ConfigService } from "@nestjs/config";
 import { EventEmitter2 } from "@nestjs/event-emitter";
-import { OpenAIRealtimeWebSocket } from "openai/realtime/websocket";
 import { AIService, GreetingSynthesisError } from "../src/ai/ai.service";
 import { AppLanguage } from "../src/common/constants/app-language.enum";
 
@@ -23,44 +20,20 @@ jest.mock("node:fs", () => {
   };
 });
 
-jest.mock("node:child_process", () => {
-  const actual = jest.requireActual("node:child_process");
-  return { ...actual, execFile: jest.fn() };
-});
-
-jest.mock("openai/realtime/websocket", () => ({
-  OpenAIRealtimeWebSocket: jest.fn(),
-}));
-
 const fsMock = fs as unknown as {
   writeFileSync: jest.Mock;
   readFileSync: jest.Mock;
   rmSync: jest.Mock;
   existsSync: jest.Mock;
 };
-const execFileMock = execFile as unknown as jest.Mock;
-const realtimeConstructorMock = OpenAIRealtimeWebSocket as unknown as jest.Mock;
-
-class FakeRealtimeSocket extends EventEmitter {
-  send = jest.fn();
-  close = jest.fn();
-}
-
-async function flushMicrotasks(times = 10): Promise<void> {
-  for (let i = 0; i < times; i++) {
-    await Promise.resolve();
-  }
-}
 
 describe("AIService", () => {
   let service: AIService;
   let configService: { get: jest.Mock; getOrThrow: jest.Mock };
   let openaiMock: {
-    chat: { completions: { create: jest.Mock; parse: jest.Mock } };
-    audio: { speech: { create: jest.Mock } };
+    chat: { completions: { create: jest.Mock } };
   };
-  let realtimeSocket: FakeRealtimeSocket;
-  let ttsProvider: string | undefined;
+  let fetchMock: jest.Mock;
 
   beforeEach(() => {
     mockFsStore.clear();
@@ -75,19 +48,23 @@ describe("AIService", () => {
     });
     fsMock.existsSync.mockImplementation((filePath: string) => mockFsStore.has(filePath));
 
-    ttsProvider = undefined;
     configService = {
       get: jest.fn((key: string) => {
-        if (key === "OPENAI_API_KEY") return "test-key";
-        if (key === "AI_TTS_PROVIDER") return ttsProvider;
+        if (key === "MISTRAL_API_KEY") return "test-key";
         return undefined;
       }),
       getOrThrow: jest.fn((key: string) => {
         if (key === "GREETING_PROMPT") return Buffer.from("Greet {{NAME}} in {{LANGUAGE}}").toString("base64");
-        if (key === "HELLO_GENERATION_PROMPT") return Buffer.from("Say hello to {{NAME}}").toString("base64");
+        if (key === "TRANSLATION_PROMPT") return Buffer.from("Translate into {{LANGUAGE}}").toString("base64");
         throw new Error(`Unexpected config key: ${key}`);
       }),
     };
+
+    fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ audio_data: FAKE_OGG.toString("base64") }),
+    });
+    (globalThis as any).fetch = fetchMock;
 
     service = new AIService(
       configService as unknown as ConfigService,
@@ -101,197 +78,146 @@ describe("AIService", () => {
       chat: {
         completions: {
           create: jest.fn().mockResolvedValue({ choices: [{ message: { content: GREETING_TEXT } }] }),
-          parse: jest.fn(),
         },
       },
-      audio: { speech: { create: jest.fn() } },
     };
     (service as any).openai = openaiMock;
-
-    realtimeConstructorMock.mockImplementation(() => {
-      realtimeSocket = new FakeRealtimeSocket();
-      return realtimeSocket;
-    });
-
-    execFileMock.mockImplementation(
-      (command: string, args: string[], callback: (error: Error | null, stdout: string, stderr: string) => void) => {
-        mockFsStore.set(args[args.length - 1], FAKE_OGG);
-        callback(null, "", "");
-      }
-    );
   });
 
-  function emitSessionCreated() {
-    realtimeSocket.emit("session.created", { type: "session.created", event_id: "evt_1", session: {} });
-  }
+  afterEach(() => {
+    delete (globalThis as any).fetch;
+  });
 
-  function emitAudioDelta(pcm: string) {
-    realtimeSocket.emit("response.output_audio.delta", {
-      type: "response.output_audio.delta",
-      event_id: "evt_delta",
-      item_id: "item_1",
-      response_id: "resp_1",
-      output_index: 0,
-      content_index: 0,
-      delta: Buffer.from(pcm).toString("base64"),
-    });
-  }
+  describe("sayHello", () => {
+    it("synthesizes the greeting via Mistral speech API and writes an ogg file", async () => {
+      const filePath = await service.sayHello("Anton", AppLanguage.ENGLISH);
 
-  function emitResponseDone(status = "completed") {
-    realtimeSocket.emit("response.done", {
-      type: "response.done",
-      event_id: "evt_done",
-      response: { status },
-    });
-  }
-
-  describe("sayHello (realtime provider)", () => {
-    it("synthesizes the greeting over a realtime session and writes an ogg file", async () => {
-      const promise = service.sayHello("Anton", AppLanguage.ENGLISH);
-
-      await flushMicrotasks();
-      expect(realtimeConstructorMock).toHaveBeenCalledWith({ model: "gpt-realtime-2.1-mini" }, expect.anything());
-
-      emitSessionCreated();
-
-      expect(realtimeSocket.send).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: "session.update",
-          session: expect.objectContaining({
-            instructions: "Say hello to Anton",
-            output_modalities: ["audio"],
-            audio: { output: { voice: "sage", format: { type: "audio/pcm", rate: 24000 } } },
-          }),
-        })
-      );
-      expect(realtimeSocket.send).toHaveBeenCalledWith({
-        type: "conversation.item.create",
-        item: {
-          type: "message",
-          role: "user",
-          content: [{ type: "input_text", text: GREETING_TEXT }],
-        },
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      const [url, init] = fetchMock.mock.calls[0];
+      expect(url).toBe("https://api.mistral.ai/v1/audio/speech");
+      expect(init.method).toBe("POST");
+      expect(init.headers.Authorization).toBe("Bearer test-key");
+      const body = JSON.parse(init.body);
+      expect(body).toEqual({
+        model: "voxtral-mini-tts-3-0",
+        input: `[emotion=happy] ${GREETING_TEXT}`,
+        voice_id: "en_paul_happy",
+        response_format: "opus",
       });
-      expect(realtimeSocket.send).toHaveBeenCalledWith({ type: "response.create" });
 
-      emitAudioDelta("pcm-chunk-1");
-      emitAudioDelta("pcm-chunk-2");
-      emitResponseDone();
-
-      const filePath = await promise;
-
-      expect(realtimeSocket.close).toHaveBeenCalledTimes(1);
       expect(filePath).toMatch(/^\/app\/storage\/Hello-Anton-\d+\.ogg$/);
       expect(fsMock.existsSync(filePath)).toBe(true);
       expect(fsMock.readFileSync(filePath)).toEqual(FAKE_OGG);
-
-      const pcmWrite = fsMock.writeFileSync.mock.calls.find(([p]) => String(p).endsWith(".pcm"));
-      expect(pcmWrite[1]).toEqual(Buffer.concat([Buffer.from("pcm-chunk-1"), Buffer.from("pcm-chunk-2")]));
-      expect(execFileMock).toHaveBeenCalledWith(
-        "ffmpeg",
-        expect.arrayContaining(["-f", "s16le", "-ar", "24000", "-ac", "1", "-c:a", "libopus"]),
-        expect.any(Function)
-      );
-      expect(fsMock.rmSync).toHaveBeenCalledWith(pcmWrite[0], { force: true });
     });
 
-    it("rejects with GreetingSynthesisError and closes the socket when the realtime session errors", async () => {
-      const promise = service.sayHello("Anton", AppLanguage.ENGLISH);
+    it("uses the per-language voice for the greeting language", async () => {
+      await service.sayHello("Anton", AppLanguage.RUSSIAN);
 
-      await flushMicrotasks();
-      realtimeSocket.emit("error", new Error("connection reset"));
+      const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+      expect(body.voice_id).toBe("voice_3132");
+    });
 
-      const error = await promise.catch(e => e);
+    it("honours AI_TTS_VOICE_* and AI_TTS_MODEL overrides", async () => {
+      configService.get.mockImplementation((key: string) => {
+        if (key === "MISTRAL_API_KEY") return "test-key";
+        if (key === "AI_TTS_VOICE_EN") return "voice_478";
+        if (key === "AI_TTS_MODEL") return "voxtral-mini-tts-custom";
+        if (key === "AI_TTS_STYLE_TAG") return "";
+        return undefined;
+      });
+
+      await service.sayHello("Anton", AppLanguage.ENGLISH);
+
+      const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+      expect(body.voice_id).toBe("voice_478");
+      expect(body.model).toBe("voxtral-mini-tts-custom");
+      expect(body.input).toBe(GREETING_TEXT);
+    });
+
+    it("rejects with GreetingSynthesisError when the speech API returns an error status", async () => {
+      fetchMock.mockResolvedValue({
+        ok: false,
+        status: 400,
+        text: () => Promise.resolve('{"message":"bad voice"}'),
+      });
+
+      const error = await service.sayHello("Anton", AppLanguage.ENGLISH).catch(e => e);
       expect(error).toBeInstanceOf(GreetingSynthesisError);
       expect(error.greetingText).toBe(GREETING_TEXT);
-      expect(error.message).toContain("connection reset");
-      expect(realtimeSocket.close).toHaveBeenCalledTimes(1);
+      expect(error.message).toContain("400");
       expect(fsMock.writeFileSync).not.toHaveBeenCalledWith(expect.stringMatching(/^\/app\/storage\//), expect.anything());
     });
 
-    it("rejects after 30 seconds when no response.done arrives", async () => {
-      jest.useFakeTimers();
-      try {
-        const promise = service.sayHello("Anton", AppLanguage.ENGLISH);
-        const assertion = expect(promise).rejects.toThrow(/timed out/);
+    it("rejects with GreetingSynthesisError when fetch throws", async () => {
+      fetchMock.mockRejectedValue(new Error("connection reset"));
 
-        await flushMicrotasks();
-        emitSessionCreated();
-        await jest.advanceTimersByTimeAsync(30_000);
-
-        await assertion;
-        expect(realtimeSocket.close).toHaveBeenCalledTimes(1);
-      } finally {
-        jest.useRealTimers();
-      }
+      const error = await service.sayHello("Anton", AppLanguage.ENGLISH).catch(e => e);
+      expect(error).toBeInstanceOf(GreetingSynthesisError);
+      expect(error.message).toContain("connection reset");
     });
 
-    it("rejects when the realtime response finishes with a failed status", async () => {
-      const promise = service.sayHello("Anton", AppLanguage.ENGLISH);
+    it("rejects when the speech response has no audio_data", async () => {
+      fetchMock.mockResolvedValue({ ok: true, json: () => Promise.resolve({}) });
 
-      await flushMicrotasks();
-      emitSessionCreated();
-      emitResponseDone("failed");
-
-      const error = await promise.catch(e => e);
+      const error = await service.sayHello("Anton", AppLanguage.ENGLISH).catch(e => e);
       expect(error).toBeInstanceOf(GreetingSynthesisError);
-      expect(error.message).toContain("failed");
-      expect(realtimeSocket.close).toHaveBeenCalledTimes(1);
+      expect(error.message).toContain("audio_data");
     });
 
-    it("rejects when ffmpeg fails to encode the pcm audio", async () => {
-      execFileMock.mockImplementation((command: string, args: string[], callback: (error: Error | null) => void) => {
-        callback(new Error("ffmpeg exited with code 1"));
-      });
+    it("strips markdown and emoji from the greeting before synthesis", async () => {
+      openaiMock.chat.completions.create.mockResolvedValue({ choices: [{ message: { content: "**Hello**, *Anton*! 🌟\nHow are you?" } }] });
 
-      const promise = service.sayHello("Anton", AppLanguage.ENGLISH);
-      await flushMicrotasks();
-      emitSessionCreated();
-      emitResponseDone();
+      await service.sayHello("Anton", AppLanguage.ENGLISH);
 
-      const error = await promise.catch(e => e);
-      expect(error).toBeInstanceOf(GreetingSynthesisError);
-      expect(error.message).toContain("ffmpeg");
-      expect(realtimeSocket.close).toHaveBeenCalledTimes(1);
+      const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+      expect(body.input).toBe("[emotion=happy] Hello, Anton! How are you?");
     });
 
     it("uses the hardcoded greeting text when the model returns no greeting", async () => {
       openaiMock.chat.completions.create.mockResolvedValue({ choices: [{ message: { content: null } }] });
 
-      const promise = service.sayHello("Anton", AppLanguage.RUSSIAN);
-      await flushMicrotasks();
-      emitSessionCreated();
-      emitResponseDone();
+      await service.sayHello("Anton", AppLanguage.RUSSIAN);
 
-      await promise;
-      expect(realtimeSocket.send).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: "conversation.item.create",
-          item: expect.objectContaining({
-            content: [{ type: "input_text", text: "Привет, Anton! Как давно мы не играли!" }],
-          }),
-        })
-      );
+      const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+      expect(body.input).toContain("Привет, Anton! Как давно мы не играли!");
     });
   });
 
-  describe("sayHello (legacy speech-api provider)", () => {
-    it("uses the legacy speech API when AI_TTS_PROVIDER=speech-api", async () => {
-      ttsProvider = "speech-api";
-      const legacyAudio = new TextEncoder().encode("legacy-mp3-bytes");
-      openaiMock.audio.speech.create.mockResolvedValue({ arrayBuffer: () => Promise.resolve(legacyAudio.buffer) });
+  describe("translateText", () => {
+    it("calls the translation model without OpenAI-only params", async () => {
+      openaiMock.chat.completions.create.mockResolvedValue({ choices: [{ message: { content: "Bonjour" } }] });
 
-      const filePath = await service.sayHello("Anton", AppLanguage.ENGLISH);
+      const result = await service.translateText("Hello", "French");
 
-      expect(openaiMock.audio.speech.create).toHaveBeenCalledWith({
-        model: "gpt-4o-mini-tts",
-        voice: "sage",
-        input: GREETING_TEXT,
-        instructions: "Say hello to Anton",
+      expect(result).toBe("Bonjour");
+      const call = openaiMock.chat.completions.create.mock.calls[0][0];
+      expect(call.model).toBe("mistral-medium-latest");
+      expect(call).not.toHaveProperty("reasoning_effort");
+      expect(call.messages[0]).toEqual({ role: "system", content: "Translate into French" });
+      expect(call.messages[1]).toEqual({ role: "user", content: "Hello" });
+    });
+
+    it("honours AI_TRANSLATION_MODEL override", async () => {
+      configService.get.mockImplementation((key: string) => {
+        if (key === "MISTRAL_API_KEY") return "test-key";
+        if (key === "AI_TRANSLATION_MODEL") return "mistral-medium-latest";
+        return undefined;
       });
-      expect(realtimeConstructorMock).not.toHaveBeenCalled();
-      expect(execFileMock).not.toHaveBeenCalled();
-      expect(fsMock.readFileSync(filePath)).toEqual(Buffer.from("legacy-mp3-bytes"));
+      openaiMock.chat.completions.create.mockResolvedValue({ choices: [{ message: { content: "Bonjour" } }] });
+
+      await service.translateText("Hello", "French");
+
+      expect(openaiMock.chat.completions.create.mock.calls[0][0].model).toBe("mistral-medium-latest");
+    });
+  });
+
+  describe("getGreeting", () => {
+    it("uses the greeting model and substitutes name and language", async () => {
+      await service.getGreeting("Anton", AppLanguage.FRENCH);
+
+      const call = openaiMock.chat.completions.create.mock.calls[0][0];
+      expect(call.model).toBe("mistral-small-2603");
+      expect(call.messages[0].content).toBe("Greet Anton in French");
     });
   });
 });
